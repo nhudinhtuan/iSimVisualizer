@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>712</width>
+    <height>475</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="mainLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QStackedWidget" name="mapStackedWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="map">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="mapLayout"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="plot">
+         <widget class="QLabel" name="label_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>62</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="simulationLayout">
+        <property name="leftMargin">
+         <number>10</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>10</number>
+        </property>
+        <property name="bottomMargin">
+         <number>10</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="startSim">
+          <property name="text">
+           <string notr="true"/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normalon>:/ui_icons/control.png</normalon>
+           </iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="sliderTick">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelTick">
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelUpperBoundTick">
+          <property name="text">
+           <string>/ -</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelTickUnit">
+          <property name="text">
+           <string>frames</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>712</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionLoadFromDB"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuSimulation">
+    <property name="title">
+     <string>Simulation</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normalon>:/ui_icons/control.png</normalon>
+     </iconset>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuAbout"/>
+   <addaction name="menuSimulation"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::AllToolBarAreas</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpen"/>
+   <addaction name="actionLoadFromDB"/>
+   <addaction name="separator"/>
+   <addaction name="actionToggleHideLeftWidget"/>
+   <addaction name="actionToggleStaticElements"/>
+   <addaction name="actionToggleBusRoute"/>
+   <addaction name="separator"/>
+   <addaction name="actionToggleLog"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="leftWidget">
+   <property name="features">
+    <set>QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string/>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout_4">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QStackedWidget" name="leftStackedWidget">
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="currentIndex">
+        <number>2</number>
+       </property>
+       <widget class="QWidget" name="staticElementsWidget">
+        <widget class="QLabel" name="label">
+         <property name="geometry">
+          <rect>
+           <x>11</x>
+           <y>9</y>
+           <width>121</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Static components</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="busRouteWidget">
+        <widget class="QLabel" name="busRouteLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>171</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Bus Route Label</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="logWidget">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
+         </property>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="logtopLayout">
+           <property name="spacing">
+            <number>-1</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item alignment="Qt::AlignLeft">
+            <widget class="QPushButton" name="saveLogButton">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normalon>:/ui_icons/disk-black.png</normalon>
+              </iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <widget class="QTextEdit" name="logTextEdit">
+           <property name="acceptRichText">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/ui_icons/blue-folder-open-document-text.png</normaloff>:/ui_icons/blue-folder-open-document-text.png</iconset>
+   </property>
+   <property name="text">
+    <string>open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open an existing Simmobility file</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/ui_icons/about.png</normaloff>:/ui_icons/about.png</iconset>
+   </property>
+   <property name="text">
+    <string>about</string>
+   </property>
+   <property name="toolTip">
+    <string>About iSimGUI</string>
+   </property>
+  </action>
+  <action name="actionStartSim">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ui_icons/control.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>startSim</string>
+   </property>
+   <property name="toolTip">
+    <string>start simulation</string>
+   </property>
+  </action>
+  <action name="actionToggleHideLeftWidget">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ui_icons/application-resize-full.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>toggleHideLeftWidgets</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide left widgets</string>
+   </property>
+  </action>
+  <action name="actionToggleStaticElements">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ui_icons/search_map.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>toggleStaticElements</string>
+   </property>
+   <property name="toolTip">
+    <string>search static elements</string>
+   </property>
+  </action>
+  <action name="actionToggleBusRoute">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ui_icons/bus_route.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>toggleBusRoute</string>
+   </property>
+   <property name="toolTip">
+    <string>Search bus route</string>
+   </property>
+  </action>
+  <action name="actionLoadFromDB">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ui_icons/database_search.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>loadFromDB</string>
+   </property>
+   <property name="toolTip">
+    <string>Load data from database</string>
+   </property>
+  </action>
+  <action name="actionToggleLog">
+   <property name="icon">
+    <iconset>
+     <normalon>:/ui_icons/log.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>toggleLog</string>
+   </property>
+   <property name="toolTip">
+    <string>Show log</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
