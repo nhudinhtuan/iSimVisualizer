@@ -1,13 +1,14 @@
 #include "g_node.h"
-#define DEFAULT_RADIUS 1000
+#define DEFAULT_RADIUS 500
 
 G_Node::G_Node(QGraphicsItem *parent, Node *model, PreferenceManager *preferenceManager)
     : QGraphicsObject(parent), preferenceManager_(preferenceManager), model_(model) {
 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     colorForSelected_ = Qt::magenta;
+    colorForSelected_.setAlpha(128);
     brush_.setStyle(Qt::SolidPattern);
-    shape_.addEllipse(QPoint(model_->getXPos(), -model_->getYPos()), DEFAULT_RADIUS, DEFAULT_RADIUS);
+    shape_.addEllipse(model_->getPos().toPoint(), DEFAULT_RADIUS, DEFAULT_RADIUS);
 }
 
 QRectF G_Node::boundingRect() const {
@@ -23,7 +24,7 @@ void G_Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
         brush_.setColor(colorForSelected_);
     } else {
         if (model_->getType() == iSimGUI::UNI_NODE)
-            brush_.setColor(Qt::blue);
+            brush_.setColor(Qt::gray);
         else
             brush_.setColor(Qt::red);
     }

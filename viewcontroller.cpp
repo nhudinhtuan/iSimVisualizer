@@ -14,8 +14,6 @@ void ViewController::reset() {
     }
     tasksMutex.unlock();
 
-    //graphical items are remove by scene, just clear pointer from hash
-    gNodes_.clear();
 }
 
 void ViewController::run() {
@@ -46,8 +44,10 @@ void ViewController::addTask(iSimGUI::ControlTaskType task) {
 
 void ViewController::doTask(iSimGUI::ControlTaskType task) {
     switch (task) {
-        case iSimGUI::LOAD_NODE:
+        case iSimGUI::LOAD_GEOSPATIAL:
             loadNodes();
+            loadSegment();
+            loadBusStops();
     }
 }
 
@@ -62,7 +62,21 @@ void ViewController::loadNodes() {
     }
 }
 
+void ViewController::loadBusStops() {
+    QHash<unsigned long, BusStop*>& busStops = geospatialIndex_->getBusStops();
+    for (QHash<unsigned long, BusStop*>::iterator it = busStops.begin(); it != busStops.end(); it++) {
+        emit requestCreateGBusStop(it.value());
+    }
+}
 
-void ViewController::insertGNode(unsigned long id, G_Node *gNode) {
-    gNodes_[id] = gNode;
+void ViewController::loadSegment() {
+    QHash<unsigned long, RoadSegment*>& roadSegments = geospatialIndex_->getRoadSegments();
+    for (QHash<unsigned long, RoadSegment*>::iterator it = roadSegments.begin(); it != roadSegments.end(); it++) {
+        RoadSegment *segment = it.value();
+        emit requestCreateGSegment(segment);
+        QVector<Lane*>& lanes = segment->getLanes();
+        for (int i = 0; i < lanes.size(); ++i) {
+            emit requestCreateGLane(lanes[i]);
+        }
+    }
 }

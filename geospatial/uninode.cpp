@@ -1,7 +1,7 @@
 #include "uninode.h"
 
-UniNode::UniNode(unsigned long id, double xPos, double yPos, unsigned long aimsunId) :
-    Node(id, xPos, yPos, aimsunId) {
+UniNode::UniNode(unsigned long id, QPointF pos, unsigned long aimsunId) :
+    Node(id, pos, aimsunId) {
 }
 
 iSimGUI::NodeType UniNode::getType() {

@@ -6,6 +6,8 @@
 #include <QProgressBar>
 #include <QGraphicsScene>
 #include <QTime>
+#include <QInputDialog>
+#include <QLineEdit>
 #include <QDebug>
 #include "dialog/openfiledialog.h"
 #include "io/filereader.h"
@@ -35,19 +37,25 @@ private slots:
     void alertFileError(QString error);
     void hideLeftStackedWidget();
     void openLogPage();
-    void openStaticElementsPage();
+    void openGeospatialElementsPage();
     void openBusRoutePage();
+    void findLocation();
     void updateProgressBar(int);
     void loadGeospatial();
     void finishLoadFile();
     void updatePointerTracker(QPoint);
+
     void createGNode(Node *node);
+    void createGBusStop(BusStop *busStop);
+    void createGSegment(RoadSegment *segment);
+    void createGLane(Lane *lane);
 
 private:
     void initData();
     void initUi();
     void connectSignalAction();
     void resetWorkspace();
+    void resetUi();
 
     Ui::MainWindow *ui_;
     FileReader *fileReader_;

@@ -1,43 +1,18 @@
 <RCC>
     <qresource prefix="/">
-        <file>ui_icons/blue-document-attribute-d.png</file>
-        <file>ui_icons/blue-document-attribute-s.png</file>
-        <file>ui_icons/blue-document--plus.png</file>
-        <file>ui_icons/control.png</file>
-        <file>ui_icons/control-double.png</file>
-        <file>ui_icons/control-double-180.png</file>
-        <file>ui_icons/control-pause.png</file>
-        <file>ui_icons/disk-black.png</file>
-        <file>ui_icons/disks-black.png</file>
-        <file>ui_icons/hand.png</file>
-        <file>ui_icons/magnifier--arrow.png</file>
-        <file>ui_icons/magnifier-history.png</file>
-        <file>ui_icons/magnifier-zoom-actual.png</file>
-        <file>ui_icons/magnifier-zoom-fit.png</file>
-        <file>ui_icons/magnifier-zoom-in.png</file>
-        <file>ui_icons/magnifier-zoom-out.png</file>
-        <file>ui_icons/arrow-circle-135-left.png</file>
-        <file>ui_icons/arrow-circle-225.png</file>
-        <file>ui_icons/printer.png</file>
-        <file>ui_icons/blue-document-attribute-t.png</file>
-        <file>ui_icons/blue-document-attribute-x.png</file>
-        <file>ui_icons/blue-folder-open-document-text.png</file>
-        <file>ui_icons/toggle-small.png</file>
-        <file>ui_icons/toggle-small-expand.png</file>
-        <file>ui_icons/control-stop-square.png</file>
-        <file>ui_icons/control-stop.png</file>
-        <file>ui_icons/control-stop-180.png</file>
-        <file>ui_icons/minus.png</file>
-        <file>ui_icons/plus.png</file>
-        <file>ui_icons/tag.png</file>
-        <file>ui_icons/tag-label-purple.png</file>
-        <file>ui_icons/application-resize-full.png</file>
-        <file>ui_icons/zone--pencil.png</file>
-        <file>ui_icons/disk--pencil.png</file>
         <file>ui_icons/about.png</file>
-        <file>ui_icons/search_map.png</file>
+        <file>ui_icons/application-resize-full.png</file>
         <file>ui_icons/bus_route.png</file>
+        <file>ui_icons/control-pause.png</file>
+        <file>ui_icons/control-play.png</file>
         <file>ui_icons/database_search.png</file>
+        <file>ui_icons/disk-black.png</file>
         <file>ui_icons/log.png</file>
+        <file>ui_icons/open.png</file>
+        <file>ui_icons/search_map.png</file>
+        <file>ui_icons/pointTracker.png</file>
+        <file>ui_icons/bus_blue.png</file>
+        <file>ui_icons/bus_selected.png</file>
+        <file>ui_icons/search-icon.png</file>
     </qresource>
 </RCC>

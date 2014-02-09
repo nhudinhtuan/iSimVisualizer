@@ -6,7 +6,7 @@
 class UniNode : public Node
 {
 public:
-    UniNode(unsigned long id, double xPos, double yPos, unsigned long aimsunId);
+    UniNode(unsigned long id, QPointF pos, unsigned long aimsunId);
     ~UniNode(){}
     iSimGUI::NodeType getType();
 };

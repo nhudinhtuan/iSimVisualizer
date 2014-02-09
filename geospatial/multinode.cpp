@@ -1,7 +1,7 @@
 #include "multinode.h"
 
-MultiNode::MultiNode(unsigned long id, double xPos, double yPos, unsigned long aimsunId) :
-    Node(id, xPos, yPos, aimsunId){
+MultiNode::MultiNode(unsigned long id, QPointF pos, unsigned long aimsunId) :
+    Node(id, pos, aimsunId){
 
 }
 

@@ -40,6 +40,7 @@ signals:
 protected:
     void run();
     bool processLine(QString &line);
+    QPointF genCoordinate(double x, double y);
 
     bool createMesoscopic(unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties);
     bool createAgent(const QString& objType, unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties);
@@ -52,8 +53,8 @@ protected:
     bool createUniNode(unsigned long id, QMap<QString, QString> &properties);
     bool createLink(unsigned long id, QMap<QString, QString> &properties);
     bool createRoadSegment(unsigned long id, QMap<QString, QString> &properties);
+    bool createPolyline(unsigned long id, QMap<QString, QString> &properties);
     bool createLane(QMap<QString, QString> &properties);
-    bool createPolyline(QMap<QString, QString> &properties);
     bool createLaneConnector(QMap<QString, QString> &properties);
     bool createGraph(unsigned long id, QMap<QString, QString> &properties);
     bool createVertex(unsigned long id, QMap<QString, QString> &properties);

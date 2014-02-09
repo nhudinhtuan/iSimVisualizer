@@ -6,7 +6,7 @@
 class MultiNode : public Node
 {
 public:
-    MultiNode(unsigned long id, double xPos, double yPos, unsigned long aimsunId);
+    MultiNode(unsigned long id, QPointF pos, unsigned long aimsunId);
     ~MultiNode(){}
     iSimGUI::NodeType getType();
 };

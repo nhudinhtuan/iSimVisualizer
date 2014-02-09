@@ -116,6 +116,10 @@ void FileReader::setTarget(QString path, iSimGUI::DataType type, bool useDB) {
     fileHandle_ = new QFile(path_);
 }
 
+QPointF FileReader::genCoordinate(double x, double y) {
+    return QPointF(x, -y);
+}
+
 void FileReader::run() {
 
     emit announceLog(tr("Start loading the file %1").arg(path_));
@@ -302,23 +306,24 @@ bool FileReader::parseRoadNetworkDataLine(const QString& objType, unsigned long 
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_MULTINODE) return createMultiNode(objID, properties);
     // Enqueue to uninode raw data queue
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_UNINODE) return createUniNode(objID, properties);
-    /*
     // Enqueue to link raw data queue
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_LINK) return createLink(objID, properties);
     // Enqueue to road segments raw data queue
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_ROADSEGMENT ) return createRoadSegment(objID, properties);
     // Enqueue to polylines raw data queue
-    if (objType==iSimParse::PARSE_KEYWORD_TYPE_POLYLINE ) return createPolyline(properties);
+    if (objType==iSimParse::PARSE_KEYWORD_TYPE_POLYLINE ) return createPolyline(objID, properties);
     // Enqueue to lanes raw data queue
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_LANE ) return createLane(properties);
 
+    /*
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_LANECONNECTOR ) return createLaneConnector(properties);
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_GRAPH ) return createGraph(objID, properties);
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_VERTEX ) return createVertex(objID, properties);
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_EDGE ) return createEdge(objID, properties);
-    if (objType==iSimParse::PARSE_KEYWORD_TYPE_BUSSTOP) return createBusstop(objID, properties);
-    if (objType==iSimParse::PARSE_KEYWORD_TYPE_CROSSING) return createCrossing(objID, properties);
     */
+    if (objType==iSimParse::PARSE_KEYWORD_TYPE_BUSSTOP) return createBusstop(objID, properties);
+    //if (objType==iSimParse::PARSE_KEYWORD_TYPE_CROSSING) return createCrossing(objID, properties);
+
     return false;
 }
 
@@ -334,16 +339,16 @@ bool FileReader::createMultiNode(unsigned long id, QMap<QString, QString> &prope
     yPos = (propertiesIter==properties.end()) ? -1 : propertiesIter.value().toDouble();
     // Check if properties are valid
     if (xPos == -1 || yPos == -1) {
-        emit announceLog(tr("MultiNode %1 is missing property xPos or yPos or they do not contain integer values").arg(id));
+        emit announceLog(tr("MultiNode %1 does not have valid property xPos or yPos.").arg(id));
         return false;
     }
     // get aimsunId
     propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_AIMSUNID);
     if (propertiesIter!=properties.end()) {
-        aimsunId = propertiesIter.value().toULong();
+        aimsunId = propertiesIter.value().toULong(0, 10);
     }
     // Create data object
-    MultiNode *multiNode = new MultiNode(id, xPos, yPos, aimsunId);
+    MultiNode *multiNode = new MultiNode(id, genCoordinate(xPos, yPos), aimsunId);
     geospatialIndex_->insert(multiNode);
     return true;
 }
@@ -360,16 +365,217 @@ bool FileReader::createUniNode(unsigned long id, QMap<QString, QString> &propert
     yPos = (propertiesIter==properties.end()) ? -1 : propertiesIter.value().toDouble();
     // Check if properties are valid
     if (xPos == -1 || yPos == -1) {
-        emit announceLog(tr("UniNode %1 is missing property xPos or yPos or they do not contain integer values").arg(id));
+        emit announceLog(tr("UniNode %1 does not have property xPos or yPos.").arg(id));
         return false;
     }
     // get aimsunId
     propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_AIMSUNID);
-    if (propertiesIter!=properties.end()) {
-        aimsunId = propertiesIter.value().toULong();
+    if (propertiesIter != properties.end()) {
+        aimsunId = propertiesIter.value().toULong(0, 10);
     }
     // Create data object
-    UniNode *uniNode = new UniNode(id, xPos, yPos, aimsunId);
+    UniNode *uniNode = new UniNode(id, genCoordinate(xPos, yPos), aimsunId);
     geospatialIndex_->insert(uniNode);
+    return true;
+}
+
+bool FileReader::createLink(unsigned long id, QMap<QString, QString> &properties) {
+    unsigned long startNodeId = 0, endNodeId = 0;
+    QString name;
+
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_ROADNAME);
+    name = (propertiesIter==properties.end()) ? "" : propertiesIter.value();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_STARTNODE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Link %1 does not have a valid start node id").arg(id));
+        return false;
+    }
+    startNodeId = propertiesIter.value().toULong(0, 16);
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_ENDNODE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Link %1 does not have a valid end nodeid").arg(id));
+        return false;
+    }
+    endNodeId = propertiesIter.value().toULong(0, 16);
+
+    Link *link = new Link(id, name, startNodeId, endNodeId);
+
+    // Get fwd-path (list of segment IDs)
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_FWDPATH);
+    if (propertiesIter!=properties.end()) {
+        QString fwdPath = propertiesIter.value();
+        fwdPath.replace(QRegExp("[\\[ \\]]"), "");
+        QStringList segmentID_List = fwdPath.split(",");
+        for (int i=0; i<segmentID_List.size(); i++) {
+            if (!segmentID_List[i].isEmpty()) {
+                link->addFwdSegmentId(segmentID_List[i].toULong(0, 16));
+            }
+        }
+    }
+
+    geospatialIndex_->insert(link);
+    return true;
+}
+
+bool FileReader::createRoadSegment(unsigned long id, QMap<QString, QString> &properties) {
+    unsigned long parentLinkId = 0, fromNodeId = 0, toNodeId = 0, aimsunId = 0;
+    int maxSpeed = -1, width = -1, nLane = -1;
+
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_PARENTLINK);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Road segment %1 does not have a valid parent link ID").arg(id));
+        return false;
+    }
+    parentLinkId = propertiesIter.value().toULong(0, 16);
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_MAXSPEED);
+    if (propertiesIter != properties.end()) {
+        maxSpeed = propertiesIter.value().toInt();
+    }
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_WIDTH);
+    if (propertiesIter != properties.end()) {
+        width = propertiesIter.value().toInt();
+    }
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LANES);
+    if (propertiesIter != properties.end()) {
+        nLane = propertiesIter.value().toInt();
+    }
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_FROMNODE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Road segment %1 does not have a valid from node id").arg(id));
+        return false;
+    }
+    fromNodeId = propertiesIter.value().toULong(0, 16);
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_TONODE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Road segment %1 does not have a valid to node id").arg(id));
+        return false;
+    }
+    toNodeId = propertiesIter.value().toULong(0, 16);
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_AIMSUNID);
+    if (propertiesIter != properties.end()) {
+        aimsunId = propertiesIter.value().toULong(0, 10);
+    }
+
+    RoadSegment *roadSegment = new RoadSegment(id, aimsunId, fromNodeId, toNodeId, maxSpeed, width, nLane);
+    geospatialIndex_->insert(roadSegment);
+    return true;
+}
+
+bool FileReader::createPolyline(unsigned long id, QMap<QString, QString> &properties)  {
+
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_PARENTSEGMENT);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Segment Polyline %1 does not have a valid parent segment id.").arg(id));
+        return false;
+    }
+    unsigned long parentSegmentID = propertiesIter.value().toULong(0, 16);
+
+    RoadSegment *segment = geospatialIndex_->getRoadSegemnt(parentSegmentID);
+    if (segment == 0) {
+        emit announceLog(tr("Segment Polyline %1 - unable to find segment parent %2.").arg(id).arg(parentSegmentID));
+        return false;
+    }
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_POINTS);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Polyline %1 doesn not have a valid set of points.").arg(id));
+        return false;
+    }
+    QString setPointsStr = propertiesIter.value();
+    setPointsStr.remove(QRegExp("[\\[ \\]]"));
+    QRegExp roundBrackets("\\(\\d+\\,\\d+\\)");
+    QRegExp roundBracketsSeries("(\\d+)(\\,)(\\d+)");
+
+    int matchID = 0;
+    while (true) {
+        matchID = roundBrackets.indexIn(setPointsStr, matchID);
+        if (matchID<0) {
+            break;
+        }
+
+        QString pointStr = roundBrackets.cap(0);
+        if (roundBracketsSeries.indexIn(pointStr)) {
+            segment->addPointToPolyline(genCoordinate(roundBracketsSeries.cap(1).toDouble(), roundBracketsSeries.cap(3).toDouble()));
+        }
+        matchID += roundBrackets.cap(0).length();
+    }
+
+    return true;
+}
+
+bool FileReader::createLane(QMap<QString, QString> &properties) {
+
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_PARENTSEGMENT);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Lane does not have a valid segment parent id"));
+        return false;
+    }
+    unsigned long parentSegmentID = propertiesIter.value().toULong(0, 16);
+    RoadSegment *segment = geospatialIndex_->getRoadSegemnt(parentSegmentID);
+    if (segment == 0) {
+        emit announceLog(tr("Unable to find segment %1").arg(parentSegmentID));
+        return false;
+    }
+
+    unsigned int index = 0;
+    QRegExp squareBrackets("[\\[ \\]]");
+    QRegExp roundBrackets("\\(\\d+\\,\\d+\\)");
+    QRegExp roundBracketsSeries("(\\d+)(\\,)(\\d+)");
+    while (true) {
+        //check side walk
+        bool isSideWalk = false;
+        QMap<QString, QString>::const_iterator hasSideWalkKeyword = properties.find(QString(iSimParse::PARSE_KEYWORD_PROP_LINEISSIDEWALK_ARG.arg(index)));
+        if (hasSideWalkKeyword != properties.end()) {
+            isSideWalk = true;
+        }
+        Lane *lane = new Lane(parentSegmentID, index, isSideWalk);
+
+        propertiesIter = properties.find(QString(iSimParse::PARSE_KEYWORD_PROP_LANE_ARG).arg(index));
+        if (propertiesIter == properties.end()) {
+            break;
+        }
+        // add points
+        QString setPointsStr = propertiesIter.value();
+        setPointsStr.remove(squareBrackets);
+        int matchID = 0;
+        while (true) {
+            matchID = roundBrackets.indexIn(setPointsStr, matchID);
+            if (matchID<0) {
+                break;
+            }
+
+            QString pointStr = roundBrackets.cap(0);
+            if (roundBracketsSeries.indexIn(pointStr)) {
+                lane->addPointToPolyline(genCoordinate(roundBracketsSeries.cap(1).toDouble(),
+                                                       roundBracketsSeries.cap(3).toDouble()));
+            }
+            matchID += roundBrackets.cap(0).length();
+        }
+        segment->addLane(lane);
+        index++;
+    }
+
+    return true;
+}
+
+bool FileReader::createBusstop(unsigned long id, QMap<QString, QString> &properties) {
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find("near-1");
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Bus stop %1 does not have near-1 pos").arg(id));
+        return false;
+    }
+    QString near_1 = propertiesIter.value();
+    QStringList near1Split = near_1.split(",");
+
+    BusStop *busStop = new BusStop(id, genCoordinate(near1Split.at(0).toDouble(), near1Split.at(1).toDouble()));
+    geospatialIndex_->insert(busStop);
     return true;
 }

@@ -33,7 +33,14 @@ SOURCES += main.cpp\
     graphicsview/mapgraphicsview.cpp \
     geospatial/node.cpp \
     geospatial/uninode.cpp \
-    geospatial/g_node.cpp
+    geospatial/g_node.cpp \
+    geospatial/link.cpp \
+    geospatial/roadsegment.cpp \
+    geospatial/lane.cpp \
+    geospatial/busstop.cpp \
+    geospatial/g_busstop.cpp \
+    geospatial/g_lane.cpp \
+    geospatial/g_segment.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -56,7 +63,14 @@ HEADERS  += mainwindow.h \
     graphicsview/mapgraphicsview.h \
     geospatial/node.h \
     geospatial/uninode.h \
-    geospatial/g_node.h
+    geospatial/g_node.h \
+    geospatial/link.h \
+    geospatial/roadsegment.h \
+    geospatial/lane.h \
+    geospatial/busstop.h \
+    geospatial/g_busstop.h \
+    geospatial/g_lane.h \
+    geospatial/g_segment.h
 
 FORMS    += mainwindow.ui
 
