@@ -278,5 +278,7 @@ void PreferenceManager::updateExtraInfoAttributes(iSimGUI::PreferenceType type, 
                 settings_->setValue(iSimGUI::LANE_EXTRA_INFO_SETTING, value);
                 emit updateMapViewAttr();
                 break;
+        default:
+                break;
     }
 }

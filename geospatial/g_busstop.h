@@ -1,6 +1,7 @@
 #ifndef G_BUSSTOP_H
 #define G_BUSSTOP_H
 
+#include <QVariant>
 #include <QGraphicsObject>
 #include <QImage>
 #include <QRect>
@@ -30,5 +31,5 @@ protected:
     QImage imageSelected_;
     QRect rect_;
 };
-
+Q_DECLARE_METATYPE(G_BusStop*)
 #endif // G_BUSSTOP_H

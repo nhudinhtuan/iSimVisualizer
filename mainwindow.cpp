@@ -65,7 +65,11 @@ void MainWindow::initUi() {
     ui_->mapLayout->addWidget(mapView_);
 
     // init tree items
+#if QT_VERSION >= 0x050000
     ui_->geospatialTree->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
+    ui_->geospatialTree->header()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
     ui_->geospatialTree->setAllColumnsShowFocus(true);
     uninodeTreeItems_ = 0;
     multinodeTreeItems_ = 0;
