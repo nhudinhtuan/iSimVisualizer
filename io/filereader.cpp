@@ -103,10 +103,8 @@ void FileReader::stopReader() {
     needStop_ = true;
 }
 
-void FileReader::setTarget(QString path, iSimGUI::DataType type, bool useDB) {
+void FileReader::setTarget(QString path) {
     path_ = path;
-    type_ = type;
-    useDB_ = useDB;
     isSpatialDataFinished_ = false;
     isTemporalDataDetected_ = false;
     if (fileHandle_) {
@@ -185,11 +183,11 @@ bool FileReader::processLine(QString &line) {
         QString objType = iSimParse::REGEXP_LINE.cap(1);
 
         //check what type of data it is
-        bool isSegmentState = (type_ == iSimGUI::DATA_MEDIUM_TERM && objType == iSimParse::PARSE_KEYWORD_STATE_SEGMENT);
-        bool isAgent = (type_ == iSimGUI::DATA_SHORT_TERM && (objType == iSimParse::PARSE_KEYWORD_STATE_DRIVER ||
-                                                     objType == iSimParse::PARSE_KEYWORD_STATE_BUSDRIVER ||
-                                                     objType == iSimParse::PARSE_KEYWORD_STATE_PEDESTRIAN ||
-                                                     objType == iSimParse::PARSE_KEYWORD_STATE_PASSENGER));
+        bool isSegmentState = (objType == iSimParse::PARSE_KEYWORD_STATE_SEGMENT);
+        bool isAgent = (objType == iSimParse::PARSE_KEYWORD_STATE_DRIVER ||
+                        objType == iSimParse::PARSE_KEYWORD_STATE_BUSDRIVER ||
+                        objType == iSimParse::PARSE_KEYWORD_STATE_PEDESTRIAN ||
+                        objType == iSimParse::PARSE_KEYWORD_STATE_PASSENGER);
         bool isTemporalData = (isSegmentState || isAgent);
 
         unsigned int frameID = iSimParse::REGEXP_LINE.cap(2).toUInt();
@@ -244,9 +242,9 @@ bool FileReader::processLine(QString &line) {
 bool FileReader::createMesoscopic(unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties) {
     // ("segmentState",0,0x37dc2d0,{"speed":"1388.8889","flow":"0","density":"0"})
 
-    Mesoscopic mesoscopic;
-    mesoscopic.setSegmentID(objID);
-    mesoscopic.setTick(frameID);
+    Mesoscopic* mesoscopic = new Mesoscopic();
+    mesoscopic->setSegmentID(objID);
+    mesoscopic->setTick(frameID);
 
     // Get speed
     QMap<QString, QString>::iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_SPEED);
@@ -254,7 +252,7 @@ bool FileReader::createMesoscopic(unsigned long objID, unsigned int frameID, QMa
         emit announceLog(tr("Mesoscopic %1 does not have speed value").arg(objID));
         return false;
     }
-    mesoscopic.setSpeed(QString(propertiesIter.value()).toDouble());
+    mesoscopic->setSpeed(QString(propertiesIter.value()).toDouble());
 
     // Get flow
     propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_FLOW);
@@ -262,7 +260,7 @@ bool FileReader::createMesoscopic(unsigned long objID, unsigned int frameID, QMa
         emit announceLog(tr("Mesoscopic %1 does not have flow value").arg(objID));
         return false;
     }
-    mesoscopic.setFlow(QString(propertiesIter.value()).toDouble());
+    mesoscopic->setFlow(QString(propertiesIter.value()).toDouble());
 
     // Get density
     propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_DENSITY);
@@ -270,7 +268,7 @@ bool FileReader::createMesoscopic(unsigned long objID, unsigned int frameID, QMa
         emit announceLog(tr("Mesoscopic %1 data does not have density value").arg(objID));
         return false;
     }
-    mesoscopic.setDensity(QString(propertiesIter.value()).toDouble());
+    mesoscopic->setDensity(QString(propertiesIter.value()).toDouble());
 
     temporalIndex_->insertMesoscopicData(mesoscopic);
     return true;
@@ -288,14 +286,156 @@ bool FileReader::createAgent(const QString& objType, unsigned long objID, unsign
 bool FileReader::createDriver(unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties) {
     //("Driver",11,47,{"xPos":"37271822","yPos":"14399409","angle":"128.89281","length":"400","width":"200","info":"MLC","mandatory":"0"})
 
-   return true;
+    double xPos = 0, yPos = 0;
+    double angle, length, width;
+    int mandatory = -1;
+    QString info = "";
+
+    QMap<QString, QString>::iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONX);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Driver %1 does not have xPos value").arg(objID));
+        return false;
+    }
+    xPos = QString(propertiesIter.value()).toDouble();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONY);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Driver %1 does not have yPos value").arg(objID));
+        return false;
+    }
+    yPos = QString(propertiesIter.value()).toDouble();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_ANGLE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Driver %1 does not have angle value").arg(objID));
+        return false;
+    }
+    angle = QString(propertiesIter.value()).toDouble();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LENGTH);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Driver %1 does not have length value").arg(objID));
+        return false;
+    }
+    length = QString(propertiesIter.value()).toDouble();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_WIDTH);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Driver %1 does not have width value").arg(objID));
+        return false;
+    }
+    width = QString(propertiesIter.value()).toDouble();
+
+    // Get info (optional)
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_INFO);
+    if (propertiesIter!=properties.end()) {
+        info = QString(propertiesIter.value());
+    }
+
+    // Get mandatory (optional)
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_MANDATORY);
+    if (propertiesIter!=properties.end()) {
+        mandatory = QString(propertiesIter.value()).toInt();
+    }
+
+    Agent* agent = new Driver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, 0, mandatory, info);
+    temporalIndex_->insertAgentData(agent);
+
+    return true;
 }
 
 bool FileReader::createBusDriver(unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties) {
+    //("BusDriver",2449,2496,{"xPos":"37267169","yPos":"14352701","angle":"127.34147","length":"3600","width":"400","passengers":"0","real_ArrivalTime":"243400","DwellTime_ijk":"0","buslineID":"30_2"})
+
+    double xPos, yPos, angle, length, width;
+    long realArrivalTime;
+    int passengers = 0, dwellTime;
+    QString busLineID = "";
+
+    // Get road segment
+    QMap<QString, QString>::iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONX);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("BusDriver %1 does not have xPos value").arg(objID));
+        return false;
+    }
+    xPos = QString(propertiesIter.value()).toDouble();
+
+    // Get lane
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONY);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("BusDriver %1 does not have yPos value").arg(objID));
+        return false;
+    }
+    yPos = QString(propertiesIter.value()).toDouble();
+
+    // Get angle
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_ANGLE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("BusDriver %1 does not have angle value").arg(objID));
+        return false;
+    }
+    angle = QString(propertiesIter.value()).toDouble();
+
+    // Get length
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LENGTH);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("BusDriver %1 does not have length value").arg(objID));
+        return false;
+    }
+    length = QString(propertiesIter.value()).toDouble();
+
+    // Get width
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_WIDTH);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("BusDriver %1 does not have width value").arg(objID));
+        return false;
+    }
+    width = QString(propertiesIter.value()).toDouble();
+
+    // Get other bus related properties
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_PASSENGERS);
+    passengers = QString(propertiesIter.value()).toInt();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_ARRIVALTIME);
+    realArrivalTime = QString(propertiesIter.value()).toLong();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_DWELLTIME);
+    dwellTime = QString(propertiesIter.value()).toInt();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_BUSLINEID);
+    busLineID = QString(propertiesIter.value());
+
+    // Create microscopic object
+    Agent* agent = new BusDriver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, passengers, realArrivalTime, dwellTime, busLineID);
+
+    temporalIndex_->insertAgentData(agent);
     return true;
 }
 
 bool FileReader::createPedestrian(unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties) {
+    //("pedestrian",2449,3792,{"xPos":"37285386","yPos":"14393768",})
+    double xPos = 0, yPos = 0;
+
+    // Get road segment
+    QMap<QString, QString>::iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONX);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Pedestrian %1 does not have xPos value").arg(objID));
+        return false;
+    }
+    xPos = QString(propertiesIter.value()).toDouble();
+
+    // Get lane
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONY);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Pedestrian %1 does not have yPos value").arg(objID));
+        return false;
+    }
+    yPos = QString(propertiesIter.value()).toDouble();
+
+    // Create microscopic object
+    Agent* agent = new Pedestrian(objID, frameID, genCoordinate(xPos, yPos));
+
+    temporalIndex_->insertAgentData(agent);
     return true;
 }
 
@@ -322,7 +462,7 @@ bool FileReader::parseRoadNetworkDataLine(const QString& objType, unsigned long 
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_EDGE ) return createEdge(objID, properties);
     */
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_BUSSTOP) return createBusstop(objID, properties);
-    //if (objType==iSimParse::PARSE_KEYWORD_TYPE_CROSSING) return createCrossing(objID, properties);
+    if (objType==iSimParse::PARSE_KEYWORD_TYPE_CROSSING) return createCrossing(objID, properties);
 
     return false;
 }
@@ -464,7 +604,7 @@ bool FileReader::createRoadSegment(unsigned long id, QMap<QString, QString> &pro
         aimsunId = propertiesIter.value().toULong(0, 10);
     }
 
-    RoadSegment *roadSegment = new RoadSegment(id, aimsunId, fromNodeId, toNodeId, maxSpeed, width, nLane);
+    RoadSegment *roadSegment = new RoadSegment(parentLinkId, id, aimsunId, fromNodeId, toNodeId, maxSpeed, width, nLane);
     geospatialIndex_->insert(roadSegment);
     return true;
 }
@@ -577,5 +717,57 @@ bool FileReader::createBusstop(unsigned long id, QMap<QString, QString> &propert
 
     BusStop *busStop = new BusStop(id, genCoordinate(near1Split.at(0).toDouble(), near1Split.at(1).toDouble()));
     geospatialIndex_->insert(busStop);
+    return true;
+}
+
+bool FileReader::createCrossing(unsigned long id, QMap<QString, QString> &properties) {
+    // ("crossing", 0, 0x45097f0, {"near-1":"37263607,14387486","near-2":"37262529,14388590","far-1":"37263790,14387681","far-2":"37262743,14388779",})
+
+    //get near-1
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find("near-1");
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("crossing %1 does not have near-1 pos").arg(id));
+        return false;
+    }
+    QString near_1 = propertiesIter.value();
+    QStringList near1Split = near_1.split(",");
+    QPointF p1 = genCoordinate(near1Split.at(0).toDouble(), near1Split.at(1).toDouble());
+
+    //get near-2
+    propertiesIter = properties.find("near-2");
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("crossing %1 does not have near-2 pos").arg(id));
+        return false;
+    }
+    QString near_2 = propertiesIter.value();
+    QStringList near2Split = near_2.split(",");
+    QPointF p2 = genCoordinate(near2Split.at(0).toDouble(), near2Split.at(1).toDouble());
+
+    //get far-1
+    propertiesIter = properties.find("far-1");
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("crossing %1 does not have far-1 pos").arg(id));
+        return false;
+    }
+    QString far_1= propertiesIter.value();
+    QStringList far1Split = far_1.split(",");
+    QPointF p4 = genCoordinate(far1Split.at(0).toDouble(), far1Split.at(1).toDouble());
+
+    //get far-2
+    propertiesIter = properties.find("far-2");
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("crossing %1 does not have far-2 pos").arg(id));
+        return false;
+    }
+    QString far_2 = propertiesIter.value();
+    QStringList far2Split = far_2.split(",");
+    QPointF p3 = genCoordinate(far2Split.at(0).toDouble(), far2Split.at(1).toDouble());
+
+    Crossing *crossing = new Crossing(id);
+    crossing->addPointToPolyline(p1);
+    crossing->addPointToPolyline(p2);
+    crossing->addPointToPolyline(p3);
+    crossing->addPointToPolyline(p4);
+    geospatialIndex_->insert(crossing);
     return true;
 }

@@ -1,31 +1,31 @@
 #ifndef AGENT_H
 #define AGENT_H
 
-#include "commondef.h"
+#include <QString>
+#include <QPointF>
+
+namespace iSimGUI {
+    enum AgentType {AGENT_DRIVER = 0, AGENT_BUS = 1, AGENT_PEDESTRIAN = 2};
+}
 
 class Agent {
 public:
-    Agent(unsigned long id, unsigned int tick, long xPos, long yPos, double angle, bool useDB = true);
+    Agent(unsigned long id, unsigned int tick, QPointF pos, double angle, bool useDB = true);
     Agent();
     virtual ~Agent(){}
 
     unsigned long getID() const { return id_; }
     unsigned int getTick() const { return tick_; }
-    long getXPos() const { return xPos_; }
-    long getYPos() const { return yPos_; }
+    QPointF& getPos() {return pos_;}
     long getUseDB() const { return useDB_; }
     double getAngle() const { return angle_; }
     virtual iSimGUI::AgentType getType() const = 0;
     void setUseDB(bool useDB) { useDB_ = useDB; }
 
-    virtual void copy(Agent const* other);
-    void updateData(unsigned int tick, long xPos, long yPos, double angle);
-
 protected:
     unsigned long id_;
     unsigned int tick_;
-    long xPos_;
-    long yPos_;
+    QPointF pos_;
     double angle_;
     bool useDB_;
 };

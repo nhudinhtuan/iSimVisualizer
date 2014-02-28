@@ -40,7 +40,24 @@ SOURCES += main.cpp\
     geospatial/busstop.cpp \
     geospatial/g_busstop.cpp \
     geospatial/g_lane.cpp \
-    geospatial/g_segment.cpp
+    geospatial/g_segment.cpp \
+    geospatial/g_uninode.cpp \
+    geospatial/g_multinode.cpp \
+    temporal/mesoscopicdata.cpp \
+    temporal/microscopicdata.cpp \
+    temporal/mesoscopicdatamem.cpp \
+    temporal/mesoscopicdatadb.cpp \
+    temporal/microscopicdatamem.cpp \
+    temporal/microscopicdatadb.cpp \
+    rstart_tree/agenttree.cpp \
+    temporal/g_agent.cpp \
+    temporal/g_driver.cpp \
+    temporal/g_agentfactory.cpp \
+    temporal/agentlist.cpp \
+    temporal/g_pedestrian.cpp \
+    temporal/g_busdriver.cpp \
+    geospatial/crossing.cpp \
+    geospatial/g_crossing.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -70,9 +87,30 @@ HEADERS  += mainwindow.h \
     geospatial/busstop.h \
     geospatial/g_busstop.h \
     geospatial/g_lane.h \
-    geospatial/g_segment.h
+    geospatial/g_segment.h \
+    geospatial/g_uninode.h \
+    geospatial/g_multinode.h \
+    temporal/mesoscopicdata.h \
+    temporal/microscopicdata.h \
+    temporal/mesoscopicdatamem.h \
+    temporal/mesoscopicdatadb.h \
+    temporal/microscopicdatamem.h \
+    temporal/microscopicdatadb.h \
+    rstart_tree/RStarBoundingBox.h \
+    rstart_tree/RStarTree.h \
+    rstart_tree/RStarVisitor.h \
+    rstart_tree/agenttree.h \
+    temporal/g_agent.h \
+    temporal/g_driver.h \
+    temporal/g_agentfactory.h \
+    temporal/agentlist.h \
+    temporal/g_pedestrian.h \
+    temporal/g_busdriver.h \
+    geospatial/crossing.h \
+    geospatial/g_crossing.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialog/preferencedialog.ui
 
 RESOURCES += \
     icons.qrc

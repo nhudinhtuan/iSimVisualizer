@@ -1,4 +1,5 @@
 #include "mapgraphicsview.h"
+#include <QDebug>
 
 MapGraphicsView::MapGraphicsView(QGraphicsScene *scene, QWidget *parent, PreferenceManager *preferenceManager):
     QGraphicsView(scene, parent), preferenceManager_(preferenceManager)
@@ -6,7 +7,7 @@ MapGraphicsView::MapGraphicsView(QGraphicsScene *scene, QWidget *parent, Prefere
     setCacheMode(CacheBackground);
 
     setAutoFillBackground(false);
-    setBackgroundBrush(QBrush(Qt::white, Qt::SolidPattern));
+    setBackgroundBrush(QBrush(preferenceManager_->getBgColor(), Qt::SolidPattern));
     setMouseTracking(true);
     setRenderHint(QPainter::Antialiasing, false);
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -18,12 +19,16 @@ MapGraphicsView::MapGraphicsView(QGraphicsScene *scene, QWidget *parent, Prefere
     zoomFactor_ = 1.0;
 }
 
-QRectF MapGraphicsView::getGraphViewRect() {
-    return QRectF(mapToScene(0,0), mapToScene(width(), height()));
+void MapGraphicsView::updateBackgroundColor() {
+    setBackgroundBrush(QBrush(preferenceManager_->getBgColor(), Qt::SolidPattern));
 }
 
 MapGraphicsView::~MapGraphicsView() {
 
+}
+
+QRectF MapGraphicsView::getGraphViewRect() {
+    return QRectF(mapToScene(0,0), mapToScene(width(), height()));
 }
 
 void MapGraphicsView::setZoomFactor(double factor) {

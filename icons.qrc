@@ -14,5 +14,11 @@
         <file>ui_icons/bus_blue.png</file>
         <file>ui_icons/bus_selected.png</file>
         <file>ui_icons/search-icon.png</file>
+        <file>agent_icons/car-green.png</file>
+        <file>agent_icons/car-yellow.png</file>
+        <file>agent_icons/pedes-white.png</file>
+        <file>agent_icons/sport-car.png</file>
+        <file>agent_icons/car-red.png</file>
+        <file>agent_icons/bus-yellow.png</file>
     </qresource>
 </RCC>

@@ -8,6 +8,7 @@
 #include "roadsegment.h"
 #include "lane.h"
 #include "busstop.h"
+#include "crossing.h"
 
 class GeospatialIndex
 {
@@ -19,17 +20,22 @@ public:
     QHash<unsigned long, UniNode*>& getUniNodes() {return uniNodes_;}
     QHash<unsigned long, MultiNode*>& getMultiNodes() {return multiNodes_;}
     QHash<unsigned long, BusStop*>& getBusStops() {return busStops_;}
+    QHash<unsigned long, Link*>& getLinks() {return links_;}
     QHash<unsigned long, RoadSegment*>& getRoadSegments() {return roadSegments_;}
+    QHash<unsigned long, Crossing*>& getCrossings() {return crossings_;}
     MultiNode* getMultiNode(unsigned long);
     UniNode* getUniNode(unsigned long);
+    Link* getLink(unsigned long);
     RoadSegment* getRoadSegemnt(unsigned long);
     BusStop* getBusStop(unsigned long);
+    Crossing* getCrossing(unsigned long);
 
     void insert(UniNode *uniNode);
     void insert(MultiNode *multiNode);
     void insert(Link *link);
     void insert(RoadSegment *roadSegment);
     void insert(BusStop *busStop);
+    void insert(Crossing *crossing);
 
 private:
     QHash<unsigned long, UniNode*> uniNodes_;
@@ -37,6 +43,7 @@ private:
     QHash<unsigned long, Link*> links_;
     QHash<unsigned long, RoadSegment*> roadSegments_;
     QHash<unsigned long, BusStop*> busStops_;
+    QHash<unsigned long, Crossing*> crossings_;
 };
 
 #endif // GEOSPATIALINDEX_H

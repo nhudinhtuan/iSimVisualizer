@@ -6,6 +6,7 @@
 #include <QRect>
 #include <QPainter>
 #include <QDebug>
+#include "graphicsview/mapgraphicsview.h"
 #include "preferencemanager.h"
 #include "busstop.h"
 
@@ -14,11 +15,14 @@ class G_BusStop: public QGraphicsObject
     Q_OBJECT
 
 public:
-    explicit G_BusStop(QGraphicsItem *parent, BusStop *model, PreferenceManager *preferenceManager);
+    explicit G_BusStop(QGraphicsItem *parent, BusStop *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    unsigned long getModelId() { return model_->getId(); }
+    BusStop* getModel() { return model_;}
 
 protected:
+    MapGraphicsView *mapView_;
     PreferenceManager *preferenceManager_;
     BusStop *model_;
 

@@ -97,6 +97,18 @@
          <number>10</number>
         </property>
         <item>
+         <widget class="QPushButton" name="pauseSim">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normalon>:/ui_icons/control-pause.png</normalon>
+           </iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="startSim">
           <property name="text">
            <string notr="true"/>
@@ -110,22 +122,25 @@
         </item>
         <item>
          <widget class="QSlider" name="sliderTick">
+          <property name="maximum">
+           <number>0</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="labelTick">
-          <property name="text">
-           <string>-</string>
+         <widget class="QSpinBox" name="spinTick">
+          <property name="maximum">
+           <number>0</number>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="labelUpperBoundTick">
           <property name="text">
-           <string>/ -</string>
+           <string>/ 0</string>
           </property>
          </widget>
         </item>
@@ -174,9 +189,16 @@
      </iconset>
     </property>
    </widget>
+   <widget class="QMenu" name="menuPreferences">
+    <property name="title">
+     <string>Preferences</string>
+    </property>
+    <addaction name="actionPreferences"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
    <addaction name="menuSimulation"/>
+   <addaction name="menuPreferences"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="movable">
@@ -242,18 +264,59 @@
        </property>
        <widget class="QWidget" name="geospatialWidget">
         <layout class="QGridLayout" name="gridLayout_5">
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
+         <item row="1" column="0">
+          <widget class="QSplitter" name="geoSplitter">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="handleWidth">
+            <number>7</number>
+           </property>
+           <property name="childrenCollapsible">
+            <bool>true</bool>
+           </property>
+           <widget class="QTreeWidget" name="geospatialTree">
+            <column>
+             <property name="text">
+              <string/>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string/>
+             </property>
+            </column>
+           </widget>
+           <widget class="QTableWidget" name="propertiesTable">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(242, 242, 242);
+border: none;</string>
+            </property>
+            <column>
+             <property name="text">
+              <string>Property Name</string>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Property Value</string>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+            </column>
+           </widget>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QLineEdit" name="geospatialSearchField">
            <property name="styleSheet">
@@ -261,15 +324,6 @@
 background-position: right;
 background-repeat: no-repeat;</string>
            </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QTreeWidget" name="geospatialTree">
-           <column>
-            <property name="text">
-             <string notr="true">1</string>
-            </property>
-           </column>
           </widget>
          </item>
         </layout>
@@ -465,6 +519,11 @@ border: none;</string>
    </property>
    <property name="text">
     <string>togglePointTracker</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

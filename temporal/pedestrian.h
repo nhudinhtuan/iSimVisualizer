@@ -6,14 +6,12 @@
 class Pedestrian: public Agent
 {
 public:
-    Pedestrian(unsigned long id, unsigned int tick, long xPos, long yPos):
-        Agent(id, tick, xPos, yPos, 0){}
-    Pedestrian(Agent const* other) { copy(other); }
+    Pedestrian(unsigned long id, unsigned int tick, QPointF pos):
+        Agent(id, tick, pos, 0){}
     Pedestrian(){}
     virtual ~Pedestrian() {}
 
     iSimGUI::AgentType getType() const { return iSimGUI::AGENT_PEDESTRIAN; }
-    void copy(Agent const* other) { Agent::copy(other);}
 };
 
 

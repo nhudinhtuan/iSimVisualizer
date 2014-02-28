@@ -17,6 +17,7 @@
 #include "temporal/agent.h"
 #include "temporal/driver.h"
 #include "temporal/busdriver.h"
+#include "temporal/pedestrian.h"
 #include "util/json.h"
 #include "commondef.h"
 
@@ -26,7 +27,7 @@ class FileReader : public QThread {
 public:
     FileReader(GeospatialIndex* geospatialIndex, TemporalIndex* temporalIndex);
     ~FileReader();
-    void setTarget(QString path, iSimGUI::DataType type, bool useDB);
+    void setTarget(QString path);
     void stopReader();
 
 signals:
@@ -68,8 +69,6 @@ private:
     QFile *fileHandle_;
 
     QString path_;
-    iSimGUI::DataType type_;
-    bool useDB_;
     bool isSpatialDataFinished_;
     bool isTemporalDataDetected_;
     bool needStop_;

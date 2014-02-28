@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QColor>
 #include <math.h>
 #include "preferencemanager.h"
 
@@ -29,6 +30,7 @@ private:
 public slots:
     void myUpdateView();
     void focusOnItem(unsigned long id);
+    void updateBackgroundColor();
 
 signals:
     void announceZoomFactorChange(double zoomFactor);

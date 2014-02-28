@@ -2,19 +2,19 @@
 #define ROADSEGMENT_H
 
 #include <QVector>
-#include <QVector>
 #include <QPointF>
 #include "lane.h"
 
 class RoadSegment
 {
 public:
-    RoadSegment(unsigned long id, unsigned long aimsunId, unsigned long fromNodeId,
+    RoadSegment(unsigned long linkId, unsigned long id, unsigned long aimsunId, unsigned long fromNodeId,
                 unsigned long toNodeId, int maxSpeed, int width, int nLane);
     unsigned long getId() {return id_;}
     unsigned long getAimsunId() {return aimsunId_;}
     unsigned long getFromNodeId() {return fromNodeId_;}
     unsigned long getToNodeId() {return toNodeId_;}
+    unsigned long getlinkId() {return linkId_;}
     int getMaxSpeed() {return maxSpeed_;}
     int getWidth() {return width_;}
     int getNLane() {return nLane_;}
@@ -24,6 +24,7 @@ public:
     void addLane(Lane *lane) {lanes_.insert(lane->getIndex(), lane);}
 
 private:
+    unsigned long linkId_;
     unsigned long id_;
     unsigned long aimsunId_;
     unsigned long fromNodeId_;

@@ -7,9 +7,8 @@ class Driver: public Agent
 {
 public:
 
-    Driver(unsigned long id, unsigned int tick, long xPos, long yPos, double angle, double length,
+    Driver(unsigned long id, unsigned int tick, QPointF pos, double angle, double length,
            double width, int passenger, int mandatory = -1, QString info = "");
-    Driver(Agent const* other);
     Driver();
     virtual ~Driver(){}
 
@@ -19,8 +18,6 @@ public:
     int getMandatory() const { return mandatory_;}
     QString getInfo() const { return info_;}
     iSimGUI::AgentType getType() const { return iSimGUI::AGENT_DRIVER; }
-
-    virtual void copy(Agent const* other);
 
 protected:
     double length_;
