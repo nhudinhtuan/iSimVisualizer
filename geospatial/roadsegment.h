@@ -3,6 +3,7 @@
 
 #include <QVector>
 #include <QPointF>
+#include <QDebug>
 #include "lane.h"
 
 class RoadSegment
@@ -10,6 +11,7 @@ class RoadSegment
 public:
     RoadSegment(unsigned long linkId, unsigned long id, unsigned long aimsunId, unsigned long fromNodeId,
                 unsigned long toNodeId, int maxSpeed, int width, int nLane);
+    ~RoadSegment();
     unsigned long getId() {return id_;}
     unsigned long getAimsunId() {return aimsunId_;}
     unsigned long getFromNodeId() {return fromNodeId_;}
@@ -20,6 +22,9 @@ public:
     int getNLane() {return nLane_;}
     QVector<QPointF>& getPolyline() {return polyline_;}
     QVector<Lane*>& getLanes() {return lanes_;}
+    Lane* getLane(int index);
+    Lane* getMiddleLane();
+
     void addPointToPolyline(QPointF p) {polyline_.append(p);}
     void addLane(Lane *lane) {lanes_.insert(lane->getIndex(), lane);}
 

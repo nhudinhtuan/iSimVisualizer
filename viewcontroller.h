@@ -13,14 +13,17 @@
 #include "geospatial/g_multinode.h"
 #include "geospatial/g_busstop.h"
 #include "geospatial/g_lane.h"
+#include "geospatial/g_laneconnector.h"
 #include "geospatial/g_segment.h"
 #include "geospatial/g_crossing.h"
+#include "geospatial/g_trafficsignal.h"
 #include "temporal/g_agent.h"
 
 namespace iSimGUI {
 enum ControlTaskType {
     LOAD_GEOSPATIAL = 0,
-    UPDATE_AGENTS = 1
+    UPDATE_AGENTS = 1,
+    UPDATE_MICRO_DATA = 2,
 };
 }
 
@@ -39,7 +42,9 @@ signals:
     void requestCreateGBusStop(BusStop*);
     void requestCreateGSegment(RoadSegment*);
     void requestCreateGLane(Lane*);
+    void requestCreateGLaneConnector(LaneConnector*);
     void requestCreateGCrossing(Crossing*);
+    void requestCreateGTrafficSignal(TrafficSignal*);
     void requestCreateLinkTreeItem(Link*);
     void requestUpdateGAgents(AgentList*);
     void requestRemoveGAgents();
@@ -52,8 +57,11 @@ protected:
     void loadBusStops();
     void loadLinks();
     void loadSegments();
+    void loadLaneConnectors();
     void loadCrossings();
-    void updateAgents();
+    void loadTrafficSignal();
+    void updateAgents(QPoint& bottomLeft, QPoint& topRight);
+    void updateTrafficSignalData(QPoint& bottomLeft, QPoint& topRight);
 
 private:
     PreferenceManager *preferenceManager_;

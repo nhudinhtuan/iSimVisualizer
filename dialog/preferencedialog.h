@@ -30,7 +30,7 @@ public slots:
     void triggerMultinodeCheckbox(bool);
     void triggerSegmentCheckbox(bool);
     void triggerLaneCheckbox(bool);
-    void triggerCrossingCheckbox(bool);
+    void triggerLaneConnectorCheckbox(bool);
     void triggerBusStopCheckbox(bool);
     void triggerMicroscopicCheckbox(bool);
 
@@ -39,12 +39,13 @@ public slots:
     void selectMultinodeColor();
     void selectSegmentColor();
     void selectLaneColor();
+    void selectLaneConnectorColor();
 
     void changeUninodeThreshold(int);
     void changeMultinodeThreshold(int);
     void changeSegmentThreshold(int);
     void changeLaneThreshold(int);
-    void changeCrossingThreshold(int);
+    void changeLaneConnectorThreshold(int);
     void changeBusstopThreshold(int);
     void changeMicroscopicThreshold(int);
 

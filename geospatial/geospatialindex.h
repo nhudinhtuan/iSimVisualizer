@@ -7,8 +7,10 @@
 #include "link.h"
 #include "roadsegment.h"
 #include "lane.h"
+#include "laneconnector.h"
 #include "busstop.h"
 #include "crossing.h"
+#include "trafficsignal.h"
 
 class GeospatialIndex
 {
@@ -22,28 +24,36 @@ public:
     QHash<unsigned long, BusStop*>& getBusStops() {return busStops_;}
     QHash<unsigned long, Link*>& getLinks() {return links_;}
     QHash<unsigned long, RoadSegment*>& getRoadSegments() {return roadSegments_;}
+    QHash<unsigned long, LaneConnector*>& getLaneConnectors() {return laneConnectors_;}
     QHash<unsigned long, Crossing*>& getCrossings() {return crossings_;}
+    QHash<unsigned long, TrafficSignal*>& getTrafficSignals() {return trafficSignals_;}
     MultiNode* getMultiNode(unsigned long);
     UniNode* getUniNode(unsigned long);
     Link* getLink(unsigned long);
     RoadSegment* getRoadSegemnt(unsigned long);
+    LaneConnector* getLaneConnector(unsigned long);
     BusStop* getBusStop(unsigned long);
     Crossing* getCrossing(unsigned long);
+    TrafficSignal* getTrafficSignal(unsigned long);
 
     void insert(UniNode *uniNode);
     void insert(MultiNode *multiNode);
     void insert(Link *link);
     void insert(RoadSegment *roadSegment);
+    void insert(LaneConnector *laneConnector);
     void insert(BusStop *busStop);
     void insert(Crossing *crossing);
+    void insert(TrafficSignal *trafficSignal);
 
 private:
     QHash<unsigned long, UniNode*> uniNodes_;
     QHash<unsigned long, MultiNode*> multiNodes_;
     QHash<unsigned long, Link*> links_;
     QHash<unsigned long, RoadSegment*> roadSegments_;
+    QHash<unsigned long, LaneConnector*> laneConnectors_;
     QHash<unsigned long, BusStop*> busStops_;
     QHash<unsigned long, Crossing*> crossings_;
+    QHash<unsigned long, TrafficSignal*> trafficSignals_;
 };
 
 #endif // GEOSPATIALINDEX_H

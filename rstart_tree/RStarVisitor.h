@@ -95,8 +95,8 @@ struct RStarAcceptEnclosing
 template <typename Node, typename Leaf>
 struct RStarAcceptAny
 {
-	bool operator()(const Node * const node) const { return true; }
-	bool operator()(const Leaf * const leaf) const { return true; }
+    bool operator()(const Node * const node) const {Q_UNUSED(node); return true; }
+    bool operator()(const Leaf * const leaf) const {Q_UNUSED(leaf); return true; }
 };
  
  
@@ -133,6 +133,7 @@ struct RStarRemoveLeaf{
 
 	bool operator()(const Leaf * const leaf) const
 	{
+        Q_UNUSED(leaf);
 		return true; 
 	}
 };

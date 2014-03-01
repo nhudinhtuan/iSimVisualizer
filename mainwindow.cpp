@@ -231,11 +231,12 @@ void MainWindow::connectSignalAction() {
     connect(timer_, SIGNAL(timeout()), this, SLOT(jumpToNextTick()), Qt::QueuedConnection);
 
     connect(mapView_, SIGNAL(announceMousePointerPosition(QPoint)), this, SLOT(updatePointerTracker(QPoint)), Qt::QueuedConnection);
-    connect(mapView_, SIGNAL(announceMapviewScroll()), this, SLOT(requestUpdateAgents()));
+    connect(mapView_, SIGNAL(announceMapviewScroll()), this, SLOT(requestUpdateDynamicData()));
 
     connect(preferenceManager_, SIGNAL(updateBgColor()), mapView_, SLOT(updateBackgroundColor()), Qt::QueuedConnection);
     connect(preferenceManager_, SIGNAL(updateMapViewAttr()), this, SLOT(updateMapView()), Qt::QueuedConnection);
     connect(preferenceManager_, SIGNAL(updateAgents()), this, SLOT(requestUpdateAgents()), Qt::QueuedConnection);
+    connect(preferenceManager_, SIGNAL(updateMicroData()), this, SLOT(requestUpdateMicroData()), Qt::QueuedConnection);
 
     connect(fileReader_, SIGNAL(announceLog(QString)), this, SLOT(addLog(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceError(QString)), this, SLOT(alertFileError(QString)), Qt::QueuedConnection);
@@ -250,7 +251,9 @@ void MainWindow::connectSignalAction() {
     connect(viewController_, SIGNAL(requestCreateGBusStop(BusStop *)), this, SLOT(createGBusStop(BusStop *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGSegment(RoadSegment *)), this, SLOT(createGSegment(RoadSegment *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGLane(Lane *)), this, SLOT(createGLane(Lane *)), Qt::QueuedConnection);
+    connect(viewController_, SIGNAL(requestCreateGLaneConnector(LaneConnector*)), this, SLOT(createGLaneConnector(LaneConnector*)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGCrossing(Crossing*)), this, SLOT(createGCrossing(Crossing*)), Qt::QueuedConnection);
+    connect(viewController_, SIGNAL(requestCreateGTrafficSignal(TrafficSignal*)), this, SLOT(createGTrafficSignal(TrafficSignal*)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateLinkTreeItem(Link *)), this, SLOT(createLinkTreeItem(Link *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(finishLoadingGeospatial()), this, SLOT(finishLoadingGeospatial()), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestUpdateGAgents(AgentList*)), this, SLOT(updateGAgents(AgentList*)), Qt::QueuedConnection);
@@ -349,10 +352,13 @@ void MainWindow::showSimulationGUI() {
     ui_->pauseSim->hide();
     ui_->labelUpperBoundTick->show();
 
+
     ui_->sliderTick->setMaximum(0);
     ui_->sliderTick->setValue(0);
     ui_->spinTick->setMaximum(0);
     ui_->spinTick->setValue(0);
+
+
 }
 
 void MainWindow::updateUpperTickValue(unsigned int value) {
@@ -446,8 +452,13 @@ void MainWindow::createGLane(Lane *lane) {
     }
 }
 
+void MainWindow::createGLaneConnector(LaneConnector *laneConnector) {
+    G_LaneConnector* gLaneConnector = new G_LaneConnector(0, laneConnector, preferenceManager_, mapView_);
+    scene_->addItem(gLaneConnector);
+}
+
 void MainWindow::createGCrossing(Crossing *crossing) {
-    G_Crossing *gCrossing = new G_Crossing(0, crossing, preferenceManager_, mapView_);
+    G_Crossing *gCrossing = new G_Crossing(0, crossing, preferenceManager_, mapView_, temporalIndex_);
     scene_->addItem(gCrossing);
 
     // add tree item
@@ -457,6 +468,11 @@ void MainWindow::createGCrossing(Crossing *crossing) {
     item->setData(0, Qt::UserRole, variantId);
     item->setData(1, Qt::UserRole, variantGCrossing);
     crossingTreeItems_->setText(1, tr("%n item(s)", "", crossingTreeItems_->childCount()));
+}
+
+void MainWindow::createGTrafficSignal(TrafficSignal *trafficSignal) {
+    G_TrafficSignal* gTrafficSignal = new G_TrafficSignal(0, trafficSignal, preferenceManager_, mapView_, temporalIndex_);
+    scene_->addItem(gTrafficSignal);
 }
 
 void MainWindow::updateGAgents(AgentList* agents) {
@@ -552,6 +568,7 @@ QTreeWidgetItem* MainWindow::getTreeItemFromGraphics(QGraphicsItem *gItem) {
             QVariant variantId = child->data(0, Qt::UserRole);
             if (gNode->getModelId() == variantId.toULongLong()) {
                 showNodeProperty(gNode->getModel());
+                openGeospatialElementsPage();
                 return child;
             }
         }
@@ -565,6 +582,7 @@ QTreeWidgetItem* MainWindow::getTreeItemFromGraphics(QGraphicsItem *gItem) {
             QVariant variantId = child->data(0, Qt::UserRole);
             if (gBusstop->getModelId() == variantId.toULongLong()) {
                 showBusStopProperty(gBusstop->getModel());
+                openGeospatialElementsPage();
                 return child;
             }
         }
@@ -574,6 +592,7 @@ QTreeWidgetItem* MainWindow::getTreeItemFromGraphics(QGraphicsItem *gItem) {
     G_Segment *gSegment = dynamic_cast<G_Segment*>(gItem);
     if (gSegment) {
         showSegmentProperty(gSegment->getModel());
+        openGeospatialElementsPage();
         return segmentItems_[gSegment->getSegmentId()];
     }
 
@@ -585,6 +604,7 @@ QTreeWidgetItem* MainWindow::getTreeItemFromGraphics(QGraphicsItem *gItem) {
             QVariant variantId = child->data(0, Qt::UserRole);
             if (gLane->getLaneIndex() == variantId.toUInt()) {
                 showLaneProperty(gLane->getModel());
+                openGeospatialElementsPage();
                 return child;
             }
         }
@@ -598,6 +618,7 @@ QTreeWidgetItem* MainWindow::getTreeItemFromGraphics(QGraphicsItem *gItem) {
             QVariant variantId = child->data(0, Qt::UserRole);
             if (gCrossing->getId() == variantId.toULongLong()) {
                 showCrossingProperty(gCrossing->getModel());
+                openGeospatialElementsPage();
                 return child;
             }
         }
@@ -789,7 +810,7 @@ void MainWindow::pauseSimulation() {
 
 void MainWindow::jumpToSimulation(int tick) {
     temporalIndex_->jumpToTick(tick);
-    requestUpdateAgents();
+    requestUpdateDynamicData();
 }
 
 void MainWindow::jumpToNextTick() {
@@ -797,10 +818,18 @@ void MainWindow::jumpToNextTick() {
     if (tick) {
         ui_->sliderTick->setValue(tick);
         ui_->spinTick->setValue(tick);
-        requestUpdateAgents();
+        requestUpdateDynamicData();
     } else {
         timer_->stop();
     }
+}
+
+void MainWindow::requestUpdateDynamicData() {
+    requestUpdateMicroData();
+}
+
+void MainWindow::requestUpdateMicroData() {
+    viewController_->addTask(iSimGUI::UPDATE_MICRO_DATA);
 }
 
 void MainWindow::requestUpdateAgents() {

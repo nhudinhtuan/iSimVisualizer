@@ -11,6 +11,7 @@
 #include <QDebug>
 #include "crossing.h"
 #include "preferencemanager.h"
+#include "temporal/temporalindex.h"
 #include "graphicsview/mapgraphicsview.h"
 
 class G_Crossing: public QGraphicsObject
@@ -18,7 +19,7 @@ class G_Crossing: public QGraphicsObject
     Q_OBJECT
 
 public:
-    G_Crossing(QGraphicsItem *parent, Crossing *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
+    G_Crossing(QGraphicsItem *parent, Crossing *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView, TemporalIndex *temporalIndex);
     ~G_Crossing();
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -28,10 +29,12 @@ public:
 private:
     void createCrossing();
     void updateAnnotation();
+    void updateColor();
 
 protected:
     PreferenceManager *preferenceManager_;
     MapGraphicsView *mapView_;
+    TemporalIndex *temporalIndex_;
     Crossing *model_;
     QPainterPath shape_;
 

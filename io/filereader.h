@@ -56,12 +56,14 @@ protected:
     bool createRoadSegment(unsigned long id, QMap<QString, QString> &properties);
     bool createPolyline(unsigned long id, QMap<QString, QString> &properties);
     bool createLane(QMap<QString, QString> &properties);
-    bool createLaneConnector(QMap<QString, QString> &properties);
+    bool createLaneConnector(unsigned long id, QMap<QString, QString> &properties);
     bool createGraph(unsigned long id, QMap<QString, QString> &properties);
     bool createVertex(unsigned long id, QMap<QString, QString> &properties);
     bool createEdge(unsigned long id, QMap<QString, QString> &properties);
     bool createBusstop(unsigned long id, QMap<QString, QString> &properties);
     bool createCrossing(unsigned long id, QMap<QString, QString> &properties);
+    bool createTrafficSignal(QVariantMap properties);
+    bool createPhaseData(QVariantMap properties);
 
 private:
     GeospatialIndex *geospatialIndex_;

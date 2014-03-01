@@ -18,6 +18,8 @@ public:
     double getZoomFactor() {return zoomFactor_; }
     void setZoomFactor(double factor);
     QRectF getGraphViewRect();
+    QList<QGraphicsItem*> getSeenItems();
+
 
 protected:
     void mouseReleaseEvent(QMouseEvent *event);

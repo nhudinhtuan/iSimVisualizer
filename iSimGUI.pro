@@ -57,7 +57,11 @@ SOURCES += main.cpp\
     temporal/g_pedestrian.cpp \
     temporal/g_busdriver.cpp \
     geospatial/crossing.cpp \
-    geospatial/g_crossing.cpp
+    geospatial/g_crossing.cpp \
+    geospatial/trafficsignal.cpp \
+    geospatial/g_trafficsignal.cpp \
+    geospatial/laneconnector.cpp \
+    geospatial/g_laneconnector.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -107,7 +111,12 @@ HEADERS  += mainwindow.h \
     temporal/g_pedestrian.h \
     temporal/g_busdriver.h \
     geospatial/crossing.h \
-    geospatial/g_crossing.h
+    geospatial/g_crossing.h \
+    geospatial/trafficsignal.h \
+    geospatial/g_trafficsignal.h \
+    temporal/phasedata.h \
+    geospatial/laneconnector.h \
+    geospatial/g_laneconnector.h
 
 FORMS    += mainwindow.ui \
     dialog/preferencedialog.ui

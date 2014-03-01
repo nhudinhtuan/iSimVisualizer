@@ -14,6 +14,9 @@ public:
     void addPointToPolyline(QPointF p) {polyline_.append(p);}
     bool isSideWalk() {return isSideWalk_;}
 
+    QPointF getFirstPoint();
+    QPointF getLastPoint();
+
 private:
     unsigned long segmentId_;
     unsigned int index_;

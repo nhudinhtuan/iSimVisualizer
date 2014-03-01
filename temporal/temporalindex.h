@@ -28,11 +28,18 @@ public:
     void updateUniqueTicks(unsigned int tick);
     unsigned int jumpToNextTick();
     bool jumpToTick(unsigned int tick);
+    bool isMesoDataExisted() { return mesoDataExist_;}
+    bool isMicroDataExisted() { return microDataExist_;}
 
-    void insertMesoscopicData(Mesoscopic* data);
-    void insertAgentData(Agent* data);
+    void insert(Mesoscopic* data);
+    void insert(Agent* data);
+    void insert(CrossingPhaseData* crossingPhaseData);
+    void insert(TrafficPhaseData* trafficPhaseData);
     AgentList* getAgent(QPoint& bottomLeft, QPoint& topRight);
+    int getCrossingPhaseColor(unsigned long crossingId);
+    TrafficPhaseData* getTrafficPhaseData(unsigned long id);
 
+    void updateCrossingPhaseData(QPoint& bottomLeft, QPoint& topRight);
 signals:
      void announceNewUpperTickValue(unsigned int);
 
@@ -48,6 +55,9 @@ private:
 
     MesoscopicData* mesoscopicData_;
     MicroscopicData* microscopicData_;
+
+    bool microDataExist_;
+    bool mesoDataExist_;
 };
 
 #endif // TEMPORALINDEX_H

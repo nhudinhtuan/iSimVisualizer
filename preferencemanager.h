@@ -12,7 +12,7 @@ namespace iSimGUI {
         PREF_MULTINODE = 1,
         PREF_SEGMENT = 2,
         PREF_LANE = 3,
-        PREF_CROSSING = 4,
+        PREF_LANE_CONNECTOR = 4,
         PREF_BUSSTOP = 5,
         PREF_MICRO = 6,
     };
@@ -63,9 +63,9 @@ public:
     bool isMultinodeDisplayed() { return isMultiNodeShown_;}
     bool isSegmentDisplayed() { return isSegmentShown_;}
     bool isLaneDisplayed() { return isLaneShown_;}
+    bool isLaneConnectorDisplayed() { return isLaneConnectorShown_;}
     bool isBusStopDisplayed() { return isBusStopShown_;}
     bool isMicroscopicDisplayed() {return isMicroscopicShown_;}
-    bool isCrossingDisplayed() { return isCrossingShown_;}
 
     QColor& getBgColor() { return bgColor_;}
     void setBgColor(QColor);
@@ -74,14 +74,15 @@ public:
     QColor& getMultinodeColor() { return multinodeColor_;}
     QColor& getSegmentColor() { return segmentColor_;}
     QColor& getLaneColor() { return laneColor_;}
+    QColor& getLaneConnectorColor() { return laneConnectorColor_;}
 
     int getUninodeThreshold() { return uninodeThreshold_;}
     int getMultinodeThreshold() { return multinodeThreshold_;}
     int getSegmentThreshold() { return segmentThreshold_;}
     int getLaneThreshold() { return laneThreshold_;}
+    int getLaneConnectorThreshold() { return laneConnectorThreshold_;}
     int getBusstopThreshold() { return busstopThreshold_;}
     int getMicroscopicThreshold() { return microscopicThreshold_;}
-    int getCrossingThreshold() { return crossingThreshold_;}
 
     QString getDriverIcon() { return iSimGUI::ICON_DRIVERS[driverIcon_];}
     int getDriverIconIndex() { return driverIcon_;}
@@ -107,6 +108,7 @@ public:
 signals:
     void updateBgColor();
     void updateMapViewAttr();
+    void updateMicroData();
     void updateAgents();
 
 public slots:
@@ -125,23 +127,24 @@ private:
     bool isMultiNodeShown_;
     bool isSegmentShown_;
     bool isLaneShown_;
+    bool isLaneConnectorShown_;
     bool isBusStopShown_;
     bool isMicroscopicShown_;
-    bool isCrossingShown_;
 
     QColor bgColor_;
     QColor uninodeColor_;
     QColor multinodeColor_;
     QColor segmentColor_;
     QColor laneColor_;
+    QColor laneConnectorColor_;
 
     int uninodeThreshold_;
     int multinodeThreshold_;
     int segmentThreshold_;
     int laneThreshold_;
+    int laneConnectorThreshold_;
     int busstopThreshold_;
     int microscopicThreshold_;
-    int crossingThreshold_;
 
     int uninodeExtraInfo_;
     int multinodeExtraInfo_;

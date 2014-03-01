@@ -10,10 +10,10 @@ const QString SEGMENT_DISPLAY_SETTING = "segment/isDisplayed";
 const bool DEFAULT_SEGMENTS_IS_DISPLAYED = true;
 const QString LANE_DISPLAY_SETTING = "lanes/isDisplayed";
 const bool DEFAULT_LANES_IS_DISPLAYED = true;
+const QString LANE_CONNECTORS_DISPLAY_SETTING = "laneConnectors/isDisplayed";
+const bool DEFAULT_LANE_CONNECTORS_IS_DISPLAYED = false;
 const QString BUSSTOP_DISPLAY_SETTING = "busStop/isDisplayed";
 const bool DEFAULT_BUS_STOP_IS_DISPLAYED = true;
-const QString CROSSING_DISPLAY_SETTING = "crossing/isDisplayed";
-const bool DEFAULT_CROSSING_IS_DISPLAYED = true;
 const QString AGENT_DISPLAY_SETTING = "agent/isDisplayed";
 const bool DEFAULT_AGENT_IS_DISPLAYED = true;
 
@@ -31,6 +31,8 @@ const QString SEGMENT_COLOR_SETTING = "segment/color";
 const QString DEFAULT_SEGMENT_COLOR = "blue";
 const QString LANE_COLOR_SETTING = "lanes/color";
 const QString DEFAULT_LANE_COLOR = "black";
+const QString LANE_CONNECTOR_COLOR_SETTING = "laneConnector/color";
+const QString DEFAULT_LANE_CONNECTOR_COLOR = "black";
 
 const QString UNINODE_THRESHOLD_SETTING = "uniNodes/threshold";
 const int DEFAULT_UNINODE_THRESHOLD = 10;
@@ -40,6 +42,8 @@ const QString SEGMENT_THRESHOLD_SETTING = "segments/threshold";
 const int DEFAULT_SEGMENT_THRESHOLD = 10;
 const QString LANE_THRESHOLD_SETTING = "lanes/threshold";
 const int DEFAULT_LANE_THRESHOLD = 15;
+const QString LANE_CONNECTOR_THRESHOLD_SETTING = "laneConnectors/threshold";
+const int DEFAULT_LANE_CONNECTOR_THRESHOLD = 15;
 const QString CROSSING_THRESHOLD_SETTING = "crossing/threshold";
 const int DEFAULT_CROSSING_THRESHOLD = 15;
 const QString BUSSTOP_THRESHOLD_SETTING = "busStop/threshold";
@@ -82,9 +86,9 @@ void PreferenceManager::initDisplayed() {
     isMultiNodeShown_ = settings_->value(iSimGUI::MULTINODE_DISPLAY_SETTING, iSimGUI::DEFAULT_MULTINODES_IS_DISPLAYED).toBool();
     isSegmentShown_ = settings_->value(iSimGUI::SEGMENT_DISPLAY_SETTING, iSimGUI::DEFAULT_SEGMENTS_IS_DISPLAYED).toBool();
     isLaneShown_ = settings_->value(iSimGUI::LANE_DISPLAY_SETTING, iSimGUI::DEFAULT_LANES_IS_DISPLAYED).toBool();
+    isLaneConnectorShown_ = settings_->value(iSimGUI::LANE_CONNECTORS_DISPLAY_SETTING, iSimGUI::DEFAULT_LANE_CONNECTORS_IS_DISPLAYED).toBool();
     isBusStopShown_ = settings_->value(iSimGUI::BUSSTOP_DISPLAY_SETTING, iSimGUI::DEFAULT_BUS_STOP_IS_DISPLAYED).toBool();
     isMicroscopicShown_ = settings_->value(iSimGUI::MICROSCOPIC_DISPLAY_SETTING, iSimGUI::DEFAULT_MICROSCOPIC_IS_DISPLAYED).toBool();
-    isCrossingShown_ = settings_->value(iSimGUI::CROSSING_DISPLAY_SETTING, iSimGUI::DEFAULT_CROSSING_IS_DISPLAYED).toBool();
 }
 
 void PreferenceManager::initColor() {
@@ -93,6 +97,7 @@ void PreferenceManager::initColor() {
     multinodeColor_ = QColor(settings_->value(iSimGUI::MULTINODE_COLOR_SETTING, iSimGUI::DEFAULT_MULTINODE_COLOR).toString());
     segmentColor_ = QColor(settings_->value(iSimGUI::SEGMENT_COLOR_SETTING, iSimGUI::DEFAULT_SEGMENT_COLOR).toString());
     laneColor_ = QColor(settings_->value(iSimGUI::LANE_COLOR_SETTING, iSimGUI::DEFAULT_LANE_COLOR).toString());
+    laneConnectorColor_ = QColor(settings_->value(iSimGUI::LANE_CONNECTOR_COLOR_SETTING, iSimGUI::DEFAULT_LANE_CONNECTOR_COLOR).toString());
 }
 
 void PreferenceManager::initThreshold() {
@@ -100,9 +105,9 @@ void PreferenceManager::initThreshold() {
     multinodeThreshold_ = settings_->value(iSimGUI::MULTINODE_THRESHOLD_SETTING, iSimGUI::DEFAULT_MULTINODE_THRESHOLD).toInt();
     segmentThreshold_ = settings_->value(iSimGUI::SEGMENT_THRESHOLD_SETTING, iSimGUI::DEFAULT_SEGMENT_THRESHOLD).toInt();
     laneThreshold_ = settings_->value(iSimGUI::LANE_THRESHOLD_SETTING, iSimGUI::DEFAULT_LANE_THRESHOLD).toInt();
+    laneConnectorThreshold_ = settings_->value(iSimGUI::LANE_CONNECTOR_THRESHOLD_SETTING, iSimGUI::DEFAULT_LANE_CONNECTOR_THRESHOLD).toInt();
     busstopThreshold_ = settings_->value(iSimGUI::BUSSTOP_THRESHOLD_SETTING, iSimGUI::DEFAULT_BUSSTOP_THRESHOLD).toInt();
     microscopicThreshold_ = settings_->value(iSimGUI::MICROSCOPIC_THRESHOLD_SETTING, iSimGUI::DEFAULT_MICROSCOPIC_THRESHOLD).toInt();
-    crossingThreshold_ = settings_->value(iSimGUI::CROSSING_THRESHOLD_SETTING, iSimGUI::DEFAULT_CROSSING_THRESHOLD).toInt();
 }
 
 void PreferenceManager::initExtraInfo() {
@@ -158,9 +163,9 @@ void PreferenceManager::updateShownAttributes(iSimGUI::PreferenceType  type, boo
                 settings_->setValue(iSimGUI::LANE_DISPLAY_SETTING, value);
                 emit updateMapViewAttr();
                 break;
-        case iSimGUI::PREF_CROSSING:
-                isCrossingShown_ = value;
-                settings_->setValue(iSimGUI::CROSSING_DISPLAY_SETTING, value);
+        case iSimGUI::PREF_LANE_CONNECTOR:
+                isLaneConnectorShown_ = value;
+                settings_->setValue(iSimGUI::LANE_CONNECTORS_DISPLAY_SETTING, value);
                 emit updateMapViewAttr();
                 break;
         case iSimGUI::PREF_BUSSTOP:
@@ -171,7 +176,8 @@ void PreferenceManager::updateShownAttributes(iSimGUI::PreferenceType  type, boo
         case iSimGUI::PREF_MICRO:
                 isMicroscopicShown_ = value;
                 settings_->setValue(iSimGUI::MICROSCOPIC_DISPLAY_SETTING, value);
-                emit updateAgents();
+                emit updateMicroData();
+                emit updateMapViewAttr();
                 break;
     }
 }
@@ -210,6 +216,12 @@ void PreferenceManager::updateColorAttributes(iSimGUI::PreferenceType  type, QCo
                     settings_->setValue(iSimGUI::LANE_COLOR_SETTING, color);
                 };
                 break;
+        case iSimGUI::PREF_LANE_CONNECTOR:
+                if (laneConnectorColor_ != color) {
+                    laneConnectorColor_ = color;
+                    settings_->setValue(iSimGUI::LANE_CONNECTOR_COLOR_SETTING, color);
+                };
+                break;
         default: break;
     }
     emit updateMapViewAttr();
@@ -237,9 +249,9 @@ void PreferenceManager::updateThresholdAttributes(iSimGUI::PreferenceType type, 
                 settings_->setValue(iSimGUI::LANE_THRESHOLD_SETTING, value);
                 emit updateMapViewAttr();
                 break;
-        case iSimGUI::PREF_CROSSING:
-                crossingThreshold_ = value;
-                settings_->setValue(iSimGUI::CROSSING_THRESHOLD_SETTING, value);
+        case iSimGUI::PREF_LANE_CONNECTOR:
+                laneConnectorThreshold_ = value;
+                settings_->setValue(iSimGUI::LANE_CONNECTOR_THRESHOLD_SETTING, value);
                 emit updateMapViewAttr();
                 break;
         case iSimGUI::PREF_BUSSTOP:
@@ -250,7 +262,7 @@ void PreferenceManager::updateThresholdAttributes(iSimGUI::PreferenceType type, 
         case iSimGUI::PREF_MICRO:
                 microscopicThreshold_ = value;
                 settings_->setValue(iSimGUI::MICROSCOPIC_THRESHOLD_SETTING, value);
-                emit updateAgents();
+                emit updateMicroData();
                 break;
     }
 }

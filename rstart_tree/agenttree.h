@@ -9,6 +9,7 @@
 class AgentTree : public RStarTree<Agent*, 2, 8, 16>
 {
 public:
+    ~AgentTree();
     // Insert an agent into the tree, based on the agent's position.
     void insert(Agent *agent);
 
@@ -17,6 +18,9 @@ public:
     // upper-right corner.  box.edges[0] is the x- component and box.edges[1] is the
     // y- component.
     QList<Agent*> query(QPoint& lowerLeft, QPoint& upperRight);
+
+private:
+    QList<Agent*> agents_;
 };
 
 // A visitor that simply collects the agent into an array, which was specified in the

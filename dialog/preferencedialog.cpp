@@ -22,7 +22,7 @@ void PreferenceDialog::initUI() {
     ui_->multinodeCheckBox->setChecked(preferenceManager_->isMultinodeDisplayed());
     ui_->segmentCheckBox->setChecked(preferenceManager_->isSegmentDisplayed());
     ui_->laneCheckBox->setChecked(preferenceManager_->isLaneDisplayed());
-    ui_->crossingCheckBox->setChecked(preferenceManager_->isCrossingDisplayed());
+    ui_->laneConCheckBox->setChecked(preferenceManager_->isLaneConnectorDisplayed());
     ui_->busstopCheckBox->setChecked(preferenceManager_->isBusStopDisplayed());
     ui_->microCheckbox->setChecked(preferenceManager_->isMicroscopicDisplayed());
 
@@ -30,13 +30,14 @@ void PreferenceDialog::initUI() {
     setButtonColor(ui_->multinodeColor, preferenceManager_->getMultinodeColor());
     setButtonColor(ui_->segmentColor, preferenceManager_->getSegmentColor());
     setButtonColor(ui_->laneColor, preferenceManager_->getLaneColor());
+    setButtonColor(ui_->laneConColor, preferenceManager_->getLaneConnectorColor());
 
     ui_->uninodeSpinBox->setValue(preferenceManager_->getUninodeThreshold());
     ui_->multinodeSpinBox->setValue(preferenceManager_->getMultinodeThreshold());
     ui_->segmentSpinBox->setValue(preferenceManager_->getSegmentThreshold());
     ui_->laneSpinBox->setValue(preferenceManager_->getLaneThreshold());
+    ui_->laneConSpinBox->setValue(preferenceManager_->getLaneConnectorThreshold());
     ui_->busstopSpinBox->setValue(preferenceManager_->getBusstopThreshold());
-    ui_->crossingSpinBox->setValue(preferenceManager_->getCrossingThreshold());
     ui_->microSpinBox->setValue(preferenceManager_->getMicroscopicThreshold());
 
     // geospatial extra info
@@ -95,8 +96,8 @@ void PreferenceDialog::triggerLaneCheckbox(bool value) {
     preferenceManager_->updateShownAttributes(iSimGUI::PREF_LANE, value);
 }
 
-void PreferenceDialog::triggerCrossingCheckbox(bool value) {
-    preferenceManager_->updateShownAttributes(iSimGUI::PREF_CROSSING, value);
+void PreferenceDialog::triggerLaneConnectorCheckbox(bool value) {
+    preferenceManager_->updateShownAttributes(iSimGUI::PREF_LANE_CONNECTOR, value);
 }
 
 void PreferenceDialog::triggerBusStopCheckbox(bool value) {
@@ -152,6 +153,15 @@ void PreferenceDialog::selectLaneColor() {
     }
 }
 
+void PreferenceDialog::selectLaneConnectorColor() {
+    QColorDialog colorPicker;
+    QColor newColor(colorPicker.getColor(ui_->laneConColor->palette().color(QPalette::Button), this, tr("Choose Color")));
+    if (newColor.isValid()) {
+        setButtonColor(ui_->laneConColor, newColor);
+        preferenceManager_->updateColorAttributes(iSimGUI::PREF_LANE_CONNECTOR, newColor);
+    }
+}
+
 void PreferenceDialog::changeUninodeThreshold(int value) {
     preferenceManager_->updateThresholdAttributes(iSimGUI::PREF_UNINODE, value);
 }
@@ -168,8 +178,8 @@ void PreferenceDialog::changeLaneThreshold(int value) {
     preferenceManager_->updateThresholdAttributes(iSimGUI::PREF_LANE, value);
 }
 
-void PreferenceDialog::changeCrossingThreshold(int value) {
-    preferenceManager_->updateThresholdAttributes(iSimGUI::PREF_CROSSING, value);
+void PreferenceDialog::changeLaneConnectorThreshold(int value) {
+    preferenceManager_->updateThresholdAttributes(iSimGUI::PREF_LANE_CONNECTOR, value);
 }
 
 void PreferenceDialog::changeBusstopThreshold(int value) {
@@ -223,8 +233,8 @@ void PreferenceDialog::initSignal() {
     connect(ui_->segmentCheckBox, SIGNAL(toggled(bool)), ui_->segmentSpinBox, SLOT(setEnabled(bool)));
     connect(ui_->laneCheckBox, SIGNAL(toggled(bool)), this, SLOT(triggerLaneCheckbox(bool)));
     connect(ui_->laneCheckBox, SIGNAL(toggled(bool)), ui_->laneSpinBox, SLOT(setEnabled(bool)));
-    connect(ui_->crossingCheckBox, SIGNAL(toggled(bool)), this, SLOT(triggerCrossingCheckbox(bool)));
-    connect(ui_->crossingCheckBox, SIGNAL(toggled(bool)), ui_->crossingSpinBox, SLOT(setEnabled(bool)));
+    connect(ui_->laneConCheckBox, SIGNAL(toggled(bool)), this, SLOT(triggerLaneConnectorCheckbox(bool)));
+    connect(ui_->laneConCheckBox, SIGNAL(toggled(bool)), ui_->laneConSpinBox, SLOT(setEnabled(bool)));
     connect(ui_->busstopCheckBox, SIGNAL(toggled(bool)), this, SLOT(triggerBusStopCheckbox(bool)));
     connect(ui_->busstopCheckBox, SIGNAL(toggled(bool)), ui_->busstopSpinBox, SLOT(setEnabled(bool)));
 
@@ -237,13 +247,14 @@ void PreferenceDialog::initSignal() {
     connect(ui_->multinodeColor, SIGNAL(clicked()), this, SLOT(selectMultinodeColor()));
     connect(ui_->segmentColor, SIGNAL(clicked()), this, SLOT(selectSegmentColor()));
     connect(ui_->laneColor, SIGNAL(clicked()), this, SLOT(selectLaneColor()));
+    connect(ui_->laneConColor, SIGNAL(clicked()), this, SLOT(selectLaneConnectorColor()));
 
     // threshold
     connect(ui_->uninodeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeUninodeThreshold(int)));
     connect(ui_->multinodeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeMultinodeThreshold(int)));
     connect(ui_->segmentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeSegmentThreshold(int)));
     connect(ui_->laneSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeLaneThreshold(int)));
-    connect(ui_->crossingSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeCrossingThreshold(int)));
+    connect(ui_->laneConSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeLaneConnectorThreshold(int)));
     connect(ui_->busstopSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeBusstopThreshold(int)));
     connect(ui_->microSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeMicroscopicThreshold(int)));
 

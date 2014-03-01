@@ -31,6 +31,10 @@ QRectF MapGraphicsView::getGraphViewRect() {
     return QRectF(mapToScene(0,0), mapToScene(width(), height()));
 }
 
+QList<QGraphicsItem*> MapGraphicsView::getSeenItems() {
+    return scene()->items(getGraphViewRect());
+}
+
 void MapGraphicsView::setZoomFactor(double factor) {
     zoomFactor_ = factor;
 }

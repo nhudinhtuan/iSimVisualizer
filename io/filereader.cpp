@@ -235,7 +235,17 @@ bool FileReader::processLine(QString &line) {
         } else { // parse road network data -- INCLUDES BUSSTOP
             parseRoadNetworkDataLine(objType.toLower(), objID, properties);
         }
-    }
+    } else if (firstChar==iSimParse::PARSE_BRACKET_OPEN_NEW_FORMAT && lastChar==iSimParse::PARSE_BRACKET_CLOSE_NEW_FORMAT) {
+        // New-style line, of the form:
+        // JSon
+        //currently only used for traffic signals & incident
+        QVariantMap result = QtJson::parse(line).toMap();
+        if (result.contains(iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL)) {
+            createTrafficSignal(result[iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL].toMap());
+        } else if (result.contains(iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL_UPDATE)) {
+            createPhaseData(result[iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL_UPDATE].toMap());
+        }
+    } // Anything else is assumed to be a comment
     return true;
 }
 
@@ -270,7 +280,7 @@ bool FileReader::createMesoscopic(unsigned long objID, unsigned int frameID, QMa
     }
     mesoscopic->setDensity(QString(propertiesIter.value()).toDouble());
 
-    temporalIndex_->insertMesoscopicData(mesoscopic);
+    temporalIndex_->insert(mesoscopic);
     return true;
 }
 
@@ -339,7 +349,7 @@ bool FileReader::createDriver(unsigned long objID, unsigned int frameID, QMap<QS
     }
 
     Agent* agent = new Driver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, 0, mandatory, info);
-    temporalIndex_->insertAgentData(agent);
+    temporalIndex_->insert(agent);
 
     return true;
 }
@@ -408,7 +418,7 @@ bool FileReader::createBusDriver(unsigned long objID, unsigned int frameID, QMap
     // Create microscopic object
     Agent* agent = new BusDriver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, passengers, realArrivalTime, dwellTime, busLineID);
 
-    temporalIndex_->insertAgentData(agent);
+    temporalIndex_->insert(agent);
     return true;
 }
 
@@ -435,7 +445,7 @@ bool FileReader::createPedestrian(unsigned long objID, unsigned int frameID, QMa
     // Create microscopic object
     Agent* agent = new Pedestrian(objID, frameID, genCoordinate(xPos, yPos));
 
-    temporalIndex_->insertAgentData(agent);
+    temporalIndex_->insert(agent);
     return true;
 }
 
@@ -455,8 +465,8 @@ bool FileReader::parseRoadNetworkDataLine(const QString& objType, unsigned long 
     // Enqueue to lanes raw data queue
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_LANE ) return createLane(properties);
 
+    if (objType==iSimParse::PARSE_KEYWORD_TYPE_LANECONNECTOR ) return createLaneConnector(objID, properties);
     /*
-    if (objType==iSimParse::PARSE_KEYWORD_TYPE_LANECONNECTOR ) return createLaneConnector(properties);
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_GRAPH ) return createGraph(objID, properties);
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_VERTEX ) return createVertex(objID, properties);
     if (objType==iSimParse::PARSE_KEYWORD_TYPE_EDGE ) return createEdge(objID, properties);
@@ -706,6 +716,42 @@ bool FileReader::createLane(QMap<QString, QString> &properties) {
     return true;
 }
 
+bool FileReader::createLaneConnector(unsigned long id, QMap<QString, QString> &properties) {
+    unsigned long fromSegment = 0, toSegment = 0;
+    unsigned int fromLane = 0, toLane = 0;
+    QMap<QString, QString>::const_iterator propertiesIter = properties.find(iSimParse::LANECONNECTOR_FROMSEGMENT);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Lane Connector %1 does not have a valid from segment id.").arg(id));
+        return false;
+    }
+    fromSegment = propertiesIter.value().toULong(0, 16);
+
+    propertiesIter = properties.find(iSimParse::LANECONNECTOR_FROMLANEINDEX);
+    if (propertiesIter==properties.end()) {
+         emit announceLog(tr("Lane Connector %1 does not have a valid from lane index.").arg(id));
+        return false;
+    }
+    fromLane = propertiesIter.value().toInt();
+
+    propertiesIter = properties.find(iSimParse::LANECONNECTOR_TOSEGMENT);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Lane Connector %1 does not have a valid to segment id.").arg(id));
+        return false;
+    }
+    toSegment = propertiesIter.value().toULong(0, 16);
+
+    propertiesIter = properties.find(iSimParse::LANECONNECTOR_TOLANEINDEX);
+    if (propertiesIter==properties.end()) {
+         emit announceLog(tr("Lane Connector %1 does not have a valid to lane index.").arg(id));
+        return false;
+    }
+    toLane = propertiesIter.value().toInt();
+
+    LaneConnector* laneConnector = new LaneConnector(id, fromSegment, fromLane, toSegment, toLane);
+    geospatialIndex_->insert(laneConnector);
+    return true;
+}
+
 bool FileReader::createBusstop(unsigned long id, QMap<QString, QString> &properties) {
     QMap<QString, QString>::const_iterator propertiesIter = properties.find("near-1");
     if (propertiesIter==properties.end()) {
@@ -769,5 +815,107 @@ bool FileReader::createCrossing(unsigned long id, QMap<QString, QString> &proper
     crossing->addPointToPolyline(p3);
     crossing->addPointToPolyline(p4);
     geospatialIndex_->insert(crossing);
+    return true;
+}
+
+bool FileReader::createTrafficSignal(QVariantMap properties) {
+    unsigned long hexId = 0, nodeId = 0;
+    if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_HEXID)) {
+        emit announceLog(tr("Traffic Signal does not have a valid hex id"));
+        return false;
+    }
+    hexId = properties[iSimParse::PARSE_KEYWORD_PROP_HEXID].toString().toLong(0, 16);
+
+    if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_NODE)) {
+        emit announceLog(tr("Traffic Signal %1 does not have a valid node id").arg(hexId));
+        return false;
+    }
+    nodeId = properties[iSimParse::PARSE_KEYWORD_PROP_NODE].toString().toLong(0, 16);
+
+    if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_PHASE)) {
+        emit announceLog(tr("Traffic Signal %1 does not have a valid phase list").arg(hexId));
+        return false;
+    }
+
+    TrafficSignal *trafficSignal = new TrafficSignal(hexId, nodeId);
+
+    QVariantList phases = properties[iSimParse::PARSE_KEYWORD_PROP_PHASE].toList();
+    foreach (QVariant phaseVariant, phases) {
+        QVariantMap phaseMap = phaseVariant.toMap();
+        QString name = phaseMap["name"].toString();
+        TrafficPhase* phase = new TrafficPhase(name);
+
+        //the list of segments contains the to & from info, along the color
+        foreach (QVariant segment, phaseMap["segments"].toList()) {
+            QVariantMap segmentMap = segment.toMap();
+            unsigned long fromSegId = segmentMap["segment_from"].toString().toLong(0, 16);
+            unsigned long toSegId = segmentMap["segment_to"].toString().toLong(0, 16);
+            phase->segments.append(QPair<unsigned long, unsigned long>(fromSegId, toSegId));
+        }
+
+        foreach (QVariant crossing, phaseMap["crossings"].toList()) {
+            QVariantMap crossingMap = crossing.toMap();
+            unsigned long crossingId = crossingMap["id"].toString().toLong(0, 16);
+            phase->crossings.append(crossingId);
+        }
+
+        trafficSignal->addPhase(name, phase);
+    }
+
+    geospatialIndex_->insert(trafficSignal);
+    return true;
+}
+
+bool FileReader::createPhaseData(QVariantMap properties) {
+    unsigned long hexId = 0;
+    unsigned int tick = 0;
+    QString currentPhase = "A";
+
+    if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_HEXID)) {
+        emit announceLog(tr("Phase Data does not have a valid hex id"));
+        return false;
+    }
+    hexId = properties[iSimParse::PARSE_KEYWORD_PROP_HEXID].toString().toLong(0, 16);
+
+    if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_FRAME)) {
+        emit announceLog(tr("Phase Data %1 does not have a valid frame").arg(hexId));
+        return false;
+    }
+    tick = properties[iSimParse::PARSE_KEYWORD_PROP_FRAME].toInt();
+
+    if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_CURRPHASE)) {
+        emit announceLog(tr("Phase Data %1 does not have a valid current phase").arg(hexId));
+        return false;
+    }
+    currentPhase = properties[iSimParse::PARSE_KEYWORD_PROP_CURRPHASE].toString();
+
+    QVariantList phases = properties[iSimParse::PARSE_KEYWORD_PROP_PHASE].toList();
+    foreach (QVariant phaseVariant, phases) {
+        QVariantMap phaseMap = phaseVariant.toMap();
+        QString name = phaseMap["name"].toString();
+        if (name == currentPhase) {
+
+            TrafficPhaseData* trafficPhaseData = new TrafficPhaseData(hexId, tick, name);
+            foreach (QVariant segment, phaseMap["segments"].toList()) {
+                QVariantMap segmentMap = segment.toMap();
+                //unsigned long fromSegId = segmentMap["segment_from"].toString().toLong(0, 16);
+                //unsigned long toSegId = segmentMap["segment_to"].toString().toLong(0, 16);
+                // Asume that the order of pair is the same in trafficsignal
+                unsigned int color = segmentMap["current_color"].toString().toInt();
+                trafficPhaseData->colors.append(color);
+            }
+            temporalIndex_->insert(trafficPhaseData);
+
+            foreach (QVariant crossing, phaseMap["crossings"].toList()) {
+                QVariantMap crossingMap = crossing.toMap();
+                unsigned long crossingId = crossingMap["id"].toString().toLong(0, 16);
+                unsigned int color = crossingMap["current_color"].toString().toInt();
+                CrossingPhaseData* crossingPhaseData = new CrossingPhaseData(tick, crossingId, color);
+                temporalIndex_->insert(crossingPhaseData);
+            }
+            break;
+        }
+    }
+
     return true;
 }

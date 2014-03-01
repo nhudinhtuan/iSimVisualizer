@@ -1,10 +1,11 @@
 #include "g_crossing.h"
 
-G_Crossing::G_Crossing(QGraphicsItem *parent, Crossing *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView)
-    : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), model_(model) {
+G_Crossing::G_Crossing(QGraphicsItem *parent, Crossing *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView, TemporalIndex *temporalIndex)
+    : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), temporalIndex_(temporalIndex), model_(model) {
 
     //setFlag(QGraphicsItem::ItemIsSelectable, true);
     brush_.setStyle(Qt::SolidPattern);
+    brush_.setColor(QColor(200,10,10,200));
     createCrossing();
 }
 
@@ -30,8 +31,23 @@ void G_Crossing::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    if (preferenceManager_->isCrossingDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getCrossingThreshold()) {
-        brush_.setColor(Qt::red);
+    if (preferenceManager_->isMicroscopicDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getMicroscopicThreshold()) {
+        updateColor();
         painter->fillPath(shape_, brush_);
+    }
+}
+
+void G_Crossing::updateColor() {
+    if (temporalIndex_->isMicroDataExisted()) {
+        int color = temporalIndex_->getCrossingPhaseColor(model_->getId());
+        switch(color) {
+            case 1: brush_.setColor(QColor(200,10,10,200));
+                    break;
+            case 2: brush_.setColor(QColor(200,150,10,200));
+                    break;
+            case 3: brush_.setColor(QColor(10,200,10,200));
+                    break;
+            default: break;
+        }
     }
 }

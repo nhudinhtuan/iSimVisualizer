@@ -59,7 +59,9 @@ private slots:
     void createGBusStop(BusStop *busStop);
     void createGSegment(RoadSegment *segment);
     void createGLane(Lane *lane);
+    void createGLaneConnector(LaneConnector *laneConnector);
     void createGCrossing(Crossing *crossing);
+    void createGTrafficSignal(TrafficSignal *crossing);
     void createLinkTreeItem(Link *link);
 
     void updateMapView();
@@ -75,8 +77,10 @@ private slots:
     void jumpToNextTick();
     void jumpToSimulation(int);
 
-    void updateGAgents(AgentList* agents);
+    void requestUpdateDynamicData();
+    void requestUpdateMicroData();
     void requestUpdateAgents();
+    void updateGAgents(AgentList* agents);
     void removeGAgents();
 
 private:

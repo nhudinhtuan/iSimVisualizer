@@ -1,5 +1,10 @@
 #include "agenttree.h"
 
+AgentTree::~AgentTree() {
+    for (QList<Agent*>::iterator i = agents_.begin(); i != agents_.end(); ++i)
+        delete *i;
+}
+
 void AgentTree::insert(Agent *agent) {
     // The agent has no width nor length.  So the lower-left corner equals to the
     // upper-right corner and is equal to the agent's position.
@@ -8,6 +13,7 @@ void AgentTree::insert(Agent *agent) {
     box.edges[1].first = box.edges[1].second = -agent->getPos().y();
     // Insert an agent into the tree, based on the bounding-box that encloses the agent.
     Insert(agent, box);
+    agents_.append(agent);
 }
 
 QList<Agent*> AgentTree::query(QPoint& lowerLeft, QPoint& upperRight) {
