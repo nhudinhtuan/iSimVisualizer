@@ -29,6 +29,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if (fileReader_) {
+        fileReader_->stopReader();
+        fileReader_->wait();
+    }
     delete ui_;
     delete geospatialIndex_;
     delete temporalIndex_;
@@ -111,20 +115,16 @@ void MainWindow::open() {
     }
 
     pauseSimulation();
+
     OpenFileDialog fileDialog(this);
     fileDialog.setNameFilter(tr("ShortTerm Output Text File (*.txt);;MediumTerm Output Text File (*.txt);;SimMobility Input XML File (*.xml)"));
-    fileDialog.addCheckBoxIn();
+    fileDialog.customize();
     fileDialog.show();
     if (fileDialog.exec() != QDialog::Accepted) return;
 
     QString path = fileDialog.selectedFiles().at(0);
-    QString selectedFilter = fileDialog.selectedNameFilter();
-    bool useDB = fileDialog.saveToDatabase->isChecked();
-    /*
-    iSimGUI::DataType type;
-    if (selectedFilter.contains("ShortTerm")) type = iSimGUI::DATA_SHORT_TERM;
-    else if (selectedFilter.contains("MediumTerm")) type = iSimGUI::DATA_MEDIUM_TERM;
-    else type = iSimGUI::DATA_SIM_XML;*/
+    iSimGUI::AccessType accessOption = fileDialog.getAccessOption();
+    qDebug() << "accessOption = " << accessOption;
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     fileReader_->wait();
@@ -249,7 +249,7 @@ void MainWindow::connectSignalAction() {
     connect(fileReader_, SIGNAL(finished()), this, SLOT(finishLoadFile()), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceStatus(QString)), statusBar(), SLOT(showMessage(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceSpatialDataFinished()), this, SLOT(loadGeospatial()), Qt::QueuedConnection);
-    connect(fileReader_, SIGNAL(announceTemporalDataExists()), this, SLOT(showSimulationGUI()), Qt::QueuedConnection);
+    connect(fileReader_, SIGNAL(announceTemporalDataExists()), this, SLOT(enableSimulationGUI()), Qt::QueuedConnection);
 
     connect(viewController_, SIGNAL(requestCreateGUniNode(UniNode *)), this, SLOT(createGUniNode(UniNode *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGMultiNode(MultiNode *)), this, SLOT(createGMultiNode(MultiNode *)), Qt::QueuedConnection);
@@ -298,6 +298,9 @@ void MainWindow::finishLoadingGeospatial() {
     ui_->actionToggleDynamicPage->setEnabled(true);
     ui_->actionToggleStaticElements->setEnabled(true);
     ui_->actionTogglePointTracker->setEnabled(true);
+
+    // show simulation GUI
+    showSimulationGUI();
 }
 
 void MainWindow::resetWorkspace() {
@@ -326,6 +329,7 @@ void MainWindow::resetUi() {
     ui_->sliderTick->hide();
     ui_->startSim->hide();
     ui_->pauseSim->hide();
+    ui_->startSim->setDisabled(true);
     ui_->labelUpperBoundTick->hide();
     ui_->actionToggleDynamicPage->setEnabled(false);
     ui_->actionToggleStaticElements->setEnabled(false);
@@ -364,8 +368,10 @@ void MainWindow::showSimulationGUI() {
     ui_->sliderTick->setValue(0);
     ui_->spinTick->setMaximum(0);
     ui_->spinTick->setValue(0);
+}
 
-
+void MainWindow::enableSimulationGUI() {
+    ui_->startSim->setDisabled(false);
 }
 
 void MainWindow::updateUpperTickValue(unsigned int value) {

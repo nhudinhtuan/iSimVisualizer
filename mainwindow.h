@@ -47,6 +47,7 @@ private slots:
     void updateProgressBar(int);
     void loadGeospatial();
     void showSimulationGUI();
+    void enableSimulationGUI();
     void updateUpperTickValue(unsigned int);
     void finishLoadingGeospatial();
     void finishLoadFile();

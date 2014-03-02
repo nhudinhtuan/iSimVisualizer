@@ -5,6 +5,9 @@
 G_BusDriver::G_BusDriver(QGraphicsItem *parent, BusDriver *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView)
     : G_Agent(parent, preferenceManager, mapView) {
 
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setVisible(true);
+
     pen_.setStyle(Qt::SolidLine);
     pen_.setWidth(10);
     pen_.setBrush(Qt::green);
