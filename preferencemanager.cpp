@@ -41,13 +41,13 @@ const int DEFAULT_MULTINODE_THRESHOLD = 10;
 const QString SEGMENT_THRESHOLD_SETTING = "segments/threshold";
 const int DEFAULT_SEGMENT_THRESHOLD = 10;
 const QString LANE_THRESHOLD_SETTING = "lanes/threshold";
-const int DEFAULT_LANE_THRESHOLD = 15;
+const int DEFAULT_LANE_THRESHOLD = 10;
 const QString LANE_CONNECTOR_THRESHOLD_SETTING = "laneConnectors/threshold";
 const int DEFAULT_LANE_CONNECTOR_THRESHOLD = 15;
 const QString CROSSING_THRESHOLD_SETTING = "crossing/threshold";
 const int DEFAULT_CROSSING_THRESHOLD = 15;
 const QString BUSSTOP_THRESHOLD_SETTING = "busStop/threshold";
-const int DEFAULT_BUSSTOP_THRESHOLD = 0;
+const int DEFAULT_BUSSTOP_THRESHOLD = 10;
 
 const QString UNINODE_EXTRA_INFO_SETTING = "uniNodes/extrainfo";
 const int DEFAULT_UNINODE_EXTRA_INFO = 0;

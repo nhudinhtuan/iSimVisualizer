@@ -30,8 +30,10 @@ protected:
     MapGraphicsView *mapView_;
     RoadSegment *model_;
     QPainterPath shape_;
+    QPainterPath baseSegmentShape_; // use when < threshold
 
     QBrush brush_;
+    QPen pen_;
     QColor colorForSelected_;
     QPointF center_;
     QGraphicsSimpleTextItem *annotation_;

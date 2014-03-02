@@ -9,6 +9,9 @@ G_Segment::G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManage
     colorForSelected_ = Qt::magenta;
     colorForSelected_.setAlpha(128);
     brush_.setStyle(Qt::SolidPattern);
+    pen_.setCapStyle(Qt::SquareCap);
+    pen_.setJoinStyle(Qt::MiterJoin);
+    pen_.setStyle(Qt::SolidLine);
     createSegment();
 
     annotation_ = new QGraphicsSimpleTextItem(this);
@@ -45,6 +48,14 @@ void G_Segment::createSegment() {
         minY = minY < lastLanePoly[i].y() ? minY : lastLanePoly[i].y();
         maxY = maxY > lastLanePoly[i].y() ? maxY : lastLanePoly[i].y();
     }
+
+    // create a base segment line
+    qreal p1x = (firstLanePoly.first().x() + lastLanePoly.first().x())/2;
+    qreal p1y = (firstLanePoly.first().y() + lastLanePoly.first().y())/2;
+    qreal p2x = (firstLanePoly.last().x() + lastLanePoly.last().x())/2;
+    qreal p2y = (firstLanePoly.last().y() + lastLanePoly.last().y())/2;
+    baseSegmentShape_.moveTo(p1x, p1y);
+    baseSegmentShape_.lineTo(p2x, p2y);
 #else
     QVector<QPointF>& segPolyline = model_->getPolyline();
     if (segPolyline.size() > 0) {
@@ -59,6 +70,7 @@ void G_Segment::createSegment() {
             maxY = maxY > segPolyline[i].y() ? maxY : segPolyline[i].y();
         }
     }
+    baseSegmentShape_ = shape_;
 #endif
     center_.setX((minX+maxX)/2);
     center_.setY((minY+maxY)/2);
@@ -72,8 +84,8 @@ void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
+    QColor color(preferenceManager_->getSegmentColor());
     if (preferenceManager_->isSegmentDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getSegmentThreshold()) {
-        QColor color(preferenceManager_->getSegmentColor());
         color.setAlpha(90);
         brush_.setColor(isSelected() ? colorForSelected_ : color);
         painter->fillPath(shape_, brush_);
@@ -86,6 +98,10 @@ void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             annotation_->setVisible(false);
         }
     } else {
+        pen_.setColor(isSelected() ? colorForSelected_ : color);
+        pen_.setWidth(model_->getWidth());
+        painter->setPen(pen_);
+        painter->drawPath(baseSegmentShape_);
         annotation_->setVisible(false);
     }
 }
