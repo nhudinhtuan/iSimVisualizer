@@ -1,11 +1,10 @@
 #include "agent.h"
 
-Agent::Agent(unsigned long id, unsigned int tick, QPointF pos, double angle, bool useDB) {
+Agent::Agent(unsigned long id, unsigned int tick, QPointF pos, double angle) {
     id_ = id;
     tick_ = tick;
     pos_ = pos;
     angle_ = angle;
-    useDB_ = useDB;
 }
 
 Agent::Agent() {
@@ -14,4 +13,11 @@ Agent::Agent() {
     pos_.setX(0);
     pos_.setY(0);
     angle_ = 0;
+}
+
+void Agent::update(Agent* data) {
+    id_ = data->id_;
+    tick_ = data->tick_;
+    pos_ = data->pos_;
+    angle_ = data->angle_;
 }

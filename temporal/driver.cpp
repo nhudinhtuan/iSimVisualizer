@@ -14,3 +14,13 @@ Driver::Driver() {
     mandatory_ = -1;
     info_ = "";
 }
+
+void Driver::update(Driver* other)
+{
+    Agent::update(other);
+    length_ = other->length_;
+    width_ = other->width_;
+    passenger_ = other->passenger_;
+    mandatory_ = other->mandatory_;
+    info_ = other->info_;
+}

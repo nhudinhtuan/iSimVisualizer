@@ -11,6 +11,8 @@ public:
     Pedestrian(){}
     virtual ~Pedestrian() {}
 
+    using Agent::update;
+    void update(Pedestrian* pedestrian);
     iSimGUI::AgentType getType() const { return iSimGUI::AGENT_PEDESTRIAN; }
 };
 

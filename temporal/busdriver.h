@@ -12,6 +12,9 @@ public :
     BusDriver();
     virtual ~BusDriver(){}
 
+    using Driver::update;
+    virtual void update(BusDriver*);
+
     unsigned long getRealArrivalTime() const { return realArrivalTime_;}
     int getDwellTime() const { return dwellTime_; }
     QString getBusLineID() const { return busLineID_; }

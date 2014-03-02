@@ -81,7 +81,6 @@ private slots:
     void requestUpdateMicroData();
     void requestUpdateAgents();
     void updateGAgents(AgentList* agents);
-    void removeGAgents();
 
 private:
     void initData();

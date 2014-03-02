@@ -47,7 +47,6 @@ signals:
     void requestCreateGTrafficSignal(TrafficSignal*);
     void requestCreateLinkTreeItem(Link*);
     void requestUpdateGAgents(AgentList*);
-    void requestRemoveGAgents();
     void finishLoadingGeospatial();
 
 protected:

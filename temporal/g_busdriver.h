@@ -7,13 +7,16 @@
 class G_BusDriver : public G_Agent
 {
 public:
-    G_BusDriver(QGraphicsItem *parent, BusDriver *model, PreferenceManager *preferenceManager);
-    Agent* getModel();
+    G_BusDriver(QGraphicsItem *parent, BusDriver *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    iSimGUI::AgentType getType() const { return iSimGUI::AGENT_BUS; }
+    void updateModel(Agent* model);
+    unsigned long getModelId() { return model_.getID();}
 
 private:
-    BusDriver* model_;
+    void updateModel(BusDriver *model);
+    BusDriver model_;
 };
 Q_DECLARE_METATYPE(G_BusDriver*)
 

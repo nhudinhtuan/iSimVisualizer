@@ -13,3 +13,10 @@ BusDriver::BusDriver() {
     dwellTime_ = 0;
     busLineID_ = "";
 }
+
+void BusDriver::update(BusDriver* data) {
+    Driver::update(data);
+    realArrivalTime_ = data->realArrivalTime_;
+    dwellTime_ = data->dwellTime_;
+    busLineID_ = data->busLineID_;
+}

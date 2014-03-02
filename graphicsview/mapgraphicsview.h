@@ -30,7 +30,6 @@ protected:
 private:
 
 public slots:
-    void myUpdateView();
     void focusOnItem(unsigned long id);
     void updateBackgroundColor();
 

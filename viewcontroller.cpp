@@ -73,7 +73,7 @@ void ViewController::doTask(iSimGUI::ControlTaskType task) {
                 updateAgents(bottomLeft, topRight);
             }
         } else {
-            emit requestRemoveGAgents();
+            emit requestUpdateGAgents(0);
         }
     }
 }

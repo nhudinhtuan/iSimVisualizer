@@ -1,7 +1,7 @@
 #include "g_agent.h"
 
-G_Agent::G_Agent(QGraphicsItem *parent, PreferenceManager *preferenceManager)
-    : QGraphicsObject(parent), preferenceManager_(preferenceManager) {
+G_Agent::G_Agent(QGraphicsItem *parent, PreferenceManager *preferenceManager, MapGraphicsView *mapView)
+    : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView) {
 
 }
 

@@ -11,7 +11,7 @@
 class G_AgentFactory
 {
 public:
-    static G_Agent* create(Agent*, PreferenceManager*);
+    static G_Agent* create(Agent*, PreferenceManager*, MapGraphicsView *mapView);
 };
 
 #endif // G_AGENTFACTORY_H

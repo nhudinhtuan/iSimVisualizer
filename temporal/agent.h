@@ -10,24 +10,22 @@ namespace iSimGUI {
 
 class Agent {
 public:
-    Agent(unsigned long id, unsigned int tick, QPointF pos, double angle, bool useDB = true);
+    Agent(unsigned long id, unsigned int tick, QPointF pos, double angle);
     Agent();
     virtual ~Agent(){}
 
+    virtual void update(Agent*);
     unsigned long getID() const { return id_; }
     unsigned int getTick() const { return tick_; }
     QPointF& getPos() {return pos_;}
-    long getUseDB() const { return useDB_; }
     double getAngle() const { return angle_; }
     virtual iSimGUI::AgentType getType() const = 0;
-    void setUseDB(bool useDB) { useDB_ = useDB; }
 
 protected:
     unsigned long id_;
     unsigned int tick_;
     QPointF pos_;
     double angle_;
-    bool useDB_;
 };
 
 #endif // AGENT_H

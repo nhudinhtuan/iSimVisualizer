@@ -68,11 +68,6 @@ void MapGraphicsView::paintEvent(QPaintEvent *event)
     QGraphicsView::paintEvent(event);
 }
 
-void MapGraphicsView::myUpdateView()
-{
-    viewport()->update();
-}
-
 void MapGraphicsView::focusOnItem(unsigned long id)
 {
 

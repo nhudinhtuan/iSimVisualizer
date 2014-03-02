@@ -7,13 +7,16 @@
 class G_Pedestrian : public G_Agent
 {
 public:
-    G_Pedestrian(QGraphicsItem *parent, Pedestrian *model, PreferenceManager *preferenceManager);
-    Agent* getModel();
+    G_Pedestrian(QGraphicsItem *parent, Pedestrian *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    iSimGUI::AgentType getType() const { return iSimGUI::AGENT_PEDESTRIAN; }
+    void updateModel(Agent* model);
+    unsigned long getModelId() { return model_.getID();}
 
 protected:
-    Pedestrian* model_;
+    void updateModel(Pedestrian *model);
+    Pedestrian model_;
 };
 Q_DECLARE_METATYPE(G_Pedestrian*)
 #endif // G_PEDESTRIAN_H

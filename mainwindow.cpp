@@ -257,7 +257,6 @@ void MainWindow::connectSignalAction() {
     connect(viewController_, SIGNAL(requestCreateLinkTreeItem(Link *)), this, SLOT(createLinkTreeItem(Link *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(finishLoadingGeospatial()), this, SLOT(finishLoadingGeospatial()), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestUpdateGAgents(AgentList*)), this, SLOT(updateGAgents(AgentList*)), Qt::QueuedConnection);
-    connect(viewController_, SIGNAL(requestRemoveGAgents()), this, SLOT(removeGAgents()), Qt::QueuedConnection);
 
     connect(temporalIndex_, SIGNAL(announceNewUpperTickValue(unsigned int)), this, SLOT(updateUpperTickValue(unsigned int)), Qt::QueuedConnection);
 }
@@ -298,9 +297,9 @@ void MainWindow::finishLoadingGeospatial() {
 
 void MainWindow::resetWorkspace() {
     pauseSimulation();
-    removeGAgents();
     if(scene_) delete scene_;
     scene_ = new QGraphicsScene(this);
+    scene_->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
     connect(scene_, SIGNAL(selectionChanged()), this, SLOT(updateSelectedTreeItem()), Qt::QueuedConnection);
     mapView_->setScene(scene_);
     mapView_->resetMatrix();
@@ -476,17 +475,42 @@ void MainWindow::createGTrafficSignal(TrafficSignal *trafficSignal) {
 }
 
 void MainWindow::updateGAgents(AgentList* agents) {
-    removeGAgents();
-    QList<Agent*>& list = agents->getList();
-    for (QList<Agent*>::iterator agentsIt = list.begin(); agentsIt != list.end(); ++agentsIt) {
-        Agent* agent = *agentsIt;
-        G_Agent* gAgent = G_AgentFactory::create(agent, preferenceManager_);
-        if (gAgent) {
-            gAgents_[agent->getID()] = gAgent;
-            scene_->addItem(gAgent);
+    QSet<unsigned long> seenItems;
+    if (agents) {
+        QList<Agent*>& list = agents->getList();
+        for (QList<Agent*>::iterator agentsIt = list.begin(); agentsIt != list.end(); ++agentsIt) {
+            Agent* agent = *agentsIt;
+            seenItems.insert(agent->getID());
+            if (gAgents_.contains(agent->getID())) {
+                G_Agent* currentAgent = gAgents_[agent->getID()];
+                if (currentAgent->getType() == agent->getType()) {
+                    currentAgent->updateModel(agent);
+                    continue;
+                } else {
+                    scene_->removeItem(currentAgent);
+                    delete currentAgent;
+                }
+            }
+            G_Agent* gAgent = G_AgentFactory::create(agent, preferenceManager_, mapView_);
+            if (gAgent) {
+                scene_->addItem(gAgent);
+                gAgents_[agent->getID()] = gAgent;
+            }
+        }
+        delete agents;
+    }
+    QHash<unsigned long, G_Agent*>::iterator gAgentIt = gAgents_.begin();
+    while (gAgentIt != gAgents_.end()) {
+        if (!seenItems.contains(gAgentIt.key())) {
+            scene_->removeItem(gAgentIt.value());
+            delete gAgentIt.value();
+            gAgentIt = gAgents_.erase(gAgentIt);
+        } else {
+            gAgentIt++;
         }
     }
-    delete agents;
+
+    updateMapView();
 }
 
 void MainWindow::focusOnGraphicsOfTreeItem(QTreeWidgetItem *item, int column) {
@@ -834,14 +858,4 @@ void MainWindow::requestUpdateMicroData() {
 
 void MainWindow::requestUpdateAgents() {
     viewController_->addTask(iSimGUI::UPDATE_AGENTS);
-}
-
-void MainWindow::removeGAgents() {
-    QHash<unsigned long, G_Agent*>::iterator agentsIt = gAgents_.begin();
-    while (agentsIt != gAgents_.end()) {
-        scene_->removeItem(agentsIt.value());
-        delete agentsIt.value();
-        agentsIt++;
-    }
-    gAgents_.clear();
 }
