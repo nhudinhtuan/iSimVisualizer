@@ -263,7 +263,7 @@
         <number>1</number>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="geospatialWidget">
         <layout class="QGridLayout" name="gridLayout_5">
@@ -281,12 +281,12 @@
            <widget class="QTreeWidget" name="geospatialTree">
             <column>
              <property name="text">
-              <string/>
+              <string>Type</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string/>
+              <string>Number</string>
              </property>
             </column>
            </widget>

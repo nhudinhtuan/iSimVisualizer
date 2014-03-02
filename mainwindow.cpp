@@ -12,7 +12,7 @@ namespace iSimGUI {
         SEGMENT_TREE_TYPE = 4,
         LANE_TREE_TYPE = 5,
         CROSSING_TREE_TYPE = 6,
-        BUSSTOP_TREE_TYPE = 7,
+        BUSSTOP_TREE_TYPE = 7
     };
 }
 
@@ -330,6 +330,8 @@ void MainWindow::resetUi() {
     ui_->actionToggleDynamicPage->setEnabled(false);
     ui_->actionToggleStaticElements->setEnabled(false);
     ui_->actionTogglePointTracker->setEnabled(false);
+    ui_->propertiesTable->setRowCount(0);
+    ui_->dynamicTable->setRowCount(0);
 
     if (uninodeTreeItems_) delete uninodeTreeItems_;
     uninodeTreeItems_ = new QTreeWidgetItem(ui_->geospatialTree, QStringList("UNINODES "));
