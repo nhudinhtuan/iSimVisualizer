@@ -17,7 +17,6 @@
 #include "io/filereader.h"
 #include "geospatial/geospatialindex.h"
 #include "temporal/temporalindex.h"
-#include "temporal/g_agentfactory.h"
 #include "preferencemanager.h"
 #include "viewcontroller.h"
 #include "graphicsview/mapgraphicsview.h"
@@ -43,7 +42,7 @@ private slots:
     void hideLeftStackedWidget();
     void openLogPage();
     void openGeospatialElementsPage();
-    void openBusRoutePage();
+    void openDynamicPage();
     void findLocation();
     void updateProgressBar(int);
     void loadGeospatial();
@@ -66,7 +65,7 @@ private slots:
 
     void updateMapView();
     void focusOnGraphicsOfTreeItem(QTreeWidgetItem *item, int column);
-    void updateSelectedTreeItem();
+    void updateSelectedItems();
     void searchGeo(QString key);
     void setGeoTreeItemsToDefaultState(QTreeWidgetItem* item);
     void filterGeoTreeItems(QList<QTreeWidgetItem*>&);
@@ -94,6 +93,10 @@ private:
     void showLaneProperty(Lane *data);
     void showCrossingProperty(Crossing *data);
     void showBusStopProperty(BusStop *data);
+
+    G_Agent* gAgentFactory(Agent*);
+    void showGAgentProperty(G_Agent *data);
+
 
     QTreeWidgetItem* getTreeItemFromGraphics(QGraphicsItem *gItem);
 

@@ -2,7 +2,6 @@
 #define G_BUSDRIVER_H
 
 #include "temporal/g_agent.h"
-#include "temporal/busdriver.h"
 
 class G_BusDriver : public G_Agent
 {
@@ -14,6 +13,8 @@ public:
     void updateModel(Agent* model);
     unsigned long getModelId() { return model_.getID();}
 
+    Agent* getModel() { return &model_;}
+    QList<QTableWidgetItem*> buildPropertyTable();
 private:
     void updateModel(BusDriver *model);
     BusDriver model_;

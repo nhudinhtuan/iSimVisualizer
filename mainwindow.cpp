@@ -77,12 +77,17 @@ void MainWindow::initUi() {
     busStopTreeItems_ = 0;
     crossingTreeItems_ = 0;
 
-    // properties table
+    // properties table for geo
     ui_->propertiesTable->horizontalHeader()->setStretchLastSection(true);
     ui_->propertiesTable->horizontalHeader()->resizeSection(0, 130);
     ui_->propertiesTable->verticalHeader()->setVisible(false);
     ui_->geoSplitter->setStretchFactor(0, 1);
     ui_->geoSplitter->setStretchFactor(1, 0);
+
+    // dynamic table
+    ui_->dynamicTable->horizontalHeader()->setStretchLastSection(true);
+    ui_->dynamicTable->horizontalHeader()->resizeSection(0, 130);
+    ui_->dynamicTable->verticalHeader()->setVisible(false);
     resetUi();
 }
 
@@ -105,6 +110,7 @@ void MainWindow::open() {
         }
     }
 
+    pauseSimulation();
     OpenFileDialog fileDialog(this);
     fileDialog.setNameFilter(tr("ShortTerm Output Text File (*.txt);;MediumTerm Output Text File (*.txt);;SimMobility Input XML File (*.xml)"));
     fileDialog.addCheckBoxIn();
@@ -173,10 +179,10 @@ void MainWindow::openGeospatialElementsPage() {
     ui_->leftStackedWidget->setCurrentWidget(ui_->geospatialWidget);
 }
 
-void MainWindow::openBusRoutePage() {
+void MainWindow::openDynamicPage() {
     ui_->leftWidget->show();
-    ui_->leftWidget->setWindowTitle("Bus Routes");
-    ui_->leftStackedWidget->setCurrentWidget(ui_->busRouteWidget);
+    ui_->leftWidget->setWindowTitle("Microscopic Elements");
+    ui_->leftStackedWidget->setCurrentWidget(ui_->dynamicWidget);
 }
 
 void MainWindow::findLocation() {
@@ -215,7 +221,7 @@ void MainWindow::connectSignalAction() {
     connect(ui_->actionOpen, SIGNAL(triggered()), this, SLOT(open()), Qt::QueuedConnection);
     connect(ui_->actionToggleHideLeftWidget, SIGNAL(triggered()), this, SLOT(hideLeftStackedWidget()), Qt::QueuedConnection);
     connect(ui_->actionToggleStaticElements, SIGNAL(triggered()), this, SLOT(openGeospatialElementsPage()), Qt::QueuedConnection);
-    connect(ui_->actionToggleBusRoute, SIGNAL(triggered()), this, SLOT(openBusRoutePage()), Qt::QueuedConnection);
+    connect(ui_->actionToggleDynamicPage, SIGNAL(triggered()), this, SLOT(openDynamicPage()), Qt::QueuedConnection);
     connect(ui_->actionToggleLog, SIGNAL(triggered()), this, SLOT(openLogPage()), Qt::QueuedConnection);
     connect(ui_->actionTogglePointTracker, SIGNAL(triggered()), this, SLOT(findLocation()), Qt::QueuedConnection);
     connect(ui_->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferencesDialog()), Qt::QueuedConnection);
@@ -224,8 +230,7 @@ void MainWindow::connectSignalAction() {
     connect(ui_->geospatialSearchField, SIGNAL(textChanged(QString)), this, SLOT(searchGeo(QString)));
     connect(ui_->startSim, SIGNAL(clicked()), this, SLOT(startSimulation()), Qt::QueuedConnection);
     connect(ui_->pauseSim, SIGNAL(clicked()), this, SLOT(pauseSimulation()), Qt::QueuedConnection);
-    connect(ui_->spinTick, SIGNAL(valueChanged(int)), ui_->sliderTick, SLOT(setValue(int)), Qt::QueuedConnection);
-    connect(ui_->sliderTick, SIGNAL(valueChanged(int)), ui_->spinTick, SLOT(setValue(int)), Qt::QueuedConnection);
+    connect(ui_->spinTick, SIGNAL(valueChanged(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
     connect(ui_->sliderTick, SIGNAL(valueChanged(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
     connect(ui_->sliderTick, SIGNAL(sliderPressed()), this, SLOT(pauseSimulation()), Qt::QueuedConnection);
     connect(timer_, SIGNAL(timeout()), this, SLOT(jumpToNextTick()), Qt::QueuedConnection);
@@ -290,17 +295,18 @@ void MainWindow::finishLoadingGeospatial() {
 
     // enable UI components
     ui_->mapStackedWidget->show();
-    ui_->actionToggleBusRoute->setEnabled(true);
+    ui_->actionToggleDynamicPage->setEnabled(true);
     ui_->actionToggleStaticElements->setEnabled(true);
     ui_->actionTogglePointTracker->setEnabled(true);
 }
 
 void MainWindow::resetWorkspace() {
     pauseSimulation();
+    updateGAgents(0);
     if(scene_) delete scene_;
     scene_ = new QGraphicsScene(this);
     scene_->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
-    connect(scene_, SIGNAL(selectionChanged()), this, SLOT(updateSelectedTreeItem()), Qt::QueuedConnection);
+    connect(scene_, SIGNAL(selectionChanged()), this, SLOT(updateSelectedItems()), Qt::QueuedConnection);
     mapView_->setScene(scene_);
     mapView_->resetMatrix();
 
@@ -321,7 +327,7 @@ void MainWindow::resetUi() {
     ui_->startSim->hide();
     ui_->pauseSim->hide();
     ui_->labelUpperBoundTick->hide();
-    ui_->actionToggleBusRoute->setEnabled(false);
+    ui_->actionToggleDynamicPage->setEnabled(false);
     ui_->actionToggleStaticElements->setEnabled(false);
     ui_->actionTogglePointTracker->setEnabled(false);
 
@@ -485,13 +491,16 @@ void MainWindow::updateGAgents(AgentList* agents) {
                 G_Agent* currentAgent = gAgents_[agent->getID()];
                 if (currentAgent->getType() == agent->getType()) {
                     currentAgent->updateModel(agent);
+                    if (currentAgent->isSelected()) {
+                        showGAgentProperty(currentAgent);
+                    }
                     continue;
                 } else {
                     scene_->removeItem(currentAgent);
                     delete currentAgent;
                 }
             }
-            G_Agent* gAgent = G_AgentFactory::create(agent, preferenceManager_, mapView_);
+            G_Agent* gAgent = gAgentFactory(agent);
             if (gAgent) {
                 scene_->addItem(gAgent);
                 gAgents_[agent->getID()] = gAgent;
@@ -511,6 +520,34 @@ void MainWindow::updateGAgents(AgentList* agents) {
     }
 
     updateMapView();
+}
+
+G_Agent* MainWindow::gAgentFactory(Agent* model) {
+    switch(model->getType()) {
+        case iSimGUI::AGENT_DRIVER: {
+            Driver* driver = dynamic_cast<Driver*>(model);
+            return new G_Driver(0, driver, preferenceManager_, mapView_);
+        }
+        case iSimGUI::AGENT_BUS: {
+            BusDriver* bus = dynamic_cast<BusDriver*>(model);
+            return new G_BusDriver(0, bus, preferenceManager_, mapView_);
+        }
+        case iSimGUI::AGENT_PEDESTRIAN: {
+            Pedestrian* pedestrian = dynamic_cast<Pedestrian*>(model);
+            return new G_Pedestrian(0, pedestrian, preferenceManager_, mapView_);
+        }
+    }
+    return 0;
+}
+
+void MainWindow::showGAgentProperty(G_Agent *data) {
+    QList<QTableWidgetItem*> property = data->buildPropertyTable();
+    ui_->dynamicTable->setRowCount(property.size()/2);
+    int index = 0;
+    for (QList<QTableWidgetItem*>::iterator i = property.begin(); i != property.end(); ++i) {
+        ui_->dynamicTable->setItem(index/2, index%2, *i);
+        index++;
+    }
 }
 
 void MainWindow::focusOnGraphicsOfTreeItem(QTreeWidgetItem *item, int column) {
@@ -570,7 +607,7 @@ void MainWindow::focusOnGraphicsOfTreeItem(QTreeWidgetItem *item, int column) {
     }
 }
 
-void MainWindow::updateSelectedTreeItem() {
+void MainWindow::updateSelectedItems() {
     QList<QGraphicsItem*> selectedItems = scene_->selectedItems();
     if (selectedItems.isEmpty()) {
         return;
@@ -580,6 +617,11 @@ void MainWindow::updateSelectedTreeItem() {
     if (treeItem) {
         treeItem->setHidden(false);
         ui_->geospatialTree->setCurrentItem(treeItem);
+    } else {
+        if (!timer_->isActive()) {
+            requestUpdateDynamicData();
+            openDynamicPage();
+        }
     }
 }
 
@@ -737,7 +779,6 @@ void MainWindow::showBusStopProperty(BusStop *data) {
 }
 
 void MainWindow::searchGeo(QString key) {
-
     // back to default
     for (int i = 0; i < ui_->geospatialTree->topLevelItemCount(); i++) {
         QTreeWidgetItem *child = ui_->geospatialTree->topLevelItem(i);
@@ -833,8 +874,11 @@ void MainWindow::pauseSimulation() {
 }
 
 void MainWindow::jumpToSimulation(int tick) {
-    temporalIndex_->jumpToTick(tick);
-    requestUpdateDynamicData();
+    if (temporalIndex_->jumpToTick(tick)) {
+        ui_->sliderTick->setValue(tick);
+        ui_->spinTick->setValue(tick);
+        requestUpdateDynamicData();
+    }
 }
 
 void MainWindow::jumpToNextTick() {
@@ -844,7 +888,7 @@ void MainWindow::jumpToNextTick() {
         ui_->spinTick->setValue(tick);
         requestUpdateDynamicData();
     } else {
-        timer_->stop();
+        pauseSimulation();
     }
 }
 

@@ -18,6 +18,9 @@
 #include "geospatial/g_crossing.h"
 #include "geospatial/g_trafficsignal.h"
 #include "temporal/g_agent.h"
+#include "temporal/g_driver.h"
+#include "temporal/g_busdriver.h"
+#include "temporal/g_pedestrian.h"
 
 namespace iSimGUI {
 enum ControlTaskType {

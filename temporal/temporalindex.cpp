@@ -52,7 +52,7 @@ unsigned int TemporalIndex::jumpToNextTick() {
 }
 
 bool TemporalIndex::jumpToTick(unsigned int tick) {
-    if (tick < uniqueTicks_.last()) {
+    if (tick < uniqueTicks_.last() && currentTick_ != tick) {
         currentTick_ = tick;
         return true;
     }

@@ -52,7 +52,6 @@ SOURCES += main.cpp\
     rstart_tree/agenttree.cpp \
     temporal/g_agent.cpp \
     temporal/g_driver.cpp \
-    temporal/g_agentfactory.cpp \
     temporal/agentlist.cpp \
     temporal/g_pedestrian.cpp \
     temporal/g_busdriver.cpp \
@@ -106,7 +105,6 @@ HEADERS  += mainwindow.h \
     rstart_tree/agenttree.h \
     temporal/g_agent.h \
     temporal/g_driver.h \
-    temporal/g_agentfactory.h \
     temporal/agentlist.h \
     temporal/g_pedestrian.h \
     temporal/g_busdriver.h \

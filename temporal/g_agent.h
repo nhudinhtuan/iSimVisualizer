@@ -5,7 +5,11 @@
 #include <QObject>
 #include <QGraphicsObject>
 #include <QList>
+#include <QTableWidgetItem>
 #include "temporal/agent.h"
+#include "temporal/driver.h"
+#include "temporal/busdriver.h"
+#include "temporal/pedestrian.h"
 #include "preferencemanager.h"
 #include "graphicsview/mapgraphicsview.h"
 
@@ -20,6 +24,9 @@ public:
     virtual iSimGUI::AgentType getType() const = 0;
     virtual void updateModel(Agent* model) = 0;
     virtual unsigned long getModelId() = 0;
+
+    virtual Agent* getModel() = 0;
+    virtual QList<QTableWidgetItem*> buildPropertyTable() = 0;
 
 protected:
     PreferenceManager *preferenceManager_;

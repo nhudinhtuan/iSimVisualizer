@@ -2,7 +2,6 @@
 #define G_DRIVER_H
 
 #include "temporal/g_agent.h"
-#include "temporal/driver.h"
 
 class G_Driver : public G_Agent
 {
@@ -14,6 +13,8 @@ public:
     void updateModel(Agent* model);
     unsigned long getModelId() { return model_.getID();}
 
+    Agent* getModel() { return &model_;}
+    QList<QTableWidgetItem*> buildPropertyTable();
 protected:
     void updateModel(Driver *model);
     Driver model_;

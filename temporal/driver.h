@@ -1,6 +1,7 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
+#include <QVariant>
 #include "agent.h"
 
 class Driver: public Agent
@@ -8,7 +9,7 @@ class Driver: public Agent
 public:
 
     Driver(unsigned long id, unsigned int tick, QPointF pos, double angle, double length,
-           double width, int passenger, int mandatory = -1, QString info = "");
+           double width, unsigned long currentSegment, int fwdSpeed, int fwdAccel, int mandatory, QString info);
     Driver();
     using Agent::update;
     virtual void update(Driver*);
@@ -16,9 +17,11 @@ public:
 
     double getLength() const { return length_; }
     double getWidth() const { return width_; }
-    int getPassenger() const { return passenger_; }
     int getMandatory() const { return mandatory_;}
     QString getInfo() const { return info_;}
+    unsigned long getCurrentSegment() const { return currentSegment_;}
+    int getFwdSpeed() const { return fwdSpeed_;}
+    int getFwdAccel() const { return fwdAccel_;}
     iSimGUI::AgentType getType() const { return iSimGUI::AGENT_DRIVER; }
 
 protected:
@@ -26,7 +29,9 @@ protected:
     double width_;
     QString info_;
     int mandatory_;
-    int passenger_;
+    unsigned long currentSegment_;
+    int fwdSpeed_;
+    int fwdAccel_;
 };
-
+Q_DECLARE_METATYPE(Driver)
 #endif // DRIVER_H

@@ -50,3 +50,34 @@ void G_BusDriver::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     }
     painter->drawImage(rect_.toRect(), image_);
 }
+
+QList<QTableWidgetItem*> G_BusDriver::buildPropertyTable() {
+    QList<QTableWidgetItem*> property;
+    property.append(new QTableWidgetItem("Type "));
+    property.append(new QTableWidgetItem("Pedestrian "));
+    property.append(new QTableWidgetItem("Id "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getID())));
+    property.append(new QTableWidgetItem("Tick "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getTick())));
+    QPointF& pos = model_.getPos();
+    property.append(new QTableWidgetItem("XPos "));
+    property.append(new QTableWidgetItem(tr("%1").arg(pos.x())));
+    property.append(new QTableWidgetItem("YPos "));
+    property.append(new QTableWidgetItem(tr("%1").arg(-pos.y())));
+    property.append(new QTableWidgetItem("Angle "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getAngle())));
+    property.append(new QTableWidgetItem("Length "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getLength())));
+    property.append(new QTableWidgetItem("Width "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getWidth())));
+    property.append(new QTableWidgetItem("Passenger "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getPassenger())));
+    property.append(new QTableWidgetItem("Real Arrival Time "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getRealArrivalTime())));
+    property.append(new QTableWidgetItem("DwellTime "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getDwellTime())));
+    property.append(new QTableWidgetItem("Bus Line Id "));
+    property.append(new QTableWidgetItem(model_.getBusLineID()));
+
+    return property;
+}

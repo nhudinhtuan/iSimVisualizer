@@ -54,6 +54,9 @@ const QString PARSE_KEYWORD_PROP_MAXSPEED = "max-speed";
 const QString PARSE_KEYWORD_PROP_WIDTH = "width";
 const QString PARSE_KEYWORD_PROP_MANDATORY = "mandatory";
 const QString PARSE_KEYWORD_PROP_INFO = "info";
+const QString PARSE_KEYWORD_PROP_CURRSEGMENT = "curr-segment";
+const QString PARSE_KEYWORD_PROP_FWDSPEED = "fwd-speed";
+const QString PARSE_KEYWORD_PROP_FWDACCEL = "fwd-accel";
 const QString PARSE_KEYWORD_PROP_LANES = "lanes";
 const QString PARSE_KEYWORD_PROP_FROMNODE = "from-node";
 const QString PARSE_KEYWORD_PROP_TONODE = "to-node";
@@ -294,11 +297,12 @@ bool FileReader::createAgent(const QString& objType, unsigned long objID, unsign
 }
 
 bool FileReader::createDriver(unsigned long objID, unsigned int frameID, QMap<QString, QString> &properties) {
-    //("Driver",11,47,{"xPos":"37271822","yPos":"14399409","angle":"128.89281","length":"400","width":"200","info":"MLC","mandatory":"0"})
-
+    //("Driver",11,47,{"xPos":"37271822","yPos":"14399409","angle":"128.89281","length":"400","width":"200"})
+    // optional {"curr-segment":"0xa381ae0", "fwd-speed":"50","fwd-accel":"500", "info":"MLC","mandatory":"0"}
     double xPos = 0, yPos = 0;
     double angle, length, width;
-    int mandatory = -1;
+    unsigned long currentSegment = 0;
+    int mandatory = -1, fwdSpeed = 0, fwdAccel = 0;
     QString info = "";
 
     QMap<QString, QString>::iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_LOCATIONX);
@@ -336,6 +340,24 @@ bool FileReader::createDriver(unsigned long objID, unsigned int frameID, QMap<QS
     }
     width = QString(propertiesIter.value()).toDouble();
 
+    // get curr-segment (optional)
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_CURRSEGMENT);
+    if (propertiesIter!=properties.end()) {
+        currentSegment = QString(propertiesIter.value()).toULong(0, 16);
+    }
+
+    // get fwd-speed (optional)
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_FWDSPEED);
+    if (propertiesIter!=properties.end()) {
+        fwdSpeed = QString(propertiesIter.value()).toInt();
+    }
+
+    // get fwd-accel (optional)
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_FWDACCEL);
+    if (propertiesIter!=properties.end()) {
+        fwdAccel = QString(propertiesIter.value()).toInt();
+    }
+
     // Get info (optional)
     propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_INFO);
     if (propertiesIter!=properties.end()) {
@@ -348,7 +370,7 @@ bool FileReader::createDriver(unsigned long objID, unsigned int frameID, QMap<QS
         mandatory = QString(propertiesIter.value()).toInt();
     }
 
-    Agent* agent = new Driver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, 0, mandatory, info);
+    Agent* agent = new Driver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, currentSegment, fwdSpeed, fwdAccel, mandatory, info);
     temporalIndex_->insert(agent);
 
     return true;

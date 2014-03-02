@@ -221,7 +221,7 @@
    <addaction name="separator"/>
    <addaction name="actionToggleHideLeftWidget"/>
    <addaction name="actionToggleStaticElements"/>
-   <addaction name="actionToggleBusRoute"/>
+   <addaction name="actionToggleDynamicPage"/>
    <addaction name="separator"/>
    <addaction name="actionTogglePointTracker"/>
    <addaction name="actionToggleLog"/>
@@ -238,6 +238,9 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <layout class="QGridLayout" name="gridLayout_4">
      <property name="leftMargin">
       <number>0</number>
@@ -260,7 +263,7 @@
         <number>1</number>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="geospatialWidget">
         <layout class="QGridLayout" name="gridLayout_5">
@@ -328,20 +331,38 @@ background-repeat: no-repeat;</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="busRouteWidget">
-        <widget class="QLabel" name="busRouteLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>171</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Bus Route Label</string>
-         </property>
-        </widget>
+       <widget class="QWidget" name="dynamicWidget">
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="dynamicLabel">
+           <property name="font">
+            <font>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text">
+            <string>Select an agent on screen.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QTableWidget" name="dynamicTable">
+           <property name="styleSheet">
+            <string notr="true">border: none;</string>
+           </property>
+           <column>
+            <property name="text">
+             <string>Property</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Value</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="logWidget">
         <layout class="QGridLayout" name="gridLayout_3">
@@ -470,17 +491,17 @@ border: none;</string>
     <string>search static elements</string>
    </property>
   </action>
-  <action name="actionToggleBusRoute">
+  <action name="actionToggleDynamicPage">
    <property name="icon">
-    <iconset>
-     <normalon>:/ui_icons/bus_route.png</normalon>
-    </iconset>
+    <iconset resource="icons.qrc">
+     <normaloff>:/ui_icons/Car_Icon.png</normaloff>
+     <normalon>:/ui_icons/bus_route.png</normalon>:/ui_icons/Car_Icon.png</iconset>
    </property>
    <property name="text">
-    <string>toggleBusRoute</string>
+    <string>toggleDynamicPage</string>
    </property>
    <property name="toolTip">
-    <string>Search bus route</string>
+    <string>view dynamic components</string>
    </property>
   </action>
   <action name="actionLoadFromDB">

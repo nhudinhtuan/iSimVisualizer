@@ -52,3 +52,35 @@ void G_Driver::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     }
     painter->drawImage(rect_.toRect(), image_);
 }
+
+QList<QTableWidgetItem*> G_Driver::buildPropertyTable() {
+    QList<QTableWidgetItem*> property;
+    property.append(new QTableWidgetItem("Type "));
+    property.append(new QTableWidgetItem("Driver "));
+    property.append(new QTableWidgetItem("Id "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getID())));
+    property.append(new QTableWidgetItem("Tick "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getTick())));
+    QPointF& pos = model_.getPos();
+    property.append(new QTableWidgetItem("XPos "));
+    property.append(new QTableWidgetItem(tr("%1").arg(pos.x())));
+    property.append(new QTableWidgetItem("YPos "));
+    property.append(new QTableWidgetItem(tr("%1").arg(-pos.y())));
+    property.append(new QTableWidgetItem("Angle "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getAngle())));
+    property.append(new QTableWidgetItem("Length "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getLength())));
+    property.append(new QTableWidgetItem("Width "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getWidth())));
+    property.append(new QTableWidgetItem("Current Segment "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getCurrentSegment())));
+    property.append(new QTableWidgetItem("Fwd-speed "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getFwdSpeed())));
+    property.append(new QTableWidgetItem("Fwd-accel "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getFwdAccel())));
+    property.append(new QTableWidgetItem("Madatory "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getMandatory())));
+    property.append(new QTableWidgetItem("Info "));
+    property.append(new QTableWidgetItem(tr("%1").arg(model_.getInfo())));
+    return property;
+}
