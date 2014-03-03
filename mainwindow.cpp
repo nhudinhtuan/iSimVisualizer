@@ -72,9 +72,6 @@ void MainWindow::initUi() {
     statusBar()->addPermanentWidget(progressBar_);
     statusBar()->addPermanentWidget(pointerTracker_);
 
-    ui_->sliderTick->setTickInterval(10);
-    ui_->sliderTick->setTickPosition(QSlider::TicksBothSides);
-
     // add map view
     ui_->mapLayout->addWidget(mapView_);
 
