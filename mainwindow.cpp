@@ -72,6 +72,9 @@ void MainWindow::initUi() {
     statusBar()->addPermanentWidget(progressBar_);
     statusBar()->addPermanentWidget(pointerTracker_);
 
+    ui_->sliderTick->setTickInterval(10);
+    ui_->sliderTick->setTickPosition(QSlider::TicksBothSides);
+
     // add map view
     ui_->mapLayout->addWidget(mapView_);
 
@@ -239,7 +242,7 @@ void MainWindow::connectSignalAction() {
     connect(ui_->startSim, SIGNAL(clicked()), this, SLOT(startSimulation()), Qt::QueuedConnection);
     connect(ui_->pauseSim, SIGNAL(clicked()), this, SLOT(pauseSimulation()), Qt::QueuedConnection);
     connect(ui_->spinTick, SIGNAL(valueChanged(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
-    connect(ui_->sliderTick, SIGNAL(valueChanged(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
+    connect(ui_->sliderTick, SIGNAL(sliderMoved(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
     connect(ui_->sliderTick, SIGNAL(sliderPressed()), this, SLOT(pauseSimulation()), Qt::QueuedConnection);
     connect(timer_, SIGNAL(timeout()), this, SLOT(jumpToNextTick()), Qt::QueuedConnection);
 
