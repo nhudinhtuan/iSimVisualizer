@@ -790,7 +790,7 @@ void MainWindow::showCrossingProperty(Crossing *data) {
 }
 
 void MainWindow::showBusStopProperty(BusStop *data) {
-    ui_->propertiesTable->setRowCount(3);
+    ui_->propertiesTable->setRowCount(4);
     ui_->propertiesTable->setItem(0, 0, new QTableWidgetItem("Node ID "));
     ui_->propertiesTable->setItem(0, 1, new QTableWidgetItem(tr("%1").arg(data->getId())));
     QPointF& pos = data->getPos();
@@ -798,6 +798,8 @@ void MainWindow::showBusStopProperty(BusStop *data) {
     ui_->propertiesTable->setItem(1, 1, new QTableWidgetItem(tr("%1").arg(pos.x())));
     ui_->propertiesTable->setItem(2, 0, new QTableWidgetItem("YPos "));
     ui_->propertiesTable->setItem(2, 1, new QTableWidgetItem(tr("%1").arg(-pos.y())));
+    ui_->propertiesTable->setItem(3, 0, new QTableWidgetItem("AimsunId "));
+    ui_->propertiesTable->setItem(3, 1, new QTableWidgetItem(tr("%1").arg(data->getAimsunId())));
 }
 
 void MainWindow::searchGeo(QString key) {

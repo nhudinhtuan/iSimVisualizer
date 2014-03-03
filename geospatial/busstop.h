@@ -6,12 +6,14 @@
 class BusStop
 {
 public:
-    BusStop(unsigned long id, QPointF pos);
+    BusStop(unsigned long id, unsigned long aimsunId, QPointF pos);
     unsigned long getId() {return id_;}
+    unsigned long getAimsunId() { return aimsunId_;}
     QPointF& getPos() {return pos_;}
 
 private:
     unsigned long id_;
+    unsigned long aimsunId_;
     QPointF pos_;
 
 };

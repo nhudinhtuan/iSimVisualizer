@@ -783,7 +783,14 @@ bool FileReader::createBusstop(unsigned long id, QMap<QString, QString> &propert
     QString near_1 = propertiesIter.value();
     QStringList near1Split = near_1.split(",");
 
-    BusStop *busStop = new BusStop(id, genCoordinate(near1Split.at(0).toDouble(), near1Split.at(1).toDouble()));
+    // get aimsunId
+    unsigned long aimsunId = 0;
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_AIMSUNID);
+    if (propertiesIter!=properties.end()) {
+        aimsunId = propertiesIter.value().toULong(0, 10);
+    }
+
+    BusStop *busStop = new BusStop(id, aimsunId, genCoordinate(near1Split.at(0).toDouble(), near1Split.at(1).toDouble()));
     geospatialIndex_->insert(busStop);
     return true;
 }
