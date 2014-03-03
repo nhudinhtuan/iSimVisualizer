@@ -2,6 +2,7 @@
 #define GEOSPATIALINDEX_H
 
 #include <QHash>
+#include <QSqlDatabase>
 #include "multinode.h"
 #include "uninode.h"
 #include "link.h"
@@ -45,6 +46,8 @@ public:
     void insert(Crossing *crossing);
     void insert(TrafficSignal *trafficSignal);
 
+    void setWriteToDB(int fileId);
+
 private:
     QHash<unsigned long, UniNode*> uniNodes_;
     QHash<unsigned long, MultiNode*> multiNodes_;
@@ -54,6 +57,10 @@ private:
     QHash<unsigned long, BusStop*> busStops_;
     QHash<unsigned long, Crossing*> crossings_;
     QHash<unsigned long, TrafficSignal*> trafficSignals_;
+
+    //db
+    QSqlDatabase geoDb_;
+    int fileId_;
 };
 
 #endif // GEOSPATIALINDEX_H

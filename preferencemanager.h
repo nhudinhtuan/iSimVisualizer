@@ -96,6 +96,14 @@ public:
     int getSegmentExtraInfo() { return segmentExtraInfo_;}
     int getLaneExtraInfo() { return laneExtraInfo_;}
 
+    QString& getDBHost() { return dbHost_;}
+    int getDBPort() { return dbPort_;}
+    QString& getDBUsername() { return dbUser_;}
+    QString& getDBPass() { return dbPass_;}
+    QString& getDBName() { return dbName_;}
+
+    void setDBInfo(QString host, int port, QString username, QString password, QString dbName);
+
     void setDriverIcon(int val);
     void setBusIcon(int val);
     void setPedestrianIcon(int val);
@@ -110,6 +118,7 @@ signals:
     void updateMapViewAttr();
     void updateMicroData();
     void updateAgents();
+    void updateDBConf();
 
 public slots:
     void initDisplayed();
@@ -117,7 +126,7 @@ public slots:
     void initThreshold();
     void initExtraInfo();
     void initAgentIcon();
-
+    void initDBIConf();
 
 private:
 
@@ -154,6 +163,12 @@ private:
     int driverIcon_;
     int busIcon_;
     int pedestrianIcon_;
+
+    QString dbHost_;
+    int dbPort_;
+    QString dbUser_;
+    QString dbPass_;
+    QString dbName_;
 };
 
 #endif // PREFERENCEMANAGER_H

@@ -40,6 +40,13 @@ void PreferenceDialog::initUI() {
     ui_->busstopSpinBox->setValue(preferenceManager_->getBusstopThreshold());
     ui_->microSpinBox->setValue(preferenceManager_->getMicroscopicThreshold());
 
+    //db
+    ui_->hostInput->setText(preferenceManager_->getDBHost());
+    ui_->portInput->setValue(preferenceManager_->getDBPort());
+    ui_->usernameInput->setText(preferenceManager_->getDBUsername());
+    ui_->passwordInput->setText(preferenceManager_->getDBPass());
+    ui_->dbNameInput->setText(preferenceManager_->getDBName());
+
     // geospatial extra info
     for (int i = 0; i < iSimGUI::N_NODE_EXTRA_INFO; i++) {
         ui_->uninodeExtraInfo->addItem(iSimGUI::NODE_EXTRA_INFO[i]);
@@ -222,6 +229,7 @@ void PreferenceDialog::changePedestrianIcon(int value) {
 }
 
 void PreferenceDialog::initSignal() {
+    connect(ui_->closeButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->bg_color, SIGNAL(clicked()), this, SLOT(selectBgColor()));
 
     // checkbox for geospatial
@@ -266,4 +274,50 @@ void PreferenceDialog::initSignal() {
     connect(ui_->multinodeExtraInfo, SIGNAL(currentIndexChanged(int)), this, SLOT(changeMultinodeExtraInfo(int)));
     connect(ui_->segmentExtraInfo, SIGNAL(currentIndexChanged(int)), this, SLOT(changeSegmentExtraInfo(int)));
     connect(ui_->laneExtraInfo, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLaneExtraInfo(int)));
+
+    // db
+    connect(ui_->testConBut, SIGNAL(clicked()), this, SLOT(testDBConnection()));
+    connect(ui_->hostInput, SIGNAL(textEdited(const QString &)), this, SLOT(resetDBUI()));
+    connect(ui_->usernameInput, SIGNAL(textEdited(const QString &)), this, SLOT(resetDBUI()));
+    connect(ui_->passwordInput, SIGNAL(textEdited(const QString &)), this, SLOT(resetDBUI()));
+    connect(ui_->dbNameInput, SIGNAL(textEdited(const QString &)), this, SLOT(resetDBUI()));
+    connect(ui_->portInput, SIGNAL(valueChanged(int)), this, SLOT(resetDBUI()));
+    connect(ui_->saveDbBut, SIGNAL(clicked()), this, SLOT(saveDBConf()));
+}
+
+void PreferenceDialog::testDBConnection() {
+    QString host = ui_->hostInput->text();
+    QString user = ui_->usernameInput->text();
+    QString pass = ui_->passwordInput->text();
+    QString dbName = ui_->dbNameInput->text();
+    if (host.isEmpty() || user.isEmpty() || dbName.isEmpty()) {
+        ui_->dbMessage->setText(tr("Error: Please enter all db information!"));
+        return;
+    }
+    int port = ui_->portInput->value();
+    QString error;
+    if (DBHandler::testConnection(host, port, user, pass, dbName, &error)) {
+        ui_->dbMessage->setText(tr("Connecting Successfully!"));
+        ui_->saveDbBut->setDisabled(false);
+        ui_->testConBut->setDisabled(true);
+    } else {
+        ui_->dbMessage->setText(error);
+    }
+}
+
+void PreferenceDialog::resetDBUI() {
+    ui_->dbMessage->setText("");
+    ui_->testConBut->setDisabled(false);
+    ui_->saveDbBut->setDisabled(true);
+}
+
+void PreferenceDialog::saveDBConf() {
+    QString host = ui_->hostInput->text();
+    QString user = ui_->usernameInput->text();
+    QString pass = ui_->passwordInput->text();
+    QString dbName = ui_->dbNameInput->text();
+    int port = ui_->portInput->value();
+    preferenceManager_->setDBInfo(host, port, user, pass, dbName);
+    ui_->dbMessage->setText(tr("The new DB Configuration is saved successfully. The workspace is reset."));
+    ui_->saveDbBut->setDisabled(true);
 }

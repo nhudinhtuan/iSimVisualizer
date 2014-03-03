@@ -40,6 +40,7 @@ MainWindow::~MainWindow()
     delete preferenceManager_;
     delete mapView_;
     delete scene_;
+    delete dbHandler_;
 }
 
 void MainWindow::initData() {
@@ -52,6 +53,12 @@ void MainWindow::initData() {
     viewController_->start();
     fileReader_ = new FileReader(geospatialIndex_, temporalIndex_);
     timer_ = new QTimer(this);
+    dbHandler_ = new DBHandler();
+    dbHandler_->config(preferenceManager_->getDBHost(),
+                       preferenceManager_->getDBPort(),
+                       preferenceManager_->getDBUsername(),
+                       preferenceManager_->getDBPass(),
+                       preferenceManager_->getDBName());
 }
 
 void MainWindow::initUi() {
@@ -118,18 +125,19 @@ void MainWindow::open() {
 
     OpenFileDialog fileDialog(this);
     fileDialog.setNameFilter(tr("ShortTerm Output Text File (*.txt);;MediumTerm Output Text File (*.txt);;SimMobility Input XML File (*.xml)"));
-    fileDialog.customize();
+    fileDialog.customize(dbHandler_->open());
     fileDialog.show();
     if (fileDialog.exec() != QDialog::Accepted) return;
 
     QString path = fileDialog.selectedFiles().at(0);
     iSimGUI::AccessType accessOption = fileDialog.getAccessOption();
-    qDebug() << "accessOption = " << accessOption;
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     fileReader_->wait();
     resetWorkspace();
+    //if (accessOption == iSimGUI::USE_MEMORY) {
     temporalIndex_->setUsingMemory();
+    //}
     fileReader_->setTarget(path);
     fileReader_->start();
     progressBar_->setVisible(true);
@@ -242,6 +250,7 @@ void MainWindow::connectSignalAction() {
     connect(preferenceManager_, SIGNAL(updateMapViewAttr()), this, SLOT(updateMapView()), Qt::QueuedConnection);
     connect(preferenceManager_, SIGNAL(updateAgents()), this, SLOT(requestUpdateAgents()), Qt::QueuedConnection);
     connect(preferenceManager_, SIGNAL(updateMicroData()), this, SLOT(requestUpdateMicroData()), Qt::QueuedConnection);
+    connect(preferenceManager_, SIGNAL(updateDBConf()), this, SLOT(updateDBConfig()), Qt::QueuedConnection);
 
     connect(fileReader_, SIGNAL(announceLog(QString)), this, SLOT(addLog(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceError(QString)), this, SLOT(alertFileError(QString)), Qt::QueuedConnection);
@@ -306,6 +315,10 @@ void MainWindow::finishLoadingGeospatial() {
 void MainWindow::resetWorkspace() {
     pauseSimulation();
     updateGAgents(0);
+    if (fileReader_->isRunning()) {
+        fileReader_->stopReader();
+        fileReader_->wait();
+    }
     if(scene_) delete scene_;
     scene_ = new QGraphicsScene(this);
     scene_->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
@@ -336,6 +349,7 @@ void MainWindow::resetUi() {
     ui_->actionTogglePointTracker->setEnabled(false);
     ui_->propertiesTable->setRowCount(0);
     ui_->dynamicTable->setRowCount(0);
+    statusBar()->showMessage(tr(""));
 
     if (uninodeTreeItems_) delete uninodeTreeItems_;
     uninodeTreeItems_ = new QTreeWidgetItem(ui_->geospatialTree, QStringList("UNINODES "));
@@ -910,4 +924,13 @@ void MainWindow::requestUpdateMicroData() {
 
 void MainWindow::requestUpdateAgents() {
     viewController_->addTask(iSimGUI::UPDATE_AGENTS);
+}
+
+void MainWindow::updateDBConfig() {
+    resetWorkspace();
+    dbHandler_->config(preferenceManager_->getDBHost(),
+                       preferenceManager_->getDBPort(),
+                       preferenceManager_->getDBUsername(),
+                       preferenceManager_->getDBPass(),
+                       preferenceManager_->getDBName());
 }

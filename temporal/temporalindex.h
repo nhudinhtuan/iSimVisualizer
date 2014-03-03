@@ -5,8 +5,6 @@
 #include <QMutex>
 #include <QHash>
 #include <QList>
-#include "commondef.h"
-#include "io/dbio.h"
 #include "preferencemanager.h"
 #include "temporal/agent.h"
 #include "temporal/mesoscopicdatamem.h"
@@ -23,7 +21,7 @@ public:
     explicit TemporalIndex(QObject *parent, PreferenceManager *preferenceManager);
     ~TemporalIndex();
     void setUsingMemory();
-    void setUsingDB(QString dbName, iSimGUI::DataType type, bool resetDB);
+    void setUsingDB(QString dbName, bool resetDB);
     void reset();
     void updateUniqueTicks(unsigned int tick);
     unsigned int jumpToNextTick();

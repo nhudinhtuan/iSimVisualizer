@@ -16,7 +16,7 @@ void TemporalIndex::setUsingMemory() {
     microscopicData_ = new MicroscopicDataMem();
 }
 
-void TemporalIndex::setUsingDB(QString dbName, iSimGUI::DataType type, bool resetDB) {
+void TemporalIndex::setUsingDB(QString dbName, bool resetDB) {
 
 }
 

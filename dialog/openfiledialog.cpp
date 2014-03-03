@@ -7,7 +7,7 @@ OpenFileDialog::OpenFileDialog(QWidget *parent) :
     this->setAcceptMode(QFileDialog::AcceptOpen);
 }
 
-void OpenFileDialog::customize() {
+void OpenFileDialog::customize(bool dbAvailable) {
     QGridLayout* mainLayout = this->findChild<QGridLayout*>();
     if (!mainLayout ) {
         // in case of future changes
@@ -19,8 +19,14 @@ void OpenFileDialog::customize() {
         keepInDB_ = new QRadioButton(tr("Save to DB for later use (SLOW)"));
         useMemory_->setChecked(true);
         hbl->addWidget(useMemory_);
-        hbl->addWidget(useDB_);
-        hbl->addWidget(keepInDB_);
+        if (dbAvailable) {
+            hbl->addWidget(useDB_);
+            hbl->addWidget(keepInDB_);
+        } else {
+            QLabel *warning = new QLabel(0);
+            warning->setText(tr("DB setting is not available! Please check Preference."));
+            hbl->addWidget(warning);
+        }
         int numRows = mainLayout->rowCount();
         mainLayout->addLayout(hbl, numRows, 0, 1, -1);
     }

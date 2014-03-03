@@ -133,3 +133,10 @@ TrafficSignal* GeospatialIndex::getTrafficSignal(unsigned long id) {
     if(trafficSignals_.contains(id)) return trafficSignals_[id];
     return 0;
 }
+
+void GeospatialIndex::setWriteToDB(int fileId) {
+    fileId_ = fileId;
+    if (fileId_ > 0) {
+
+    }
+}

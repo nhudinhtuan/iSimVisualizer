@@ -13,6 +13,7 @@
 #include <QDialog>
 #include <QColorDialog>
 #include "preferencemanager.h"
+#include "io/dbhandler.h"
 
 namespace Ui {
 class PreferenceDialog;
@@ -57,6 +58,10 @@ public slots:
     void changeDriverIcon(int);
     void changeBusIcon(int);
     void changePedestrianIcon(int);
+
+    void testDBConnection();
+    void resetDBUI();
+    void saveDBConf();
 private:
 
     void initUI();

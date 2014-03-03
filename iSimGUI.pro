@@ -4,14 +4,11 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
+QT       += core gui sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = iSimGUI
 TEMPLATE = app
-
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     dialog/openfiledialog.cpp \
@@ -22,7 +19,6 @@ SOURCES += main.cpp\
     temporal/mesoscopic.cpp \
     preferencemanager.cpp \
     dialog/preferencedialog.cpp \
-    io/dbio.cpp \
     temporal/agent.cpp \
     temporal/driver.cpp \
     temporal/busdriver.cpp \
@@ -60,7 +56,8 @@ SOURCES += main.cpp\
     geospatial/trafficsignal.cpp \
     geospatial/g_trafficsignal.cpp \
     geospatial/laneconnector.cpp \
-    geospatial/g_laneconnector.cpp
+    geospatial/g_laneconnector.cpp \
+    io/dbhandler.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -72,7 +69,6 @@ HEADERS  += mainwindow.h \
     temporal/mesoscopic.h \
     preferencemanager.h \
     dialog/preferencedialog.h \
-    io/dbio.h \
     temporal/agent.h \
     temporal/driver.h \
     temporal/busdriver.h \
@@ -114,7 +110,8 @@ HEADERS  += mainwindow.h \
     geospatial/g_trafficsignal.h \
     temporal/phasedata.h \
     geospatial/laneconnector.h \
-    geospatial/g_laneconnector.h
+    geospatial/g_laneconnector.h \
+    io/dbhandler.h
 
 FORMS    += mainwindow.ui \
     dialog/preferencedialog.ui

@@ -19,7 +19,6 @@
 #include "temporal/busdriver.h"
 #include "temporal/pedestrian.h"
 #include "util/json.h"
-#include "commondef.h"
 
 class FileReader : public QThread {
     Q_OBJECT

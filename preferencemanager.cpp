@@ -64,6 +64,17 @@ const int DEFAULT_MICROSCOPIC_THRESHOLD = 15;
 const QString DRIVER_ICON_SETTING = "driver/icon";
 const QString BUS_ICON_SETTING = "bus/icon";
 const QString PEDESTRIAN_ICON_SETTING = "pedestrian/icon";
+
+const QString DB_HOST_SETTING = "db/host";
+const QString DEFAULT_DB_HOST = "localhost";
+const QString DB_PORT_SETTING = "db/port";
+const int DEFAULT_DB_PORT = 5432;
+const QString DB_USERNAME_SETTING = "db/username";
+const QString DEFAULT_DB_USERNAME = "postgres";
+const QString DB_PASSWORD_SETTING = "db/password";
+const QString DEFAULT_DB_PASSWORD = "";
+const QString DB_NAME_SETTING = "db/name";
+const QString DEFAULT_DB_NAME = "";
 }
 
 PreferenceManager::PreferenceManager(QObject *parent) :
@@ -75,6 +86,7 @@ PreferenceManager::PreferenceManager(QObject *parent) :
     initThreshold();
     initExtraInfo();
     initAgentIcon();
+    initDBIConf();
 }
 
 PreferenceManager::~PreferenceManager() {
@@ -121,6 +133,28 @@ void PreferenceManager::initAgentIcon() {
     driverIcon_ = settings_->value(iSimGUI::DRIVER_ICON_SETTING, 0).toInt();
     busIcon_ = settings_->value(iSimGUI::BUS_ICON_SETTING, 0).toInt();
     pedestrianIcon_ = settings_->value(iSimGUI::PEDESTRIAN_ICON_SETTING, 0).toInt();
+}
+
+void PreferenceManager::initDBIConf() {
+    dbHost_ = settings_->value(iSimGUI::DB_HOST_SETTING, iSimGUI::DEFAULT_DB_HOST).toString();
+    dbPort_ = settings_->value(iSimGUI::DB_PORT_SETTING, iSimGUI::DEFAULT_DB_PORT).toInt();
+    dbUser_ = settings_->value(iSimGUI::DB_USERNAME_SETTING, iSimGUI::DEFAULT_DB_USERNAME).toString();
+    dbPass_ = settings_->value(iSimGUI::DB_PASSWORD_SETTING, iSimGUI::DEFAULT_DB_PASSWORD).toString();
+    dbName_ = settings_->value(iSimGUI::DB_NAME_SETTING, iSimGUI::DEFAULT_DB_NAME).toString();
+}
+
+void PreferenceManager::setDBInfo(QString host, int port, QString username, QString password, QString dbName) {
+    dbHost_ = host;
+    settings_->setValue(iSimGUI::DB_HOST_SETTING, host);
+    dbPort_ = port;
+    settings_->setValue(iSimGUI::DB_PORT_SETTING, port);
+    dbUser_ = username;
+    settings_->setValue(iSimGUI::DB_USERNAME_SETTING, username);
+    dbPass_ = password;
+    settings_->setValue(iSimGUI::DB_PASSWORD_SETTING, password);
+    dbName_ = dbName;
+    settings_->setValue(iSimGUI::DB_NAME_SETTING, dbName);
+    emit updateDBConf();
 }
 
 void PreferenceManager::setDriverIcon(int val) {

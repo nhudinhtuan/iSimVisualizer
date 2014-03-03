@@ -452,19 +452,6 @@ border: none;</string>
     <string>About iSimGUI</string>
    </property>
   </action>
-  <action name="actionStartSim">
-   <property name="icon">
-    <iconset>
-     <normalon>:/ui_icons/control-play.png</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>startSim</string>
-   </property>
-   <property name="toolTip">
-    <string>start simulation</string>
-   </property>
-  </action>
   <action name="actionToggleHideLeftWidget">
    <property name="icon">
     <iconset>
