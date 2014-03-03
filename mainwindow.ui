@@ -21,16 +21,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item row="0" column="0">
@@ -48,16 +39,7 @@
         </property>
         <widget class="QWidget" name="map">
          <layout class="QGridLayout" name="gridLayout_2">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item row="0" column="0">
@@ -166,7 +148,7 @@
      <x>0</x>
      <y>0</y>
      <width>712</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -182,16 +164,6 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <widget class="QMenu" name="menuSimulation">
-    <property name="title">
-     <string>Simulation</string>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normalon>:/ui_icons/control.png</normalon>
-     </iconset>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuPreferences">
     <property name="title">
      <string>Preferences</string>
@@ -200,7 +172,6 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
-   <addaction name="menuSimulation"/>
    <addaction name="menuPreferences"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -245,16 +216,7 @@
      <bool>true</bool>
     </property>
     <layout class="QGridLayout" name="gridLayout_4">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
+     <property name="margin">
       <number>0</number>
      </property>
      <item row="0" column="0">
@@ -391,7 +353,7 @@ background-repeat: no-repeat;</string>
          <item row="0" column="1">
           <layout class="QHBoxLayout" name="logtopLayout">
            <property name="spacing">
-            <number>-1</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
             <number>0</number>

@@ -242,7 +242,7 @@ void MainWindow::connectSignalAction() {
     connect(ui_->startSim, SIGNAL(clicked()), this, SLOT(startSimulation()), Qt::QueuedConnection);
     connect(ui_->pauseSim, SIGNAL(clicked()), this, SLOT(pauseSimulation()), Qt::QueuedConnection);
     connect(ui_->spinTick, SIGNAL(valueChanged(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
-    connect(ui_->sliderTick, SIGNAL(sliderMoved(int)), this, SLOT(jumpToSimulation(int)), Qt::QueuedConnection);
+    connect(ui_->sliderTick, SIGNAL(sliderMoved(int)), ui_->spinTick, SLOT(setValue(int)), Qt::QueuedConnection);
     connect(ui_->sliderTick, SIGNAL(sliderPressed()), this, SLOT(pauseSimulation()), Qt::QueuedConnection);
     connect(timer_, SIGNAL(timeout()), this, SLOT(jumpToNextTick()), Qt::QueuedConnection);
 
@@ -900,8 +900,9 @@ void MainWindow::pauseSimulation() {
 
 void MainWindow::jumpToSimulation(int tick) {
     if (temporalIndex_->jumpToTick(tick)) {
-        ui_->sliderTick->setValue(tick);
-        ui_->spinTick->setValue(tick);
+        if (!ui_->sliderTick->isSliderDown()) {
+            ui_->sliderTick->setValue(tick);
+        }
         requestUpdateDynamicData();
     }
 }
