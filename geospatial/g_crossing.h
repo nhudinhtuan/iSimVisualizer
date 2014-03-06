@@ -22,6 +22,7 @@ public:
     G_Crossing(QGraphicsItem *parent, Crossing *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView, TemporalIndex *temporalIndex);
     ~G_Crossing();
     QRectF boundingRect() const;
+    QPainterPath shape () const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     unsigned long getId() { return model_->getId(); }
     Crossing* getModel() {return model_;}

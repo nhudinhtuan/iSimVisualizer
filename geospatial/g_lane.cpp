@@ -5,7 +5,7 @@
 G_Lane::G_Lane(QGraphicsItem *parent, Lane *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView)
     : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), model_(model) {
 
-    //setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     penForLane_.setCapStyle(Qt::RoundCap);
     penForLane_.setJoinStyle(Qt::MiterJoin);
@@ -53,6 +53,10 @@ void G_Lane::createLane() {
 
 QRectF G_Lane::boundingRect() const {
     return shape_.boundingRect();
+}
+
+QPainterPath G_Lane::shape () const {
+    return shape_;
 }
 
 void G_Lane::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {

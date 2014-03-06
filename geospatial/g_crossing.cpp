@@ -3,7 +3,7 @@
 G_Crossing::G_Crossing(QGraphicsItem *parent, Crossing *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView, TemporalIndex *temporalIndex)
     : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), temporalIndex_(temporalIndex), model_(model) {
 
-    //setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
     brush_.setStyle(Qt::SolidPattern);
     brush_.setColor(QColor(200,10,10,200));
     createCrossing();
@@ -25,6 +25,10 @@ void G_Crossing::createCrossing() {
 
 QRectF G_Crossing::boundingRect() const {
     return shape_.boundingRect();
+}
+
+QPainterPath G_Crossing::shape () const {
+    return shape_;
 }
 
 void G_Crossing::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {

@@ -14,10 +14,11 @@ class G_Segment: public QGraphicsObject {
     Q_OBJECT
 
 public:
-    G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
+    explicit G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
     ~G_Segment();
-    QRectF boundingRect() const;
+    virtual QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QPainterPath shape () const;
     unsigned long getSegmentId() { return model_->getId(); }
     RoadSegment* getModel() {return model_;}
 
@@ -31,6 +32,7 @@ protected:
     RoadSegment *model_;
     QPainterPath shape_;
     QPainterPath baseSegmentShape_; // use when < threshold
+    bool useShape_;
 
     QBrush brush_;
     QPen pen_;

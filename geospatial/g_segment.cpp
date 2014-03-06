@@ -4,7 +4,7 @@
 G_Segment::G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView)
     : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), model_(model) {
 
-    //setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     colorForSelected_ = Qt::magenta;
     colorForSelected_.setAlpha(128);
@@ -17,6 +17,7 @@ G_Segment::G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManage
     annotation_ = new QGraphicsSimpleTextItem(this);
     annotation_->setScale(40);
     annotation_->setPos(center_);
+    useShape_ = true;
 }
 
 G_Segment::~G_Segment() {
@@ -77,7 +78,15 @@ void G_Segment::createSegment() {
 }
 
 QRectF G_Segment::boundingRect() const {
-    return shape_.boundingRect();
+    if (useShape_)
+        return shape_.boundingRect();
+    return baseSegmentShape_.boundingRect();
+}
+
+QPainterPath G_Segment::shape () const {
+    if (useShape_)
+        return shape_;
+    return baseSegmentShape_;
 }
 
 void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -86,6 +95,7 @@ void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     QColor color(preferenceManager_->getSegmentColor());
     if (preferenceManager_->isSegmentDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getSegmentThreshold()) {
+        useShape_ = true;
         color.setAlpha(90);
         brush_.setColor(isSelected() ? colorForSelected_ : color);
         painter->fillPath(shape_, brush_);
@@ -98,6 +108,7 @@ void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             annotation_->setVisible(false);
         }
     } else {
+        useShape_ = false;
         pen_.setColor(isSelected() ? colorForSelected_ : color);
         pen_.setWidth(model_->getWidth());
         painter->setPen(pen_);

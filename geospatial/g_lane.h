@@ -19,6 +19,7 @@ public:
     G_Lane(QGraphicsItem *parent, Lane *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView);
     ~G_Lane();
     QRectF boundingRect() const;
+    QPainterPath shape () const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     Lane* getModel() {return model_;}
     unsigned long getSegmentId() {return model_->getSegmentId();}
