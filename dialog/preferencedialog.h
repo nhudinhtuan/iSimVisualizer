@@ -34,6 +34,7 @@ public slots:
     void triggerLaneConnectorCheckbox(bool);
     void triggerBusStopCheckbox(bool);
     void triggerMicroscopicCheckbox(bool);
+    void triggerMesoscopicCheckbox(bool);
 
     void selectBgColor();
     void selectUninodeColor();
@@ -62,6 +63,21 @@ public slots:
     void testDBConnection();
     void resetDBUI();
     void saveDBConf();
+
+    void changeMesoscopicMode(int);
+    void updateMesosDensityColor(int, int);
+    void updateMesosFlowColor(int, int);
+    void updateMesosSpeedColor(int, int);
+    void addNewMesosDensityRange();
+    void addNewMesosFlowRange();
+    void addNewMesosSpeedRange();
+    void editDensityRange(QTableWidgetItem *item);
+    void editFlowRange(QTableWidgetItem *item);
+    void editSpeedRange(QTableWidgetItem *item);
+    void removeSelectedDensityRange();
+    void removeSelectedFlowRange();
+    void removeSelectedSpeedRange();
+
 private:
 
     void initUI();

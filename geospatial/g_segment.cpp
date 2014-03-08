@@ -1,8 +1,8 @@
 #include "g_segment.h"
 #define USE_SEGMENT_POLYLINE 0
 
-G_Segment::G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView)
-    : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), model_(model) {
+G_Segment::G_Segment(QGraphicsItem *parent, RoadSegment *model, PreferenceManager *preferenceManager, MapGraphicsView *mapView, TemporalIndex *temporalIndex)
+    : QGraphicsObject(parent), preferenceManager_(preferenceManager), mapView_(mapView), temporalIndex_(temporalIndex), model_(model) {
 
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -93,11 +93,10 @@ void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    QColor color(preferenceManager_->getSegmentColor());
+    updateColor();
     if (preferenceManager_->isSegmentDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getSegmentThreshold()) {
         useShape_ = true;
-        color.setAlpha(90);
-        brush_.setColor(isSelected() ? colorForSelected_ : color);
+        brush_.setColor(isSelected() ? colorForSelected_ : color_);
         painter->fillPath(shape_, brush_);
 
         if (preferenceManager_->getSegmentExtraInfo()) {
@@ -109,7 +108,7 @@ void G_Segment::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         }
     } else {
         useShape_ = false;
-        pen_.setColor(isSelected() ? colorForSelected_ : color);
+        pen_.setColor(isSelected() ? colorForSelected_ : color_);
         pen_.setWidth(model_->getWidth());
         painter->setPen(pen_);
         painter->drawPath(baseSegmentShape_);
@@ -132,4 +131,24 @@ void G_Segment::updateAnnotation() {
             break;
         }
     }
+}
+
+void G_Segment::updateColor() {
+    if (preferenceManager_->isMesoscopicDisplayed() && temporalIndex_->isMesoDataExisted()) {
+        Mesoscopic *data = temporalIndex_->getMesoscopic(model_->getId());
+        if (data) {
+            color_ = preferenceManager_->getMesosColorByRange(data->getValueByMode(preferenceManager_->getMesoscopicMode()));
+            return;
+        }
+    }
+
+    color_ = preferenceManager_->getSegmentColor();
+    color_.setAlpha(90);
+}
+
+void G_Segment::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
+    if (preferenceManager_->isMesoscopicDisplayed() && temporalIndex_->isMesoDataExisted()) {
+        emit announceDoubleClick(model_->getId());
+    }
+    QGraphicsItem::mouseDoubleClickEvent(event);
 }

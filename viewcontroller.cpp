@@ -75,6 +75,7 @@ void ViewController::doTask(iSimGUI::ControlTaskType task) {
         } else {
             emit requestUpdateGAgents(0);
         }
+        emit finishUpdateDynamic();
     }
 }
 

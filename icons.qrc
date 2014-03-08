@@ -21,5 +21,7 @@
         <file>agent_icons/car-red.png</file>
         <file>agent_icons/bus-yellow.png</file>
         <file>ui_icons/Car_Icon.png</file>
+        <file>ui_icons/add.png</file>
+        <file>ui_icons/remove.png</file>
     </qresource>
 </RCC>

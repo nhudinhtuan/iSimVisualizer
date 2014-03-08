@@ -63,14 +63,20 @@ void TemporalIndex::insert(Mesoscopic* data) {
     if (!mesoscopicData_) return;
     mesoscopicData_->insert(data);
     updateUniqueTicks(data->getTick());
-    mesoDataExist_ = true;
+    if (!mesoDataExist_) {
+        emit announceMesoscopicDataExist();
+        mesoDataExist_ = true;
+    }
 }
 
 void TemporalIndex::insert(Agent *data) {
     if (!microscopicData_) return;
     microscopicData_->insert(data);
     updateUniqueTicks(data->getTick());
-    microDataExist_ = true;
+    if (!microDataExist_) {
+        emit announceMicroDataExist();
+        microDataExist_ = true;
+    }
 }
 
 void TemporalIndex::insert(CrossingPhaseData* crossingPhaseData) {
@@ -105,4 +111,9 @@ int TemporalIndex::getCrossingPhaseColor(unsigned long crossingId) {
 TrafficPhaseData* TemporalIndex::getTrafficPhaseData(unsigned long id) {
     if (!microscopicData_ || !microDataExist_) return 0;
     return microscopicData_->getTrafficPhaseData(currentTick_, id);
+}
+
+Mesoscopic* TemporalIndex::getMesoscopic(unsigned long segmentId) {
+    if (!mesoscopicData_ || !mesoDataExist_) return 0;
+    return mesoscopicData_->getMesoscopic(currentTick_, segmentId);
 }

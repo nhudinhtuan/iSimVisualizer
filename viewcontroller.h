@@ -51,6 +51,7 @@ signals:
     void requestCreateLinkTreeItem(Link*);
     void requestUpdateGAgents(AgentList*);
     void finishLoadingGeospatial();
+    void finishUpdateDynamic();
 
 protected:
     void run();

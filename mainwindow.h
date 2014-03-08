@@ -21,6 +21,7 @@
 #include "preferencemanager.h"
 #include "viewcontroller.h"
 #include "graphicsview/mapgraphicsview.h"
+#include "plotview/mesoscopicdataplotview.h"
 
 namespace Ui {
 class MainWindow;
@@ -84,6 +85,11 @@ private slots:
     void updateGAgents(AgentList* agents);
 
     void updateDBConfig();
+    void updateOverlayTitle();
+    void updateMesosOverlay();
+
+    void createChart(unsigned long segmentId);
+    void closeChart();
 private:
     void resetWorkspace();
     void initData();
@@ -129,6 +135,9 @@ private:
     //map view
     QGraphicsScene *scene_;
     MapGraphicsView *mapView_;
+
+    // plot view
+    MesoscopicDataPlotView *plotView_;
 
     //timer
     QTimer *timer_;

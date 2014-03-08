@@ -15,6 +15,7 @@ namespace iSimGUI {
         PREF_LANE_CONNECTOR = 4,
         PREF_BUSSTOP = 5,
         PREF_MICRO = 6,
+        PREF_MESOS = 7
     };
 
     const QString ICON_DIRECTORY = ":/agent_icons/";
@@ -36,19 +37,31 @@ namespace iSimGUI {
 class RangeData
 {
 public:
-    RangeData(double lowerBound, double upperBound, QColor &color) :
-        lowerBound(lowerBound), upperBound(upperBound), color(color) {}
+    RangeData() {
+        low_ = 0;
+        high_ = 0;
+        color_ = Qt::black;
+    }
+    RangeData(double low, double high, QColor color) :
+        low_(low), high_(high), color_(color) {}
+    RangeData(const RangeData& other) {
+        low_ = other.low_;
+        high_ = other.high_;
+        color_ = other.color_;
+    }
 
-    QColor& getColor() { return color; }
-    double getLowerBound() { return lowerBound; }
-    double getUpperBound() { return upperBound; }
-
-    bool isInRange(double value) { return (value>=lowerBound && value<upperBound); }
+    QColor& getColor() { return color_; }
+    double getLow() { return low_; }
+    void setLow(double value) { low_ = value;}
+    double getHigh() { return high_; }
+    void setHigh(double value) { high_ = value;}
+    bool isInRange(double value) { return (value>=low_ && value<high_); }
+    void setColor(QColor color) { color_ = color;}
 
 private:
-    double lowerBound;
-    double upperBound;
-    QColor &color;
+    double low_;
+    double high_;
+    QColor color_;
 };
 
 
@@ -66,8 +79,10 @@ public:
     bool isLaneConnectorDisplayed() { return isLaneConnectorShown_;}
     bool isBusStopDisplayed() { return isBusStopShown_;}
     bool isMicroscopicDisplayed() {return isMicroscopicShown_;}
+    bool isMesoscopicDisplayed() {return isMesoscopicShown_;}
 
     QColor& getBgColor() { return bgColor_;}
+    QColor getInvertBgColor();
     void setBgColor(QColor);
 
     QColor& getUninodeColor() { return uninodeColor_;}
@@ -102,6 +117,12 @@ public:
     QString& getDBPass() { return dbPass_;}
     QString& getDBName() { return dbName_;}
 
+    int getMesoscopicMode() { return mesoscopicMode_;}
+    QList<RangeData*>& getMesoscopicDensityColorRanges() { return mesoscopicDensityColorRangeList_;}
+    QList<RangeData*>& getMesoscopicFlowColorRanges() { return mesoscopicFlowColorRangeList_;}
+    QList<RangeData*>& getMesoscopicSpeedColorRanges() { return mesoscopicSpeedColorRangeList_;}
+    void setMesoscopicMode(int mode);
+
     void setDBInfo(QString host, int port, QString username, QString password, QString dbName);
 
     void setDriverIcon(int val);
@@ -113,12 +134,25 @@ public:
     void updateThresholdAttributes(iSimGUI::PreferenceType  type, int value);
     void updateExtraInfoAttributes(iSimGUI::PreferenceType  type, int value);
 
+    void updateMesosColorRange(int mode, QColor color, int index);
+    void updateMesosLowValue(int mode, double value, int index);
+    void updateMesosHighValue(int mode, double value, int index);
+    RangeData* addNewMesosColorRange(int mode);
+    void removeMesosColorRange(int mode, int index);
+
+    QColor& getMesosColorByRange(double value);
+    double getMesoscopicDensityPlotScale();
+    double getMesoscopicFlowPlotScale();
+    double getMesoscopicSpeedPlotScale();
+
 signals:
     void updateBgColor();
     void updateMapViewAttr();
+    void updateMesosData();
     void updateMicroData();
     void updateAgents();
     void updateDBConf();
+    void updateMesosOverlay();
 
 public slots:
     void initDisplayed();
@@ -127,6 +161,7 @@ public slots:
     void initExtraInfo();
     void initAgentIcon();
     void initDBIConf();
+    void initMesoscopicColorRanges();
 
 private:
 
@@ -139,6 +174,7 @@ private:
     bool isLaneConnectorShown_;
     bool isBusStopShown_;
     bool isMicroscopicShown_;
+    bool isMesoscopicShown_;
 
     QColor bgColor_;
     QColor uninodeColor_;
@@ -169,6 +205,11 @@ private:
     QString dbUser_;
     QString dbPass_;
     QString dbName_;
+
+    int mesoscopicMode_;
+    QList<RangeData*> mesoscopicDensityColorRangeList_;
+    QList<RangeData*> mesoscopicFlowColorRangeList_;
+    QList<RangeData*> mesoscopicSpeedColorRangeList_;
 };
 
 #endif // PREFERENCEMANAGER_H

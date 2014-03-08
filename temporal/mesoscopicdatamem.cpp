@@ -19,3 +19,9 @@ void MesoscopicDataMem::insert(Mesoscopic* data) {
     QHash<unsigned long, Mesoscopic*>& mesoscopicList = mesoscopicTicks_[data->getTick()];
     mesoscopicList[data->getSegmentID()] = data;
 }
+
+Mesoscopic* MesoscopicDataMem::getMesoscopic(unsigned int tick, unsigned long segmentId) {
+    if (mesoscopicTicks_.contains(tick))
+        return mesoscopicTicks_[tick][segmentId];
+    return 0;
+}

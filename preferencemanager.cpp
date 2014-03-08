@@ -20,6 +20,9 @@ const bool DEFAULT_AGENT_IS_DISPLAYED = true;
 const QString MICROSCOPIC_DISPLAY_SETTING = "microscopic/isDisplayed";
 const bool DEFAULT_MICROSCOPIC_IS_DISPLAYED = true;
 
+const QString MESOSCOPIC_DISPLAY_SETTING = "mesoscopic/isDisplayed";
+const bool DEFAULT_MESOSCOPIC_IS_DISPLAYED = true;
+
 const QString MAP_COLOR_SETTING = "map/backgroundColor";
 const QString DEFAULT_MAP_BG_COLOR = "black";
 
@@ -75,6 +78,28 @@ const QString DB_PASSWORD_SETTING = "db/password";
 const QString DEFAULT_DB_PASSWORD = "";
 const QString DB_NAME_SETTING = "db/name";
 const QString DEFAULT_DB_NAME = "";
+
+
+const QString MESOSCOPIC_MODE_SETTING = "mesoscopic/mode";
+const int DEFAULT_MESOSCOPIC_MODE = 0;
+const int DEFAULT_MESOSCOPIC_COLOR_ALPHA = 128;
+const QString MESOSCOPIC_DENSITY_SETTING = "mesoscopic/density";
+const int DEFAULT_MESOSCOPIC_DENSITY_RANGE_COUNT = 4;
+const QString DEFAULT_MESOSCOPIC_DENSITY_RANGE_STARTS[] = {"0.000", "0.001", "0.010", "0.020"};
+const QString DEFAULT_MESOSCOPIC_DENSITY_RANGE_ENDS[] = {"0.001", "0.010", "0.020", "1.000"};
+const QString DEFAULT_MESOSCOPIC_DENSITY_RANGE_COLORS[] = {"blue", "green", "yellow", "red"};
+
+const QString MESOSCOPIC_FLOW_SETTING = "mesoscopic/flow";
+const int DEFAULT_MESOSCOPIC_FLOW_RANGE_COUNT = 1;
+const QString DEFAULT_MESOSCOPIC_FLOW_RANGE_STARTS[] = {"0.000"};
+const QString DEFAULT_MESOSCOPIC_FLOW_RANGE_ENDS[] = {"1000.000"};
+const QString DEFAULT_MESOSCOPIC_FLOW_RANGE_COLORS[] = {"blue"};
+
+const QString MESOSCOPIC_SPEED_SETTING = "mesoscopic/speed";
+const int DEFAULT_MESOSCOPIC_SPEED_RANGE_COUNT = 4;
+const QString DEFAULT_MESOSCOPIC_SPEED_RANGE_STARTS[] = {"0.000", "500.000", "1000.000", "1500.000"};
+const QString DEFAULT_MESOSCOPIC_SPEED_RANGE_ENDS[] = {"500.000", "1000.000", "1500.000", "2000.000"};
+const QString DEFAULT_MESOSCOPIC_SPEED_RANGE_COLORS[] = {"red", "yellow", "green", "blue"};
 }
 
 PreferenceManager::PreferenceManager(QObject *parent) :
@@ -87,10 +112,22 @@ PreferenceManager::PreferenceManager(QObject *parent) :
     initExtraInfo();
     initAgentIcon();
     initDBIConf();
+    initMesoscopicColorRanges();
 }
 
 PreferenceManager::~PreferenceManager() {
     if (settings_) delete settings_;
+
+    // remove mesoscopic range
+    for (QList<RangeData*>::iterator i = mesoscopicDensityColorRangeList_.begin(); i != mesoscopicDensityColorRangeList_.end(); ++i) {
+        delete *i;
+    }
+    for (QList<RangeData*>::iterator i = mesoscopicFlowColorRangeList_.begin(); i != mesoscopicFlowColorRangeList_.end(); ++i) {
+        delete *i;
+    }
+    for (QList<RangeData*>::iterator i = mesoscopicSpeedColorRangeList_.begin(); i != mesoscopicSpeedColorRangeList_.end(); ++i) {
+        delete *i;
+    }
 }
 
 void PreferenceManager::initDisplayed() {
@@ -101,6 +138,7 @@ void PreferenceManager::initDisplayed() {
     isLaneConnectorShown_ = settings_->value(iSimGUI::LANE_CONNECTORS_DISPLAY_SETTING, iSimGUI::DEFAULT_LANE_CONNECTORS_IS_DISPLAYED).toBool();
     isBusStopShown_ = settings_->value(iSimGUI::BUSSTOP_DISPLAY_SETTING, iSimGUI::DEFAULT_BUS_STOP_IS_DISPLAYED).toBool();
     isMicroscopicShown_ = settings_->value(iSimGUI::MICROSCOPIC_DISPLAY_SETTING, iSimGUI::DEFAULT_MICROSCOPIC_IS_DISPLAYED).toBool();
+    isMesoscopicShown_ = settings_->value(iSimGUI::MESOSCOPIC_DISPLAY_SETTING, iSimGUI::DEFAULT_MESOSCOPIC_IS_DISPLAYED).toBool();
 }
 
 void PreferenceManager::initColor() {
@@ -141,6 +179,63 @@ void PreferenceManager::initDBIConf() {
     dbUser_ = settings_->value(iSimGUI::DB_USERNAME_SETTING, iSimGUI::DEFAULT_DB_USERNAME).toString();
     dbPass_ = settings_->value(iSimGUI::DB_PASSWORD_SETTING, iSimGUI::DEFAULT_DB_PASSWORD).toString();
     dbName_ = settings_->value(iSimGUI::DB_NAME_SETTING, iSimGUI::DEFAULT_DB_NAME).toString();
+}
+
+void PreferenceManager::initMesoscopicColorRanges() {
+
+    mesoscopicMode_ = settings_->value(iSimGUI::MESOSCOPIC_MODE_SETTING, iSimGUI::DEFAULT_MESOSCOPIC_MODE).toInt();
+
+    // build density color range
+    int densityRangeCount = settings_->value(iSimGUI::MESOSCOPIC_DENSITY_SETTING + "/count",
+                                            iSimGUI::DEFAULT_MESOSCOPIC_DENSITY_RANGE_COUNT).toInt();
+    for (int i = 0; i < densityRangeCount; i++) {
+        double start = settings_->value(QString("%1/start-%2").arg(iSimGUI::MESOSCOPIC_DENSITY_SETTING).arg(QString::number(i)),
+                                       iSimGUI::DEFAULT_MESOSCOPIC_DENSITY_RANGE_STARTS[i]).toDouble();
+        double end = settings_->value(QString("%1/end-%2").arg(iSimGUI::MESOSCOPIC_DENSITY_SETTING).arg(QString::number(i)),
+                                     iSimGUI::DEFAULT_MESOSCOPIC_DENSITY_RANGE_ENDS[i]).toDouble();
+        QColor color(settings_->value(QString("%1/color-%2").arg(iSimGUI::MESOSCOPIC_DENSITY_SETTING).arg(QString::number(i)),
+                                      iSimGUI::DEFAULT_MESOSCOPIC_DENSITY_RANGE_COLORS[i]).toString());
+        color.setAlpha(settings_->value(QString("%1/alpha-%2").arg(iSimGUI::MESOSCOPIC_DENSITY_SETTING).arg(QString::number(i)),
+                                        iSimGUI::DEFAULT_MESOSCOPIC_COLOR_ALPHA).toInt());
+        mesoscopicDensityColorRangeList_.append(new RangeData(start, end, color));
+    }
+
+    // build speed color range
+    int speedRangeCount = settings_->value(iSimGUI::MESOSCOPIC_SPEED_SETTING + "/count",
+                                            iSimGUI::DEFAULT_MESOSCOPIC_SPEED_RANGE_COUNT).toInt();
+    for (int i = 0; i < speedRangeCount; i++) {
+        double start = settings_->value(QString("%1/start-%2").arg(iSimGUI::MESOSCOPIC_SPEED_SETTING).arg(QString::number(i)),
+                                       iSimGUI::DEFAULT_MESOSCOPIC_SPEED_RANGE_STARTS[i]).toDouble();
+        double end = settings_->value(QString("%1/end-%2").arg(iSimGUI::MESOSCOPIC_SPEED_SETTING).arg(QString::number(i)),
+                                     iSimGUI::DEFAULT_MESOSCOPIC_SPEED_RANGE_ENDS[i]).toDouble();
+        QColor color(settings_->value(QString("%1/color-%2").arg(iSimGUI::MESOSCOPIC_SPEED_SETTING).arg(QString::number(i)),
+                                      iSimGUI::DEFAULT_MESOSCOPIC_SPEED_RANGE_COLORS[i]).toString());
+        color.setAlpha(settings_->value(QString("%1/alpha-%2").arg(iSimGUI::MESOSCOPIC_SPEED_SETTING).arg(QString::number(i)),
+                                        iSimGUI::DEFAULT_MESOSCOPIC_COLOR_ALPHA).toInt());
+        mesoscopicSpeedColorRangeList_.append(new RangeData(start, end, color));
+    }
+
+    // build flow color range
+    int flowRangeCount = settings_->value(iSimGUI::MESOSCOPIC_FLOW_SETTING + "/count",
+                                            iSimGUI::DEFAULT_MESOSCOPIC_FLOW_RANGE_COUNT).toInt();
+    for (int i = 0; i < flowRangeCount; i++) {
+        double start = settings_->value(QString("%1/start-%2").arg(iSimGUI::MESOSCOPIC_FLOW_SETTING).arg(QString::number(i)),
+                                       iSimGUI::DEFAULT_MESOSCOPIC_FLOW_RANGE_STARTS[i]).toDouble();
+        double end = settings_->value(QString("%1/end-%2").arg(iSimGUI::MESOSCOPIC_FLOW_SETTING).arg(QString::number(i)),
+                                     iSimGUI::DEFAULT_MESOSCOPIC_FLOW_RANGE_ENDS[i]).toDouble();
+        QColor color(settings_->value(QString("%1/color-%2").arg(iSimGUI::MESOSCOPIC_FLOW_SETTING).arg(QString::number(i)),
+                                      iSimGUI::DEFAULT_MESOSCOPIC_FLOW_RANGE_COLORS[i]).toString());
+        color.setAlpha(settings_->value(QString("%1/alpha-%2").arg(iSimGUI::MESOSCOPIC_FLOW_SETTING).arg(QString::number(i)),
+                                        iSimGUI::DEFAULT_MESOSCOPIC_COLOR_ALPHA).toInt());
+        mesoscopicFlowColorRangeList_.append(new RangeData(start, end, color));
+    }
+}
+
+void PreferenceManager::setMesoscopicMode(int mode) {
+    if (mode == mesoscopicMode_) return;
+    mesoscopicMode_ = mode;
+    settings_->setValue(iSimGUI::MESOSCOPIC_MODE_SETTING, mode);
+    emit updateMesosOverlay();
 }
 
 void PreferenceManager::setDBInfo(QString host, int port, QString username, QString password, QString dbName) {
@@ -213,7 +308,17 @@ void PreferenceManager::updateShownAttributes(iSimGUI::PreferenceType  type, boo
                 emit updateMicroData();
                 emit updateMapViewAttr();
                 break;
+        case iSimGUI::PREF_MESOS:
+                isMesoscopicShown_ = value;
+                settings_->setValue(iSimGUI::MICROSCOPIC_DISPLAY_SETTING, value);
+                emit updateMesosData();
+                emit updateMapViewAttr();
+                break;
     }
+}
+
+QColor PreferenceManager::getInvertBgColor() {
+    return QColor(255 - bgColor_.red(), 255 - bgColor_.green(), 255 - bgColor_.blue());
 }
 
 void PreferenceManager::setBgColor(QColor color) {
@@ -298,6 +403,7 @@ void PreferenceManager::updateThresholdAttributes(iSimGUI::PreferenceType type, 
                 settings_->setValue(iSimGUI::MICROSCOPIC_THRESHOLD_SETTING, value);
                 emit updateMicroData();
                 break;
+        default: break;
     }
 }
 
@@ -327,4 +433,169 @@ void PreferenceManager::updateExtraInfoAttributes(iSimGUI::PreferenceType type, 
         default:
                 break;
     }
+}
+
+void PreferenceManager::updateMesosColorRange(int mode, QColor color, int index) {
+    QList<RangeData*> list;
+    QString settingsPrefix;
+    switch (mode) {
+        case 0: list = mesoscopicDensityColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_DENSITY_SETTING;
+                break;
+        case 1: list = mesoscopicFlowColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_FLOW_SETTING;
+                break;
+        case 2: list = mesoscopicSpeedColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_SPEED_SETTING;
+                break;
+    }
+
+    settings_->setValue(QString("%1/color-%2").arg(settingsPrefix).arg(QString::number(index)), color);
+    settings_->setValue(QString("%1/alpha-%2").arg(settingsPrefix).arg(QString::number(index)), color.alpha());
+    RangeData* range = list.at(index);
+    range->setColor(color);
+
+    emit updateMesosOverlay();
+}
+
+void PreferenceManager::updateMesosLowValue(int mode, double value, int index) {
+    QList<RangeData*> list;
+    QString settingsPrefix;
+    switch (mode) {
+        case 0: list = mesoscopicDensityColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_DENSITY_SETTING;
+                break;
+        case 1: list = mesoscopicFlowColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_FLOW_SETTING;
+                break;
+        case 2: list = mesoscopicSpeedColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_SPEED_SETTING;
+                break;
+    }
+
+    settings_->setValue(QString("%1/start-%2").arg(settingsPrefix).arg(QString::number(index)), value);
+    RangeData* range = list.at(index);
+    range->setLow(value);
+
+    emit updateMesosOverlay();
+}
+
+void PreferenceManager::updateMesosHighValue(int mode, double value, int index) {
+    QList<RangeData*> list;
+    QString settingsPrefix;
+    switch (mode) {
+        case 0: list = mesoscopicDensityColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_DENSITY_SETTING;
+                break;
+        case 1: list = mesoscopicFlowColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_FLOW_SETTING;
+                break;
+        case 2: list = mesoscopicSpeedColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_SPEED_SETTING;
+                break;
+    }
+
+    settings_->setValue(QString("%1/end-%2").arg(settingsPrefix).arg(QString::number(index)), value);
+    RangeData* range = list.at(index);
+    range->setHigh(value);
+
+    emit updateMesosOverlay();
+}
+
+RangeData* PreferenceManager::addNewMesosColorRange(int mode) {
+    RangeData* range = new RangeData();
+    QString settingsPrefix;
+    int newSize = 0;
+    switch (mode) {
+        case 0: mesoscopicDensityColorRangeList_.append(range);
+                newSize = mesoscopicDensityColorRangeList_.size();
+                settingsPrefix = iSimGUI::MESOSCOPIC_DENSITY_SETTING;
+                break;
+        case 1: mesoscopicFlowColorRangeList_.append(range);
+                newSize = mesoscopicFlowColorRangeList_.size();
+                settingsPrefix = iSimGUI::MESOSCOPIC_FLOW_SETTING;
+                break;
+        case 2: mesoscopicSpeedColorRangeList_.append(range);
+                newSize = mesoscopicSpeedColorRangeList_.size();
+                settingsPrefix = iSimGUI::MESOSCOPIC_SPEED_SETTING;
+                break;
+    }
+    settings_->setValue(QString("%1/color-%2").arg(settingsPrefix).arg(QString::number(newSize - 1)), range->getColor());
+    settings_->setValue(settingsPrefix + "/count", newSize);
+
+    emit updateMesosOverlay();
+    return range;
+}
+
+void PreferenceManager::removeMesosColorRange(int mode, int index) {
+    QList<RangeData*>* list = 0;
+    QString settingsPrefix;
+    switch (mode) {
+        case 0: list = &mesoscopicDensityColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_DENSITY_SETTING;
+                break;
+        case 1: list = &mesoscopicFlowColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_FLOW_SETTING;
+                break;
+        case 2: list = &mesoscopicSpeedColorRangeList_;
+                settingsPrefix = iSimGUI::MESOSCOPIC_SPEED_SETTING;
+                break;
+    }
+
+    RangeData *range = list->at(index);
+    list->removeAt(index);
+    delete range;
+    int newSize = list->size();
+    settings_->setValue(settingsPrefix + "/count", newSize);
+    for (int i = index; i < newSize; i++) {
+        range = list->at(i);
+        QColor color = range->getColor();
+        settings_->setValue(QString("%1/color-%2").arg(settingsPrefix).arg(QString::number(i)), color);
+        settings_->setValue(QString("%1/alpha-%2").arg(settingsPrefix).arg(QString::number(i)), color.alpha());
+        settings_->setValue(QString("%1/start-%2").arg(settingsPrefix).arg(QString::number(i)), range->getLow());
+        settings_->setValue(QString("%1/end-%2").arg(settingsPrefix).arg(QString::number(i)), range->getHigh());
+    }
+
+    emit updateMesosOverlay();
+}
+
+QColor& PreferenceManager::getMesosColorByRange(double value) {
+    QList<RangeData*>* list;
+    switch(mesoscopicMode_) {
+        case 0 : list = &mesoscopicDensityColorRangeList_;
+                 break;
+        case 1 : list = &mesoscopicFlowColorRangeList_;
+                 break;
+        case 2 : list = &mesoscopicSpeedColorRangeList_;
+                 break;
+    }
+
+    for (QList<RangeData*>::iterator i = list->begin(); i != list->end(); ++i) {
+        RangeData *temp = *i;
+        if (temp->isInRange(value))
+            return temp->getColor();
+    }
+
+    return list->first()->getColor();
+}
+
+double PreferenceManager::getMesoscopicDensityPlotScale() {
+    int lastRange = mesoscopicDensityColorRangeList_.size()-1;
+    if (lastRange < 0) return 100;
+
+    return mesoscopicDensityColorRangeList_[lastRange]->getLow()*10;
+}
+
+double PreferenceManager::getMesoscopicFlowPlotScale() {
+    int lastRange = mesoscopicFlowColorRangeList_.size()-1;
+    if (lastRange < 0) return 100;
+
+    return mesoscopicFlowColorRangeList_[lastRange]->getLow()*10;
+}
+
+double PreferenceManager::getMesoscopicSpeedPlotScale() {
+    int lastRange = mesoscopicSpeedColorRangeList_.size()-1;
+    if (lastRange < 0) return 100;
+
+    return mesoscopicSpeedColorRangeList_[lastRange]->getLow()*10;
 }

@@ -7,6 +7,7 @@
 #include <QList>
 #include "preferencemanager.h"
 #include "temporal/agent.h"
+#include "temporal/mesoscopic.h"
 #include "temporal/mesoscopicdatamem.h"
 #include "temporal/mesoscopicdatadb.h"
 #include "temporal/microscopicdatamem.h"
@@ -24,6 +25,7 @@ public:
     void setUsingDB(QString dbName, bool resetDB);
     void reset();
     void updateUniqueTicks(unsigned int tick);
+    unsigned int getCurrentTick() { return currentTick_;}
     unsigned int jumpToNextTick();
     bool jumpToTick(unsigned int tick);
     bool isMesoDataExisted() { return mesoDataExist_;}
@@ -36,10 +38,14 @@ public:
     AgentList* getAgent(QPoint& bottomLeft, QPoint& topRight);
     int getCrossingPhaseColor(unsigned long crossingId);
     TrafficPhaseData* getTrafficPhaseData(unsigned long id);
+    Mesoscopic* getMesoscopic(unsigned long segmentId);
 
     void updateCrossingPhaseData(QPoint& bottomLeft, QPoint& topRight);
+
 signals:
-     void announceNewUpperTickValue(unsigned int);
+    void announceNewUpperTickValue(unsigned int);
+    void announceMesoscopicDataExist();
+    void announceMicroDataExist();
 
 public slots:
 

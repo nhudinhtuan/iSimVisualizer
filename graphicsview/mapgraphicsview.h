@@ -7,6 +7,7 @@
 #include <QColor>
 #include <math.h>
 #include "preferencemanager.h"
+#include "mapgraphicsoverlay.h"
 
 class MapGraphicsView : public QGraphicsView
 {
@@ -20,6 +21,9 @@ public:
     QRectF getGraphViewRect();
     QList<QGraphicsItem*> getSeenItems();
 
+    void updateOverlayTitle(int type);
+    void reset();
+    void updateOverLayeRangeTitle();
 
 protected:
     void mouseReleaseEvent(QMouseEvent *event);
@@ -30,7 +34,6 @@ protected:
 private:
 
 public slots:
-    void focusOnItem(unsigned long id);
     void updateBackgroundColor();
 
 signals:
@@ -40,6 +43,7 @@ signals:
 
 private:
     PreferenceManager *preferenceManager_;
+    MapGraphicsOverlay *overlay_;
     double zoomFactor_;
 };
 

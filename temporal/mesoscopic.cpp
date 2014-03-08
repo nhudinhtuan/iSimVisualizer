@@ -15,3 +15,13 @@ void Mesoscopic::update(Mesoscopic& another) {
     flow_ = another.getFlow();
     density_ = another.getDensity();
 }
+
+double Mesoscopic::getValueByMode(int mode) {
+    switch(mode) {
+        case 0: return density_;
+        case 1: return flow_;
+        case 2: return speed_;
+    }
+
+    return 0;
+}

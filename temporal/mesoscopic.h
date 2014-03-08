@@ -19,6 +19,7 @@ public:
     double getSpeed() { return speed_; }
     double getFlow() { return flow_; }
     double getDensity() { return density_; }
+    double getValueByMode(int mode);
 
 private:
     unsigned long segmentID_;

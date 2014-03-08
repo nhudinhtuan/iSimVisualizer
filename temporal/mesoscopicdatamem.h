@@ -10,6 +10,7 @@ public:
     MesoscopicDataMem();
     ~MesoscopicDataMem();
     void insert(Mesoscopic* data);
+    Mesoscopic* getMesoscopic(unsigned int tick, unsigned long segmentId);
 
 private:
     QHash<unsigned int, QHash<unsigned long, Mesoscopic*> > mesoscopicTicks_;

@@ -59,6 +59,7 @@ void MainWindow::initData() {
                        preferenceManager_->getDBUsername(),
                        preferenceManager_->getDBPass(),
                        preferenceManager_->getDBName());
+    plotView_ = 0;
 }
 
 void MainWindow::initUi() {
@@ -142,6 +143,7 @@ void MainWindow::open() {
     fileReader_->start();
     progressBar_->setVisible(true);
     QApplication::restoreOverrideCursor();
+    setWindowTitle("iSimGUI - " + path);
 }
 
 void MainWindow::hideLeftStackedWidget() {
@@ -251,6 +253,7 @@ void MainWindow::connectSignalAction() {
     connect(preferenceManager_, SIGNAL(updateAgents()), this, SLOT(requestUpdateAgents()), Qt::QueuedConnection);
     connect(preferenceManager_, SIGNAL(updateMicroData()), this, SLOT(requestUpdateMicroData()), Qt::QueuedConnection);
     connect(preferenceManager_, SIGNAL(updateDBConf()), this, SLOT(updateDBConfig()), Qt::QueuedConnection);
+    connect(preferenceManager_, SIGNAL(updateMesosOverlay()), this, SLOT(updateMesosOverlay()), Qt::QueuedConnection);
 
     connect(fileReader_, SIGNAL(announceLog(QString)), this, SLOT(addLog(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceError(QString)), this, SLOT(alertFileError(QString)), Qt::QueuedConnection);
@@ -273,6 +276,10 @@ void MainWindow::connectSignalAction() {
     connect(viewController_, SIGNAL(requestUpdateGAgents(AgentList*)), this, SLOT(updateGAgents(AgentList*)), Qt::QueuedConnection);
 
     connect(temporalIndex_, SIGNAL(announceNewUpperTickValue(unsigned int)), this, SLOT(updateUpperTickValue(unsigned int)), Qt::QueuedConnection);
+    connect(temporalIndex_, SIGNAL(announceMicroDataExist()), this, SLOT(updateOverlayTitle()));
+    connect(temporalIndex_, SIGNAL(announceMesoscopicDataExist()), this, SLOT(updateOverlayTitle()));
+
+
 }
 
 void MainWindow::loadGeospatial() {
@@ -323,6 +330,7 @@ void MainWindow::resetWorkspace() {
     scene_ = new QGraphicsScene(this);
     scene_->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
     connect(scene_, SIGNAL(selectionChanged()), this, SLOT(updateSelectedItems()), Qt::QueuedConnection);
+    mapView_->reset();
     mapView_->setScene(scene_);
     mapView_->resetMatrix();
 
@@ -350,6 +358,7 @@ void MainWindow::resetUi() {
     ui_->propertiesTable->setRowCount(0);
     ui_->dynamicTable->setRowCount(0);
     statusBar()->showMessage(tr(""));
+    closeChart();
 
     if (uninodeTreeItems_) delete uninodeTreeItems_;
     uninodeTreeItems_ = new QTreeWidgetItem(ui_->geospatialTree, QStringList("UNINODES "));
@@ -448,8 +457,11 @@ void MainWindow::createLinkTreeItem(Link *link) {
 }
 
 void MainWindow::createGSegment(RoadSegment *segment) {
-    G_Segment *gSegment = new G_Segment(0, segment, preferenceManager_, mapView_);
+    G_Segment *gSegment = new G_Segment(0, segment, preferenceManager_, mapView_, temporalIndex_);
     scene_->addItem(gSegment);
+
+    // add double click icon
+    connect(gSegment, SIGNAL(announceDoubleClick(unsigned long)), this, SLOT(createChart(unsigned long)));
 
     // add tree item
     if (linkTreeItems_.contains(segment->getlinkId())) {
@@ -936,4 +948,36 @@ void MainWindow::updateDBConfig() {
                        preferenceManager_->getDBUsername(),
                        preferenceManager_->getDBPass(),
                        preferenceManager_->getDBName());
+}
+
+void MainWindow::updateOverlayTitle() {
+    if (temporalIndex_->isMesoDataExisted() && temporalIndex_->isMicroDataExisted())
+        mapView_->updateOverlayTitle(3);
+    else if (temporalIndex_->isMesoDataExisted())
+        mapView_->updateOverlayTitle(1);
+    else if (temporalIndex_->isMicroDataExisted())
+        mapView_->updateOverlayTitle(2);
+}
+
+void MainWindow::updateMesosOverlay() {
+    mapView_->updateOverLayeRangeTitle();
+    updateMapView();
+}
+
+void MainWindow::createChart(unsigned long segmentId) {
+    if (plotView_) delete plotView_;
+    plotView_ = new MesoscopicDataPlotView(0, temporalIndex_, preferenceManager_, segmentId);
+    ui_->plotLayout->addWidget(plotView_);
+    ui_->mapStackedWidget->setCurrentWidget(ui_->plot);
+    connect(plotView_, SIGNAL(announceClose()), this, SLOT(closeChart()));
+    connect(viewController_, SIGNAL(finishUpdateDynamic()), plotView_, SLOT(plotData()));
+}
+
+void MainWindow::closeChart() {
+    ui_->mapStackedWidget->setCurrentWidget(ui_->map);
+    if (plotView_) {
+        ui_->plotLayout->removeWidget(plotView_);
+        disconnect(plotView_, SLOT(plotData()));
+    }
+    plotView_ = 0;
 }

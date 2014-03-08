@@ -17,14 +17,28 @@ MapGraphicsView::MapGraphicsView(QGraphicsScene *scene, QWidget *parent, Prefere
     setWindowTitle(tr("iSimGUI Map"));
 
     zoomFactor_ = 1.0;
+    overlay_ = new MapGraphicsOverlay(preferenceManager_);
 }
 
 void MapGraphicsView::updateBackgroundColor() {
+    overlay_->updatePenColor();
     setBackgroundBrush(QBrush(preferenceManager_->getBgColor(), Qt::SolidPattern));
 }
 
-MapGraphicsView::~MapGraphicsView() {
+void MapGraphicsView::updateOverlayTitle(int type) {
+    overlay_->updateTitle(type);
+}
 
+void MapGraphicsView::reset() {
+    overlay_->reset();
+}
+
+void MapGraphicsView::updateOverLayeRangeTitle() {
+    overlay_->updateMesosColorRangeLabel();
+}
+
+MapGraphicsView::~MapGraphicsView() {
+    delete overlay_;
 }
 
 QRectF MapGraphicsView::getGraphViewRect() {
@@ -66,10 +80,8 @@ void MapGraphicsView::wheelEvent(QWheelEvent *event)
 void MapGraphicsView::paintEvent(QPaintEvent *event)
 {
     QGraphicsView::paintEvent(event);
-}
 
-void MapGraphicsView::focusOnItem(unsigned long id)
-{
-
+    QPainter p(viewport());
+    overlay_->display(p);
 }
 

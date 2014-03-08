@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui sql
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = iSimGUI
 TEMPLATE = app
@@ -57,7 +57,10 @@ SOURCES += main.cpp\
     geospatial/g_trafficsignal.cpp \
     geospatial/laneconnector.cpp \
     geospatial/g_laneconnector.cpp \
-    io/dbhandler.cpp
+    io/dbhandler.cpp \
+    graphicsview/mapgraphicsoverlay.cpp \
+    plotview/mesoscopicdataplotview.cpp \
+    plotview/qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -111,7 +114,10 @@ HEADERS  += mainwindow.h \
     temporal/phasedata.h \
     geospatial/laneconnector.h \
     geospatial/g_laneconnector.h \
-    io/dbhandler.h
+    io/dbhandler.h \
+    graphicsview/mapgraphicsoverlay.h \
+    plotview/mesoscopicdataplotview.h \
+    plotview/qcustomplot.h
 
 FORMS    += mainwindow.ui \
     dialog/preferencedialog.ui
