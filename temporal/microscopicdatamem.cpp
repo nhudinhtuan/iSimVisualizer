@@ -41,14 +41,27 @@ void MicroscopicDataMem::insert(TrafficPhaseData* trafficPhaseData) {
     trafficPhase[trafficPhaseData->id] = trafficPhaseData;
 }
 
-void MicroscopicDataMem::insert(Agent* data) {
-    unsigned int tick = data->getTick();
+void MicroscopicDataMem::insert(Agent& data) {
+    Agent *agent = 0;
+    switch (data.getType()) {
+        case iSimGUI::AGENT_DRIVER:
+            agent = new Driver(dynamic_cast<Driver&>(data));
+            break;
+        case iSimGUI::AGENT_BUS:
+            agent = new BusDriver(dynamic_cast<BusDriver&>(data));
+            break;
+        case iSimGUI::AGENT_PEDESTRIAN:
+            agent = new Pedestrian(dynamic_cast<Pedestrian&>(data));
+            break;
+        default: break;
+    }
+    unsigned int tick = agent->getTick();
     if (agentTicks_.contains(tick)) {
         AgentTree *tree = agentTicks_[tick];
-        tree->insert(data);
+        tree->insert(agent);
     } else {
         AgentTree *tree = new AgentTree();
-        tree->insert(data);
+        tree->insert(agent);
         agentTicks_[tick] = tree;
     }
 }

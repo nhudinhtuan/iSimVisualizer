@@ -25,7 +25,10 @@ void ViewController::run() {
                 tasksMutex.unlock();
                 break;
             }
+            // remove the same task
             type = tasks_.dequeue();
+            while (!tasks_.isEmpty() && tasks_.head() == type)
+                type = tasks_.dequeue();
             tasksMutex.unlock();
             doTask(type);
         } while (true);

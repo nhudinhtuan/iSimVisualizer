@@ -163,8 +163,7 @@ void FileReader::run() {
     if (needStop_) {
         emit announceLog("The file loading is aborted from user.");
     } else {
-        emit announceStatus(tr("The file is loaded successfully."));
-        emit announceLog("The file is loaded successfully.");
+        emit announceCompleted();
     }
 }
 
@@ -370,8 +369,8 @@ bool FileReader::createDriver(unsigned long objID, unsigned int frameID, QMap<QS
         mandatory = QString(propertiesIter.value()).toInt();
     }
 
-    Agent* agent = new Driver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, currentSegment, fwdSpeed, fwdAccel, mandatory, info);
-    temporalIndex_->insert(agent);
+    Driver driver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, currentSegment, fwdSpeed, fwdAccel, mandatory, info);
+    temporalIndex_->insert(driver);
 
     return true;
 }
@@ -438,9 +437,9 @@ bool FileReader::createBusDriver(unsigned long objID, unsigned int frameID, QMap
     busLineID = QString(propertiesIter.value());
 
     // Create microscopic object
-    Agent* agent = new BusDriver(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, passengers, realArrivalTime, dwellTime, busLineID);
+    BusDriver bus(objID, frameID, genCoordinate(xPos, yPos), angle, length, width, passengers, realArrivalTime, dwellTime, busLineID);
 
-    temporalIndex_->insert(agent);
+    temporalIndex_->insert(bus);
     return true;
 }
 
@@ -465,9 +464,9 @@ bool FileReader::createPedestrian(unsigned long objID, unsigned int frameID, QMa
     yPos = QString(propertiesIter.value()).toDouble();
 
     // Create microscopic object
-    Agent* agent = new Pedestrian(objID, frameID, genCoordinate(xPos, yPos));
+    Pedestrian pedestrian(objID, frameID, genCoordinate(xPos, yPos));
 
-    temporalIndex_->insert(agent);
+    temporalIndex_->insert(pedestrian);
     return true;
 }
 

@@ -40,7 +40,7 @@ MainWindow::~MainWindow()
     delete preferenceManager_;
     delete mapView_;
     delete scene_;
-    delete dbHandler_;
+    delete dbManager_;
 }
 
 void MainWindow::initData() {
@@ -53,12 +53,8 @@ void MainWindow::initData() {
     viewController_->start();
     fileReader_ = new FileReader(geospatialIndex_, temporalIndex_);
     timer_ = new QTimer(this);
-    dbHandler_ = new DBHandler();
-    dbHandler_->config(preferenceManager_->getDBHost(),
-                       preferenceManager_->getDBPort(),
-                       preferenceManager_->getDBUsername(),
-                       preferenceManager_->getDBPass(),
-                       preferenceManager_->getDBName());
+    dbManager_ = new DBManager(preferenceManager_);
+    dbManager_->config();
     plotView_ = 0;
 }
 
@@ -126,19 +122,24 @@ void MainWindow::open() {
 
     OpenFileDialog fileDialog(this);
     fileDialog.setNameFilter(tr("ShortTerm Output Text File (*.txt);;MediumTerm Output Text File (*.txt);;SimMobility Input XML File (*.xml)"));
-    fileDialog.customize(dbHandler_->open());
+    fileDialog.customize(dbManager_->open());
     fileDialog.show();
     if (fileDialog.exec() != QDialog::Accepted) return;
 
     QString path = fileDialog.selectedFiles().at(0);
-    iSimGUI::AccessType accessOption = fileDialog.getAccessOption();
+    int accessOption = fileDialog.getAccessOption();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     fileReader_->wait();
     resetWorkspace();
-    //if (accessOption == iSimGUI::USE_MEMORY) {
-    temporalIndex_->setUsingMemory();
-    //}
+
+    if (accessOption == 0) {
+        temporalIndex_->setUsingMemory();
+    } else {
+        int fileId = dbManager_->prepareTables(path, accessOption);
+        temporalIndex_->setUsingDB(fileId);
+    }
+
     fileReader_->setTarget(path);
     fileReader_->start();
     progressBar_->setVisible(true);
@@ -222,7 +223,7 @@ void MainWindow::updateProgressBar(int value) {
     progressBar_->setValue(value);
 }
 
-void MainWindow::finishLoadFile() {
+void MainWindow::fileReaderTerminated() {
     progressBar_->setVisible(false);
 }
 
@@ -258,10 +259,12 @@ void MainWindow::connectSignalAction() {
     connect(fileReader_, SIGNAL(announceLog(QString)), this, SLOT(addLog(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceError(QString)), this, SLOT(alertFileError(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceProgressUpdated(int)), this, SLOT(updateProgressBar(int)), Qt::QueuedConnection);
-    connect(fileReader_, SIGNAL(finished()), this, SLOT(finishLoadFile()), Qt::QueuedConnection);
+    connect(fileReader_, SIGNAL(finished()), this, SLOT(fileReaderTerminated()), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceStatus(QString)), statusBar(), SLOT(showMessage(QString)), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceSpatialDataFinished()), this, SLOT(loadGeospatial()), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceTemporalDataExists()), this, SLOT(enableSimulationGUI()), Qt::QueuedConnection);
+    connect(fileReader_, SIGNAL(announceCompleted()), this, SLOT(loadFileCompleted()), Qt::QueuedConnection);
+
 
     connect(viewController_, SIGNAL(requestCreateGUniNode(UniNode *)), this, SLOT(createGUniNode(UniNode *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGMultiNode(MultiNode *)), this, SLOT(createGMultiNode(MultiNode *)), Qt::QueuedConnection);
@@ -317,6 +320,13 @@ void MainWindow::finishLoadingGeospatial() {
 
     // show simulation GUI
     showSimulationGUI();
+}
+
+void MainWindow::loadFileCompleted() {
+    statusBar()->showMessage("The file is loaded successfully.");
+    addLog("The file is loaded successfully.");
+    temporalIndex_->finishInsertingData();
+    dbManager_->markFileCompleted(false, temporalIndex_->isMesoDataExisted(), temporalIndex_->isMicroDataExisted());
 }
 
 void MainWindow::resetWorkspace() {
@@ -897,7 +907,7 @@ void MainWindow::startSimulation() {
     ui_->startSim->hide();
     ui_->pauseSim->show();
     ui_->spinTick->setEnabled(false);
-    timer_->start(120);
+    timer_->start(150);
 }
 
 void MainWindow::pauseSimulation() {
@@ -943,11 +953,7 @@ void MainWindow::requestUpdateAgents() {
 
 void MainWindow::updateDBConfig() {
     resetWorkspace();
-    dbHandler_->config(preferenceManager_->getDBHost(),
-                       preferenceManager_->getDBPort(),
-                       preferenceManager_->getDBUsername(),
-                       preferenceManager_->getDBPass(),
-                       preferenceManager_->getDBName());
+    dbManager_->config();
 }
 
 void MainWindow::updateOverlayTitle() {

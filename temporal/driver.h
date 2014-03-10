@@ -11,6 +11,7 @@ public:
     Driver(unsigned long id, unsigned int tick, QPointF pos, double angle, double length,
            double width, unsigned long currentSegment, int fwdSpeed, int fwdAccel, int mandatory, QString info);
     Driver();
+    Driver(const Driver& other);
     using Agent::update;
     virtual void update(Driver*);
     virtual ~Driver(){}
@@ -23,6 +24,7 @@ public:
     int getFwdSpeed() const { return fwdSpeed_;}
     int getFwdAccel() const { return fwdAccel_;}
     iSimGUI::AgentType getType() const { return iSimGUI::AGENT_DRIVER; }
+    QString sqlInsertValue() const;
 
 protected:
     double length_;

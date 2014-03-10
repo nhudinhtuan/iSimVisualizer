@@ -11,20 +11,21 @@ TemporalIndex::~TemporalIndex() {
 
 void TemporalIndex::setUsingMemory() {
     reset();
-
     mesoscopicData_ = new MesoscopicDataMem();
     microscopicData_ = new MicroscopicDataMem();
 }
 
-void TemporalIndex::setUsingDB(QString dbName, bool resetDB) {
-
+void TemporalIndex::setUsingDB(int fileId) {
+    reset();
+    mesoscopicData_ = new MesoscopicDataMem();
+    microscopicData_ = new MicroscopicDataDB(fileId);
 }
 
 void TemporalIndex::reset() {
     currentTick_ = 0;
     microDataExist_ = false;
     mesoDataExist_ = false;
-    uniqueTicks_.clear();
+    maxTick_ = 0;
     if (mesoscopicData_) {
         mesoscopicData_ = 0;
         delete mesoscopicData_;
@@ -38,13 +39,13 @@ void TemporalIndex::reset() {
 void TemporalIndex::updateUniqueTicks(unsigned int tick) {
     // We assume that the ticks are inserted in a chronological manner i.e. insert all with 0's then 1's, etc.
     // Thus, below checks the last element and compares it with the currently being processed tick
-    if (!uniqueTicks_.isEmpty() && uniqueTicks_.last() >= tick) return;
-    uniqueTicks_.append(tick);
+    if (maxTick_ >= tick) return;
+    maxTick_ = tick;
     emit announceNewUpperTickValue(tick);
 }
 
 unsigned int TemporalIndex::jumpToNextTick() {
-    if (currentTick_ < uniqueTicks_.last()) {
+    if (currentTick_ < maxTick_) {
         currentTick_++;
         return currentTick_;
     }
@@ -52,7 +53,7 @@ unsigned int TemporalIndex::jumpToNextTick() {
 }
 
 bool TemporalIndex::jumpToTick(unsigned int tick) {
-    if (tick < uniqueTicks_.last() && currentTick_ != tick) {
+    if (tick <= maxTick_ && currentTick_ != tick) {
         currentTick_ = tick;
         return true;
     }
@@ -69,10 +70,10 @@ void TemporalIndex::insert(Mesoscopic* data) {
     }
 }
 
-void TemporalIndex::insert(Agent *data) {
+void TemporalIndex::insert(Agent& data) {
     if (!microscopicData_) return;
     microscopicData_->insert(data);
-    updateUniqueTicks(data->getTick());
+    updateUniqueTicks(data.getTick());
     if (!microDataExist_) {
         emit announceMicroDataExist();
         microDataExist_ = true;
@@ -116,4 +117,9 @@ TrafficPhaseData* TemporalIndex::getTrafficPhaseData(unsigned long id) {
 Mesoscopic* TemporalIndex::getMesoscopic(unsigned long segmentId) {
     if (!mesoscopicData_ || !mesoDataExist_) return 0;
     return mesoscopicData_->getMesoscopic(currentTick_, segmentId);
+}
+
+void TemporalIndex::finishInsertingData() {
+    if (!microscopicData_ || !microDataExist_) return;
+    microscopicData_->finishInsertingData();
 }

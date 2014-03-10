@@ -32,10 +32,11 @@ void OpenFileDialog::customize(bool dbAvailable) {
     }
 }
 
-iSimGUI::AccessType OpenFileDialog::getAccessOption() {
+//USE_MEMORY = 0, USE_DB = 1, KEEP_IN_DB = 2
+int OpenFileDialog::getAccessOption() {
     if (useMemory_->isChecked())
-        return iSimGUI::USE_MEMORY;
+        return 0;
     if (useDB_->isChecked())
-        return iSimGUI::USE_DB;
-    return iSimGUI::KEEP_IN_DB;
+        return 1;
+    return 2;
 }

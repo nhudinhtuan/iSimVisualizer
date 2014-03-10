@@ -22,7 +22,7 @@ public:
     explicit TemporalIndex(QObject *parent, PreferenceManager *preferenceManager);
     ~TemporalIndex();
     void setUsingMemory();
-    void setUsingDB(QString dbName, bool resetDB);
+    void setUsingDB(int fileId);
     void reset();
     void updateUniqueTicks(unsigned int tick);
     unsigned int getCurrentTick() { return currentTick_;}
@@ -32,7 +32,7 @@ public:
     bool isMicroDataExisted() { return microDataExist_;}
 
     void insert(Mesoscopic* data);
-    void insert(Agent* data);
+    void insert(Agent& data);
     void insert(CrossingPhaseData* crossingPhaseData);
     void insert(TrafficPhaseData* trafficPhaseData);
     AgentList* getAgent(QPoint& bottomLeft, QPoint& topRight);
@@ -41,6 +41,7 @@ public:
     Mesoscopic* getMesoscopic(unsigned long segmentId);
 
     void updateCrossingPhaseData(QPoint& bottomLeft, QPoint& topRight);
+    void finishInsertingData();
 
 signals:
     void announceNewUpperTickValue(unsigned int);
@@ -53,7 +54,7 @@ public slots:
 private:
     PreferenceManager *preferenceManager_;
     /// Contains the complete list of unique ticks
-    QList<unsigned int> uniqueTicks_;
+    unsigned int maxTick_;
     /// Assume that ticks are continuous in an integer-stepwise manner
     unsigned int currentTick_;
 

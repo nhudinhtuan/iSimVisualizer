@@ -57,10 +57,10 @@ SOURCES += main.cpp\
     geospatial/g_trafficsignal.cpp \
     geospatial/laneconnector.cpp \
     geospatial/g_laneconnector.cpp \
-    io/dbhandler.cpp \
     graphicsview/mapgraphicsoverlay.cpp \
     plotview/mesoscopicdataplotview.cpp \
-    plotview/qcustomplot.cpp
+    plotview/qcustomplot.cpp \
+    io/dbmanager.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -114,10 +114,10 @@ HEADERS  += mainwindow.h \
     temporal/phasedata.h \
     geospatial/laneconnector.h \
     geospatial/g_laneconnector.h \
-    io/dbhandler.h \
     graphicsview/mapgraphicsoverlay.h \
     plotview/mesoscopicdataplotview.h \
-    plotview/qcustomplot.h
+    plotview/qcustomplot.h \
+    io/dbmanager.h
 
 FORMS    += mainwindow.ui \
     dialog/preferencedialog.ui

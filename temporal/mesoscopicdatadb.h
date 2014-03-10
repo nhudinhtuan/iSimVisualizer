@@ -7,6 +7,7 @@ class MesoscopicDataDB : public MesoscopicData
 {
 public:
     MesoscopicDataDB();
+    ~MesoscopicDataDB();
 };
 
 #endif // MESOSCOPICDATADB_H

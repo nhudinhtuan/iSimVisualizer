@@ -10,6 +10,7 @@ public :
               int passenger, unsigned long realArrivalTime, int dwellTime, QString busLineID);
     BusDriver(Agent const* other);
     BusDriver();
+    BusDriver(const BusDriver& other);
     virtual ~BusDriver(){}
 
     using Agent::update;
@@ -22,6 +23,7 @@ public :
     int getDwellTime() const { return dwellTime_; }
     QString getBusLineID() const { return busLineID_; }
     iSimGUI::AgentType getType() const { return iSimGUI::AGENT_BUS; }
+    QString sqlInsertValue() const;
 
 protected:
     double length_;

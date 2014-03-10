@@ -382,7 +382,7 @@ void PreferenceDialog::testDBConnection() {
     }
     int port = ui_->portInput->value();
     QString error;
-    if (DBHandler::testConnection(host, port, user, pass, dbName, &error)) {
+    if (DBManager::testConnection(host, port, user, pass, dbName, &error)) {
         ui_->dbMessage->setText(tr("Connecting Successfully!"));
         ui_->saveDbBut->setDisabled(false);
         ui_->testConBut->setDisabled(true);

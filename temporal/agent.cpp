@@ -15,6 +15,13 @@ Agent::Agent() {
     angle_ = 0;
 }
 
+Agent::Agent(const Agent& other) {
+    id_ = other.id_;
+    tick_ = other.tick_;
+    pos_ = other.pos_;
+    angle_ = other.angle_;
+}
+
 void Agent::update(Agent* data) {
     id_ = data->id_;
     tick_ = data->tick_;

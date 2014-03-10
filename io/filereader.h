@@ -36,6 +36,7 @@ signals:
     void announceTemporalDataExists();
     void announceLog(QString);
     void announceStatus(QString);
+    void announceCompleted();
 
 protected:
     void run();

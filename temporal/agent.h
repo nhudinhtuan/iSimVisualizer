@@ -12,6 +12,7 @@ class Agent {
 public:
     Agent(unsigned long id, unsigned int tick, QPointF pos, double angle);
     Agent();
+    Agent(const Agent& other);
     virtual ~Agent(){}
 
     virtual void update(Agent*);
@@ -20,6 +21,7 @@ public:
     QPointF& getPos() {return pos_;}
     double getAngle() const { return angle_; }
     virtual iSimGUI::AgentType getType() const = 0;
+    virtual QString sqlInsertValue() const = 0;
 
 protected:
     unsigned long id_;
@@ -27,5 +29,6 @@ protected:
     QPointF pos_;
     double angle_;
 };
+
 
 #endif // AGENT_H

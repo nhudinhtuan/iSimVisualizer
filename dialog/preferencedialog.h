@@ -13,7 +13,7 @@
 #include <QDialog>
 #include <QColorDialog>
 #include "preferencemanager.h"
-#include "io/dbhandler.h"
+#include "io/dbmanager.h"
 
 namespace Ui {
 class PreferenceDialog;

@@ -14,7 +14,7 @@
 #include <QDebug>
 #include "dialog/openfiledialog.h"
 #include "dialog/preferencedialog.h"
-#include "io/dbhandler.h"
+#include "io/dbmanager.h"
 #include "io/filereader.h"
 #include "geospatial/geospatialindex.h"
 #include "temporal/temporalindex.h"
@@ -52,7 +52,8 @@ private slots:
     void enableSimulationGUI();
     void updateUpperTickValue(unsigned int);
     void finishLoadingGeospatial();
-    void finishLoadFile();
+    void loadFileCompleted();
+    void fileReaderTerminated();
     void updatePointerTracker(QPoint);
     void openPreferencesDialog();
 
@@ -117,7 +118,7 @@ private:
     GeospatialIndex *geospatialIndex_;
     TemporalIndex *temporalIndex_;
     PreferenceManager *preferenceManager_;
-    DBHandler *dbHandler_;
+    DBManager *dbManager_;
 
     // components for status bar
     QProgressBar *progressBar_;
