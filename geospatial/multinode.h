@@ -9,6 +9,7 @@ public:
     MultiNode(unsigned long id, QPointF pos, unsigned long aimsunId);
     ~MultiNode(){}
     iSimGUI::NodeType getType();
+    QString sqlInsertValue() const ;
 };
 
 #endif // MULTINODE_H

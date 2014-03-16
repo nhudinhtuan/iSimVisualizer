@@ -60,7 +60,9 @@ SOURCES += main.cpp\
     graphicsview/mapgraphicsoverlay.cpp \
     plotview/mesoscopicdataplotview.cpp \
     plotview/qcustomplot.cpp \
-    io/dbmanager.cpp
+    io/dbmanager.cpp \
+    io/dbinserter.cpp \
+    geospatial/geospatialdbinserter.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -117,7 +119,9 @@ HEADERS  += mainwindow.h \
     graphicsview/mapgraphicsoverlay.h \
     plotview/mesoscopicdataplotview.h \
     plotview/qcustomplot.h \
-    io/dbmanager.h
+    io/dbmanager.h \
+    io/dbinserter.h \
+    geospatial/geospatialdbinserter.h
 
 FORMS    += mainwindow.ui \
     dialog/preferencedialog.ui

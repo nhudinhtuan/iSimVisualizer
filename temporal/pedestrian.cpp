@@ -13,9 +13,10 @@ QString Pedestrian::sqlInsertValue() const {
     QString result = "(";
     result += QString::number(id_);
     result += ", " + QString::number(tick_);
-    result += ", " + QString::number(pos_.x());
-    result += ", " + QString::number(-pos_.y());
+    result += ", " + QString::number(pos_.x(), 'f', 2);
+    result += ", " + QString::number(-pos_.y(), 'f', 2);
     result += ", " + QString::number(angle_);
-    result += ")";
+    result += ", 2";
+    result += ", \'\')";
     return result;
 }

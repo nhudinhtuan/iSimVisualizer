@@ -163,6 +163,8 @@ void FileReader::run() {
     if (needStop_) {
         emit announceLog("The file loading is aborted from user.");
     } else {
+        temporalIndex_->finishInsertingData();
+        geospatialIndex_->finishInsertingData();
         emit announceCompleted();
     }
 }
@@ -895,7 +897,7 @@ bool FileReader::createTrafficSignal(QVariantMap properties) {
 }
 
 bool FileReader::createPhaseData(QVariantMap properties) {
-    unsigned long hexId = 0;
+    unsigned long hexId = 0, nodeId = 0;
     unsigned int tick = 0;
     QString currentPhase = "A";
 
@@ -904,6 +906,8 @@ bool FileReader::createPhaseData(QVariantMap properties) {
         return false;
     }
     hexId = properties[iSimParse::PARSE_KEYWORD_PROP_HEXID].toString().toLong(0, 16);
+    TrafficSignal *trafficSignal = geospatialIndex_->getTrafficSignal(hexId);
+    if (trafficSignal) nodeId = trafficSignal->getNodeId();
 
     if (!properties.contains(iSimParse::PARSE_KEYWORD_PROP_FRAME)) {
         emit announceLog(tr("Phase Data %1 does not have a valid frame").arg(hexId));
@@ -923,14 +927,14 @@ bool FileReader::createPhaseData(QVariantMap properties) {
         QString name = phaseMap["name"].toString();
         if (name == currentPhase) {
 
-            TrafficPhaseData* trafficPhaseData = new TrafficPhaseData(hexId, tick, name);
+            TrafficPhaseData trafficPhaseData (hexId, tick, name, nodeId);
             foreach (QVariant segment, phaseMap["segments"].toList()) {
                 QVariantMap segmentMap = segment.toMap();
                 //unsigned long fromSegId = segmentMap["segment_from"].toString().toLong(0, 16);
                 //unsigned long toSegId = segmentMap["segment_to"].toString().toLong(0, 16);
                 // Asume that the order of pair is the same in trafficsignal
                 unsigned int color = segmentMap["current_color"].toString().toInt();
-                trafficPhaseData->colors.append(color);
+                trafficPhaseData.colors.append(color);
             }
             temporalIndex_->insert(trafficPhaseData);
 
@@ -938,7 +942,7 @@ bool FileReader::createPhaseData(QVariantMap properties) {
                 QVariantMap crossingMap = crossing.toMap();
                 unsigned long crossingId = crossingMap["id"].toString().toLong(0, 16);
                 unsigned int color = crossingMap["current_color"].toString().toInt();
-                CrossingPhaseData* crossingPhaseData = new CrossingPhaseData(tick, crossingId, color);
+                CrossingPhaseData crossingPhaseData(tick, crossingId, color, nodeId);
                 temporalIndex_->insert(crossingPhaseData);
             }
             break;

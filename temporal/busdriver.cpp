@@ -43,15 +43,17 @@ QString BusDriver::sqlInsertValue() const {
     QString result = "(";
     result += QString::number(id_);
     result += ", " + QString::number(tick_);
-    result += ", " + QString::number(pos_.x());
-    result += ", " + QString::number(-pos_.y());
+    result += ", " + QString::number(pos_.x(), 'f', 2);
+    result += ", " + QString::number(-pos_.y(), 'f', 2);
     result += ", " + QString::number(angle_);
-    result += ", " + QString::number(length_);
-    result += ", " + QString::number(width_);
-    result += ", " + QString::number(passenger_);
-    result += ", " + QString::number(realArrivalTime_);
-    result += ", " + QString::number(dwellTime_);
-    result += ",\'" + busLineID_ + "\'";
+    // attributes
+    result += ", 1";
+    result += ", \'" + QString::number(length_);
+    result += ":" + QString::number(width_);
+    result += ":" + QString::number(passenger_);
+    result += ":" + QString::number(realArrivalTime_);
+    result += ":" + QString::number(dwellTime_);
+    result += ":" + busLineID_ + "\'";
     result += ")";
     return result;
 }

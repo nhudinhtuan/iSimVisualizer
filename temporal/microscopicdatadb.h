@@ -1,7 +1,10 @@
 #ifndef MICROSCOPICDATADB_H
 #define MICROSCOPICDATADB_H
 
+#include <QElapsedTimer>
+#include <QMutex>
 #include "io/dbmanager.h"
+#include "io/dbinserter.h"
 #include "temporal/microscopicdata.h"
 
 class MicroscopicDataDB : public MicroscopicData
@@ -10,31 +13,32 @@ public:
     MicroscopicDataDB(int fileId);
     ~MicroscopicDataDB();
 
-    void insert(CrossingPhaseData* crossingPhaseData);
-    void insert(TrafficPhaseData* trafficPhaseData);
+    void insert(CrossingPhaseData& crossingPhaseData);
+    void insert(TrafficPhaseData& trafficPhaseData);
     void insert(Agent& data);
-    void updateCrossingPhaseData(unsigned int tick, QPoint& bottomLeft, QPoint& topRight);
+    void updatePhaseData(unsigned int tick, QPoint& bottomLeft, QPoint& topRight);
     AgentList* getAgent(unsigned int tick, QPoint& bottomLeft, QPoint& topRight);
 
     int getCrossingPhaseColor(unsigned int tick, unsigned long crossingId);
-    TrafficPhaseData* getTrafficPhaseData(unsigned int tick, unsigned long id);
+    TrafficPhaseData getTrafficPhaseData(unsigned int tick, unsigned long id);
 
     void finishInsertingData();
 
 private:
     void insertAgentsToDB();
+    void insertPhaseToDB();
 
-    QSqlQuery *inserter_;
-    QSqlQuery *reader_;
+    QHash<unsigned long, CrossingPhaseData> crossingPhaseData_;
+    QHash<unsigned long, TrafficPhaseData> trafficPhaseData_;
+
     QString fileId_;
+    QSqlQuery reader_;
+    QMutex crossingPhaseMutex_;
+    QMutex trafficPhaseMutex_;
 
-    int countAgentRecords_;
-    QStringList driverBuffer_;
-    QStringList busBuffer_;
-    QStringList pedestrianBuffer_;
-
-    bool isDriverExisted_;
-    bool isBusExisted_;
-    bool isPedestrianExisted_;
+    bool isAgentExisted_;
+    DBInserter *agentInsertWorker_;
+    bool isPhaseDataExisted_;
+    DBInserter *phaseInsertWorker_;
 };
 #endif // MICROSCOPICDATADB_H

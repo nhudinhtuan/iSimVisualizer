@@ -56,6 +56,10 @@ void ViewController::doTask(iSimGUI::ControlTaskType task) {
         loadTrafficSignal();
         emit finishLoadingGeospatial();
     } else {
+        QElapsedTimer timer;
+        qint64 nanoSec;
+        timer.start();
+
         if (preferenceManager_->isMicroscopicDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getMicroscopicThreshold()) {
             QRectF sceneRect = mapView_->getGraphViewRect();
             QPoint bottomLeft(sceneRect.bottomLeft().x(), -sceneRect.bottomLeft().y());
@@ -72,13 +76,16 @@ void ViewController::doTask(iSimGUI::ControlTaskType task) {
             if (task == iSimGUI::UPDATE_AGENTS) {
                 updateAgents(bottomLeft, topRight);
             } else if (task == iSimGUI::UPDATE_MICRO_DATA) {
-                updateTrafficSignalData(bottomLeft, topRight);
                 updateAgents(bottomLeft, topRight);
+                updateTrafficSignalData(bottomLeft, topRight);
             }
         } else {
             emit requestUpdateGAgents(0);
         }
         emit finishUpdateDynamic();
+
+        nanoSec = timer.nsecsElapsed();
+        qDebug() << "time for viewcontroll " << ": " << nanoSec;
     }
 }
 
@@ -178,15 +185,6 @@ void ViewController::loadTrafficSignal() {
 
 
 void ViewController::updateTrafficSignalData(QPoint& bottomLeft, QPoint& topRight) {
-    /*
-    qDebug() << "-------";
-    QList<QGraphicsItem*> items = mapView_->getSeenItems();
-    for (QList<QGraphicsItem*>::iterator i = items.begin(); i != items.end(); ++i) {
-        G_UniNode* item = dynamic_cast<G_UniNode*>(*i);
-        if (item) {
-            qDebug() << item->getModelId();
-        }
-    }*/
     temporalIndex_->updateCrossingPhaseData(bottomLeft, topRight);
 }
 

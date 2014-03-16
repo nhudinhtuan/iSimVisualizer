@@ -1,6 +1,7 @@
 #include "geospatialindex.h"
 
-GeospatialIndex::GeospatialIndex() {
+GeospatialIndex::GeospatialIndex()
+    : dbInserter_(0){
 }
 
 GeospatialIndex::~GeospatialIndex() {
@@ -64,14 +65,20 @@ void GeospatialIndex::reset() {
         trafficSignalIt++;
     }
     trafficSignals_.clear();
+
+    if (dbInserter_) delete dbInserter_;
+    dbInserter_ = 0;
 }
 
 
 void GeospatialIndex::insert(UniNode *uniNode) {
     uniNodes_[uniNode->getId()] = uniNode;
+    if (dbInserter_) dbInserter_->insert(uniNode);
+
 }
 void GeospatialIndex::insert(MultiNode *multiNode) {
     multiNodes_[multiNode->getId()] = multiNode;
+    if (dbInserter_) dbInserter_->insert(multiNode);
 }
 void GeospatialIndex::insert(Link *link) {
     links_[link->getId()] = link;
@@ -135,8 +142,10 @@ TrafficSignal* GeospatialIndex::getTrafficSignal(unsigned long id) {
 }
 
 void GeospatialIndex::setWriteToDB(int fileId) {
-    fileId_ = fileId;
-    if (fileId_ > 0) {
+    if (dbInserter_) delete dbInserter_;
+    dbInserter_ = new GeospatialDBInserter(fileId);
+}
 
-    }
+void GeospatialIndex::finishInsertingData() {
+   if (dbInserter_) dbInserter_->finishInsertingData();
 }

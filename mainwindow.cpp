@@ -121,7 +121,8 @@ void MainWindow::open() {
     pauseSimulation();
 
     OpenFileDialog fileDialog(this);
-    fileDialog.setNameFilter(tr("ShortTerm Output Text File (*.txt);;MediumTerm Output Text File (*.txt);;SimMobility Input XML File (*.xml)"));
+    //fileDialog.setNameFilter(tr("Simmobility Output Text File (*.txt);;SimMobility Input XML File (*.xml)"));
+    fileDialog.setNameFilter(tr("Simmobility Output Text File (*.txt)"));
     fileDialog.customize(dbManager_->open());
     fileDialog.show();
     if (fileDialog.exec() != QDialog::Accepted) return;
@@ -136,8 +137,9 @@ void MainWindow::open() {
     if (accessOption == 0) {
         temporalIndex_->setUsingMemory();
     } else {
-        int fileId = dbManager_->prepareTables(path, accessOption);
+        int fileId = dbManager_->prepareTables(path);
         temporalIndex_->setUsingDB(fileId);
+        geospatialIndex_->setWriteToDB(fileId);
     }
 
     fileReader_->setTarget(path);
@@ -145,6 +147,7 @@ void MainWindow::open() {
     progressBar_->setVisible(true);
     QApplication::restoreOverrideCursor();
     setWindowTitle("iSimGUI - " + path);
+    profile_.start();
 }
 
 void MainWindow::hideLeftStackedWidget() {
@@ -323,9 +326,10 @@ void MainWindow::finishLoadingGeospatial() {
 }
 
 void MainWindow::loadFileCompleted() {
+    int nMilliseconds = profile_.elapsed();
+    qDebug() << "completed load file: " << nMilliseconds;
     statusBar()->showMessage("The file is loaded successfully.");
     addLog("The file is loaded successfully.");
-    temporalIndex_->finishInsertingData();
     dbManager_->markFileCompleted(false, temporalIndex_->isMesoDataExisted(), temporalIndex_->isMicroDataExisted());
 }
 
@@ -525,33 +529,61 @@ void MainWindow::createGTrafficSignal(TrafficSignal *trafficSignal) {
 }
 
 void MainWindow::updateGAgents(AgentList* agents) {
+    QElapsedTimer timer;
+    qint64 nanoSec;
+    timer.start();
+
     QSet<unsigned long> seenItems;
     if (agents) {
         QList<Agent*>& list = agents->getList();
         for (QList<Agent*>::iterator agentsIt = list.begin(); agentsIt != list.end(); ++agentsIt) {
+
+
             Agent* agent = *agentsIt;
             seenItems.insert(agent->getID());
             if (gAgents_.contains(agent->getID())) {
+
+
                 G_Agent* currentAgent = gAgents_[agent->getID()];
+
+                //nanoSec = timer.nsecsElapsed();
+                //qDebug() << "time for main 1.1.1" << ": " << nanoSec;
+                //timer.restart();
+
                 if (currentAgent->getType() == agent->getType()) {
                     currentAgent->updateModel(agent);
+
+                    //nanoSec = timer.nsecsElapsed();
+                    //qDebug() << "time for main 1.1.2" << ": " << nanoSec;
+                    //timer.restart();
+
                     if (currentAgent->isSelected()) {
                         showGAgentProperty(currentAgent);
                     }
+
+                    //nanoSec = timer.nsecsElapsed();
+                    //qDebug() << "time for main 1.1.3" << ": " << nanoSec;
+                    //timer.restart();
+
                     continue;
                 } else {
                     scene_->removeItem(currentAgent);
                     delete currentAgent;
                 }
             }
+
             G_Agent* gAgent = gAgentFactory(agent);
             if (gAgent) {
                 scene_->addItem(gAgent);
                 gAgents_[agent->getID()] = gAgent;
             }
+
         }
+
         delete agents;
     }
+
+
     QHash<unsigned long, G_Agent*>::iterator gAgentIt = gAgents_.begin();
     while (gAgentIt != gAgents_.end()) {
         if (!seenItems.contains(gAgentIt.key())) {
@@ -564,6 +596,10 @@ void MainWindow::updateGAgents(AgentList* agents) {
     }
 
     updateMapView();
+
+    nanoSec = timer.nsecsElapsed();
+    qDebug() << "time for main " << ": " << nanoSec;
+    timer.restart();
 }
 
 G_Agent* MainWindow::gAgentFactory(Agent* model) {
@@ -930,6 +966,7 @@ void MainWindow::jumpToSimulation(int tick) {
 
 void MainWindow::jumpToNextTick() {
     unsigned int tick = temporalIndex_->jumpToNextTick();
+    qDebug() << "jump to next tick" << tick;
     if (tick) {
         ui_->sliderTick->setValue(tick);
         ui_->spinTick->setValue(tick);

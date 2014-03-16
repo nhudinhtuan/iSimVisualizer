@@ -14,14 +14,12 @@ void OpenFileDialog::customize(bool dbAvailable) {
     } else {
         // add some widgets
         QHBoxLayout *hbl = new QHBoxLayout(0);
-        useMemory_ = new QRadioButton(tr("Use Memory (FAST)"));
-        useDB_ = new QRadioButton(tr("Use DB temporarily"));
-        keepInDB_ = new QRadioButton(tr("Save to DB for later use (SLOW)"));
+        useMemory_ = new QRadioButton(tr("Use Memory (FAST) - For small files."));
+        useDB_ = new QRadioButton(tr("Use Database (SLOW) - For large files."));
         useMemory_->setChecked(true);
         hbl->addWidget(useMemory_);
         if (dbAvailable) {
             hbl->addWidget(useDB_);
-            hbl->addWidget(keepInDB_);
         } else {
             QLabel *warning = new QLabel(0);
             warning->setText(tr("DB setting is not available! Please check Preference."));
@@ -32,11 +30,9 @@ void OpenFileDialog::customize(bool dbAvailable) {
     }
 }
 
-//USE_MEMORY = 0, USE_DB = 1, KEEP_IN_DB = 2
+//USE_MEMORY = 0, USE_DB = 1
 int OpenFileDialog::getAccessOption() {
     if (useMemory_->isChecked())
         return 0;
-    if (useDB_->isChecked())
-        return 1;
-    return 2;
+    return 1;
 }

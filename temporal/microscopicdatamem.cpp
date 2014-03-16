@@ -31,14 +31,14 @@ MicroscopicDataMem::~MicroscopicDataMem() {
     }
 }
 
-void MicroscopicDataMem::insert(CrossingPhaseData *crossingPhaseData) {
-    QHash<unsigned long, CrossingPhaseData*>& crossingPhase = crossingPhaseData_[crossingPhaseData->tick];
-    crossingPhase[crossingPhaseData->crossingId] = crossingPhaseData;
+void MicroscopicDataMem::insert(CrossingPhaseData& crossingPhaseData) {
+    QHash<unsigned long, CrossingPhaseData*>& crossingPhase = crossingPhaseData_[crossingPhaseData.tick];
+    crossingPhase[crossingPhaseData.crossingId] = new CrossingPhaseData(crossingPhaseData);
 }
 
-void MicroscopicDataMem::insert(TrafficPhaseData* trafficPhaseData) {
-    QHash<unsigned long, TrafficPhaseData*>& trafficPhase = trafficPhaseData_[trafficPhaseData->tick];
-    trafficPhase[trafficPhaseData->id] = trafficPhaseData;
+void MicroscopicDataMem::insert(TrafficPhaseData& trafficPhaseData) {
+    QHash<unsigned long, TrafficPhaseData*>& trafficPhase = trafficPhaseData_[trafficPhaseData.tick];
+    trafficPhase[trafficPhaseData.id] = new TrafficPhaseData(trafficPhaseData);
 }
 
 void MicroscopicDataMem::insert(Agent& data) {
@@ -66,7 +66,7 @@ void MicroscopicDataMem::insert(Agent& data) {
     }
 }
 
-void MicroscopicDataMem::updateCrossingPhaseData(unsigned int tick, QPoint& bottomLeft, QPoint& topRight) {
+void MicroscopicDataMem::updatePhaseData(unsigned int tick, QPoint& bottomLeft, QPoint& topRight) {
     // already in memory
     // no need to update
     Q_UNUSED(tick)
@@ -98,17 +98,17 @@ int MicroscopicDataMem::getCrossingPhaseColor(unsigned int tick, unsigned long c
     return -1;
 }
 
-TrafficPhaseData* MicroscopicDataMem::getTrafficPhaseData(unsigned int tick, unsigned long id) {
-    if (trafficPhaseData_.size() == 0) return 0;
+TrafficPhaseData MicroscopicDataMem::getTrafficPhaseData(unsigned int tick, unsigned long id) {
+    if (trafficPhaseData_.size() == 0) return TrafficPhaseData();
     long nearesTick_ = tick;
     while (nearesTick_>= 0 && tick - nearesTick_ <=  CROSSING_SEARCH_GAP) {
         if (trafficPhaseData_.contains(nearesTick_)) {
             if (trafficPhaseData_[nearesTick_].contains(id)) {
-                return trafficPhaseData_[nearesTick_][id];
+                return *trafficPhaseData_[nearesTick_][id];
             }
-            return 0;
+            return TrafficPhaseData();
         }
         nearesTick_--;
     }
-    return 0;
+    return TrafficPhaseData();
 }

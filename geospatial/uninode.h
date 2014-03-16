@@ -9,6 +9,7 @@ public:
     UniNode(unsigned long id, QPointF pos, unsigned long aimsunId);
     ~UniNode(){}
     iSimGUI::NodeType getType();
+    QString sqlInsertValue() const;
 };
 
 #endif // UNINODE_H

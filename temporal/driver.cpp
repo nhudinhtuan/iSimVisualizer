@@ -49,16 +49,18 @@ QString Driver::sqlInsertValue() const {
     QString result = "(";
     result += QString::number(id_);
     result += ", " + QString::number(tick_);
-    result += ", " + QString::number(pos_.x());
-    result += ", " + QString::number(-pos_.y());
+    result += ", " + QString::number(pos_.x(), 'f', 2);
+    result += ", " + QString::number(-pos_.y(), 'f', 2);
     result += ", " + QString::number(angle_);
-    result += ", " + QString::number(length_);
-    result += ", " + QString::number(width_);
-    result += ", " + QString::number(mandatory_);
-    result += ", " + QString::number(currentSegment_);
-    result += ", " + QString::number(fwdSpeed_);
-    result += ", " + QString::number(fwdAccel_);
-    result += ", \'" + info_ + "\'";
+    // attributes
+    result += ", 0";
+    result += ", \'" + QString::number(length_);
+    result += ":" + QString::number(width_);
+    result += ":" + QString::number(mandatory_);
+    result += ":" + QString::number(currentSegment_);
+    result += ":" + QString::number(fwdSpeed_);
+    result += ":" + QString::number(fwdAccel_);
+    result += ":" + info_ + "\'";
     result += ")";
     return result;
 }

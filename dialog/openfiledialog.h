@@ -18,7 +18,6 @@ public:
 private:
     QRadioButton *useMemory_;
     QRadioButton *useDB_;
-    QRadioButton *keepInDB_;
 };
 
 #endif // OPENFILEDIALOG_H

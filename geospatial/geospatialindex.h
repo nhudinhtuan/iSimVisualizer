@@ -12,6 +12,7 @@
 #include "busstop.h"
 #include "crossing.h"
 #include "trafficsignal.h"
+#include "geospatialdbinserter.h"
 
 class GeospatialIndex
 {
@@ -47,6 +48,7 @@ public:
     void insert(TrafficSignal *trafficSignal);
 
     void setWriteToDB(int fileId);
+    void finishInsertingData();
 
 private:
     QHash<unsigned long, UniNode*> uniNodes_;
@@ -59,8 +61,7 @@ private:
     QHash<unsigned long, TrafficSignal*> trafficSignals_;
 
     //db
-    QSqlDatabase geoDb_;
-    int fileId_;
+    GeospatialDBInserter *dbInserter_;
 };
 
 #endif // GEOSPATIALINDEX_H

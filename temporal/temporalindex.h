@@ -33,11 +33,11 @@ public:
 
     void insert(Mesoscopic* data);
     void insert(Agent& data);
-    void insert(CrossingPhaseData* crossingPhaseData);
-    void insert(TrafficPhaseData* trafficPhaseData);
+    void insert(CrossingPhaseData& crossingPhaseData);
+    void insert(TrafficPhaseData& trafficPhaseData);
     AgentList* getAgent(QPoint& bottomLeft, QPoint& topRight);
     int getCrossingPhaseColor(unsigned long crossingId);
-    TrafficPhaseData* getTrafficPhaseData(unsigned long id);
+    TrafficPhaseData getTrafficPhaseData(unsigned long id);
     Mesoscopic* getMesoscopic(unsigned long segmentId);
 
     void updateCrossingPhaseData(QPoint& bottomLeft, QPoint& topRight);

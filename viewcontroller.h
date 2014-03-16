@@ -5,6 +5,7 @@
 #include <QWaitCondition>
 #include <QQueue>
 #include <QHash>
+#include <QElapsedTimer>
 #include <QDebug>
 #include "geospatial/geospatialindex.h"
 #include "temporal/temporalindex.h"

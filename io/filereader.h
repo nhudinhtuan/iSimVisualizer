@@ -63,6 +63,7 @@ protected:
     bool createBusstop(unsigned long id, QMap<QString, QString> &properties);
     bool createCrossing(unsigned long id, QMap<QString, QString> &properties);
     bool createTrafficSignal(QVariantMap properties);
+
     bool createPhaseData(QVariantMap properties);
 
 private:

@@ -22,6 +22,7 @@ public:
     TrafficSignal(unsigned long id, unsigned long nodeId);
     ~TrafficSignal();
     unsigned long getId() { return id_;}
+    unsigned long getNodeId() { return nodeId_;}
     QList<TrafficPhase*> getPhases() { return phases_.values();}
     TrafficPhase* getPhase(QString name);
 

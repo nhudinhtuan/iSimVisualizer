@@ -57,16 +57,15 @@ void G_TrafficSignal::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setPen(pen_);
 
-    if (preferenceManager_->isMicroscopicDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getMicroscopicThreshold()) {
-        TrafficPhaseData* phaseData = temporalIndex_->getTrafficPhaseData(model_->getId());
-        if (phaseData) {
-            QVector<unsigned int>& colors = phaseData->colors;
-            for (int i = 0; i < colors.size(); i++) {
-                setColor(colors[i]);
-                painter->drawPath(lines_[phaseData->name][i]);
-                painter->fillPath(arrows_[phaseData->name][i], brush_);
-            }
+    if (preferenceManager_->isMicroscopicDisplayed() && mapView_->getZoomFactor() >= preferenceManager_->getMicroscopicThreshold() && temporalIndex_->isMicroDataExisted()) {
+        TrafficPhaseData phaseData = temporalIndex_->getTrafficPhaseData(model_->getId());
+        QVector<unsigned int>& colors = phaseData.colors;
+        for (int i = 0; i < colors.size(); i++) {
+            setColor(colors[i]);
+            painter->drawPath(lines_[phaseData.name][i]);
+            painter->fillPath(arrows_[phaseData.name][i], brush_);
         }
+
     }
 }
 

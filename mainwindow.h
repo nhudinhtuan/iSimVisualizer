@@ -11,6 +11,7 @@
 #include <QTreeWidgetItem>
 #include <QVariant>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QDebug>
 #include "dialog/openfiledialog.h"
 #include "dialog/preferencedialog.h"
@@ -145,6 +146,8 @@ private:
 
     // G_Agent
     QHash<unsigned long, G_Agent*> gAgents_;
+
+    QTime profile_;
 };
 
 #endif // MAINWINDOW_H

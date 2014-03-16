@@ -80,17 +80,17 @@ void TemporalIndex::insert(Agent& data) {
     }
 }
 
-void TemporalIndex::insert(CrossingPhaseData* crossingPhaseData) {
+void TemporalIndex::insert(CrossingPhaseData& crossingPhaseData) {
     if (!microscopicData_) return;
     microscopicData_->insert(crossingPhaseData);
-    updateUniqueTicks(crossingPhaseData->tick);
+    updateUniqueTicks(crossingPhaseData.tick);
     microDataExist_ = true;
 }
 
-void TemporalIndex::insert(TrafficPhaseData* trafficPhaseData) {
+void TemporalIndex::insert(TrafficPhaseData& trafficPhaseData) {
     if (!microscopicData_) return;
     microscopicData_->insert(trafficPhaseData);
-    updateUniqueTicks(trafficPhaseData->tick);
+    updateUniqueTicks(trafficPhaseData.tick);
     microDataExist_ = true;
 }
 
@@ -101,7 +101,7 @@ AgentList* TemporalIndex::getAgent(QPoint& bottomLeft, QPoint& topRight) {
 
 void TemporalIndex::updateCrossingPhaseData(QPoint& bottomLeft, QPoint& topRight) {
     if (!microscopicData_ || !microDataExist_) return;
-    microscopicData_->updateCrossingPhaseData(currentTick_, bottomLeft, topRight);
+    microscopicData_->updatePhaseData(currentTick_, bottomLeft, topRight);
 }
 
 int TemporalIndex::getCrossingPhaseColor(unsigned long crossingId) {
@@ -109,8 +109,8 @@ int TemporalIndex::getCrossingPhaseColor(unsigned long crossingId) {
     return microscopicData_->getCrossingPhaseColor(currentTick_, crossingId);
 }
 
-TrafficPhaseData* TemporalIndex::getTrafficPhaseData(unsigned long id) {
-    if (!microscopicData_ || !microDataExist_) return 0;
+TrafficPhaseData TemporalIndex::getTrafficPhaseData(unsigned long id) {
+    if (!microscopicData_ || !microDataExist_) return TrafficPhaseData();
     return microscopicData_->getTrafficPhaseData(currentTick_, id);
 }
 

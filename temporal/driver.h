@@ -2,6 +2,7 @@
 #define DRIVER_H
 
 #include <QVariant>
+#include <QDebug>
 #include "agent.h"
 
 class Driver: public Agent

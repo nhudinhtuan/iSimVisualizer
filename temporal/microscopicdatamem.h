@@ -11,14 +11,14 @@ public:
     MicroscopicDataMem();
     ~MicroscopicDataMem();
 
-    void insert(CrossingPhaseData* crossingPhaseData);
-    void insert(TrafficPhaseData* trafficPhaseData);
+    void insert(CrossingPhaseData& crossingPhaseData);
+    void insert(TrafficPhaseData& trafficPhaseData);
     void insert(Agent& data);
-    void updateCrossingPhaseData(unsigned int tick, QPoint& bottomLeft, QPoint& topRight);
+    void updatePhaseData(unsigned int tick, QPoint& bottomLeft, QPoint& topRight);
     AgentList* getAgent(unsigned int tick, QPoint& bottomLeft, QPoint& topRight);
 
     int getCrossingPhaseColor(unsigned int tick, unsigned long crossingId);
-    TrafficPhaseData* getTrafficPhaseData(unsigned int tick, unsigned long id);
+    TrafficPhaseData getTrafficPhaseData(unsigned int tick, unsigned long id);
     void finishInsertingData(){}
 
 private:
