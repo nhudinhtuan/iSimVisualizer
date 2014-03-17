@@ -568,6 +568,8 @@ QColor& PreferenceManager::getMesosColorByRange(double value) {
                  break;
         case 2 : list = &mesoscopicSpeedColorRangeList_;
                  break;
+        default : list = &mesoscopicSpeedColorRangeList_;
+                break;
     }
 
     for (QList<RangeData*>::iterator i = list->begin(); i != list->end(); ++i) {

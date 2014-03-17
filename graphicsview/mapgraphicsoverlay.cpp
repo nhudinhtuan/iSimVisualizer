@@ -35,6 +35,9 @@ void MapGraphicsOverlay::updateMesosColorRangeLabel() {
         case 2: list = &preferenceManager_->getMesoscopicSpeedColorRanges();
                 rangeLabel = "Speed Ranges";
                 break;
+        default: list = &preferenceManager_->getMesoscopicSpeedColorRanges();
+                rangeLabel = "Speed Ranges";
+                break;
     }
 
     rangeTextPos_.push_back(QPoint(10, 40));
