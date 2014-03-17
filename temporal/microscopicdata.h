@@ -25,6 +25,7 @@ public:
     virtual TrafficPhaseData getTrafficPhaseData(unsigned int tick, unsigned long id) = 0;
 
     virtual void finishInsertingData() = 0;
+    virtual void setDataExisted() = 0;
 };
 
 #endif // MICROSCOPICDATA_H

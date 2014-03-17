@@ -146,8 +146,7 @@ void FileReader::run() {
         QString line = readStream.readLine().trimmed();
         if (!line.isEmpty()) { // Ignore empty lines
             if (line.contains(iSimParse::PARSE_KEYWORD_DONE_NETWORK, Qt::CaseSensitive)) {
-                isSpatialDataFinished_ = true;
-                emit announceSpatialDataFinished();
+                spatialCompleted();
             }
             if (!processLine(line)) {
                 QString log = QString("Skipping the current line at byte position %1 / %2.").arg(readStream.pos()).arg(fileHandle_->size());
@@ -164,7 +163,7 @@ void FileReader::run() {
         emit announceLog("The file loading is aborted from user.");
     } else {
         temporalIndex_->finishInsertingData();
-        geospatialIndex_->finishInsertingData();
+        geospatialIndex_->waitForInsertingDB();
         emit announceCompleted();
     }
 }
@@ -222,8 +221,7 @@ bool FileReader::processLine(QString &line) {
             // If it's the first dynamic data line, we have to tell the main thread so that it can continue
             // processing the spatial data
             if (!isSpatialDataFinished_) {
-                isSpatialDataFinished_ = true;
-                emit announceSpatialDataFinished();
+                spatialCompleted();
             }
 
             if (!isTemporalDataDetected_) {
@@ -873,7 +871,7 @@ bool FileReader::createTrafficSignal(QVariantMap properties) {
     foreach (QVariant phaseVariant, phases) {
         QVariantMap phaseMap = phaseVariant.toMap();
         QString name = phaseMap["name"].toString();
-        TrafficPhase* phase = new TrafficPhase(name);
+        TrafficPhase* phase = new TrafficPhase(name, false);
 
         //the list of segments contains the to & from info, along the color
         foreach (QVariant segment, phaseMap["segments"].toList()) {
@@ -950,4 +948,10 @@ bool FileReader::createPhaseData(QVariantMap properties) {
     }
 
     return true;
+}
+
+void FileReader::spatialCompleted() {
+    isSpatialDataFinished_ = true;
+    geospatialIndex_->insertToDB();
+    emit announceSpatialDataFinished();
 }

@@ -6,6 +6,7 @@
 class MultiNode : public Node
 {
 public:
+    static const int DB_ID;
     MultiNode(unsigned long id, QPointF pos, unsigned long aimsunId);
     ~MultiNode(){}
     iSimGUI::NodeType getType();

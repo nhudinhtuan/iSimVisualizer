@@ -23,5 +23,6 @@
         <file>ui_icons/Car_Icon.png</file>
         <file>ui_icons/add.png</file>
         <file>ui_icons/remove.png</file>
+        <file>ui_icons/delete.png</file>
     </qresource>
 </RCC>

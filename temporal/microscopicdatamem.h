@@ -20,6 +20,7 @@ public:
     int getCrossingPhaseColor(unsigned int tick, unsigned long crossingId);
     TrafficPhaseData getTrafficPhaseData(unsigned int tick, unsigned long id);
     void finishInsertingData(){}
+    void setDataExisted(){}
 
 private:
     QHash<unsigned int, AgentTree*> agentTicks_;

@@ -62,7 +62,9 @@ SOURCES += main.cpp\
     plotview/qcustomplot.cpp \
     io/dbmanager.cpp \
     io/dbinserter.cpp \
-    geospatial/geospatialdbinserter.cpp
+    geospatial/geospatialdbinserter.cpp \
+    dialog/dbviewdialog.cpp \
+    io/dbloader.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -121,10 +123,13 @@ HEADERS  += mainwindow.h \
     plotview/qcustomplot.h \
     io/dbmanager.h \
     io/dbinserter.h \
-    geospatial/geospatialdbinserter.h
+    geospatial/geospatialdbinserter.h \
+    dialog/dbviewdialog.h \
+    io/dbloader.h
 
 FORMS    += mainwindow.ui \
-    dialog/preferencedialog.ui
+    dialog/preferencedialog.ui \
+    dialog/dbviewdialog.ui
 
 RESOURCES += \
     icons.qrc

@@ -123,3 +123,10 @@ void TemporalIndex::finishInsertingData() {
     if (!microscopicData_ || !microDataExist_) return;
     microscopicData_->finishInsertingData();
 }
+
+void TemporalIndex::setMicroDataExisted() {
+    microDataExist_ = true;
+    if (microscopicData_) {
+        microscopicData_->setDataExisted();
+    }
+}

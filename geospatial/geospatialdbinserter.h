@@ -1,25 +1,55 @@
 #ifndef GEOSPATIALDBINSERTER_H
 #define GEOSPATIALDBINSERTER_H
 
+#include <QThread>
 #include "io/dbmanager.h"
-#include "io/dbinserter.h"
-#include "geospatial/node.h"
+#include "node.h"
+#include "multinode.h"
+#include "uninode.h"
+#include "link.h"
+#include "roadsegment.h"
+#include "lane.h"
+#include "laneconnector.h"
+#include "busstop.h"
+#include "crossing.h"
+#include "trafficsignal.h"
 
-class GeospatialDBInserter
-{
+class GeospatialDBInserter : public QThread {
+    Q_OBJECT
 
 public:
     GeospatialDBInserter(int fileId);
     ~GeospatialDBInserter();
 
-    void insert(Node *node);
-    void finishInsertingData();
+    void setData(QHash<unsigned long, UniNode*>* uniNodes,
+                 QHash<unsigned long, MultiNode*>* multiNodes,
+                 QHash<unsigned long, Link*>* links,
+                 QHash<unsigned long, RoadSegment*>* roadSegments,
+                 QHash<unsigned long, LaneConnector*>* laneConnectors,
+                 QHash<unsigned long, BusStop*>* busStops,
+                 QHash<unsigned long, Crossing*>* crossings,
+                 QHash<unsigned long, TrafficSignal*>* trafficSignals);
+    void forceStop();
+
+protected:
+    void run();
 
 private:
-    void insertNodeToDb();
+    void insertNodeToDB(QStringList& buffer);
+    void insertGeoToDB(QStringList& buffer);
 
     QString fileId_;
-    DBInserter *nodeInsertWorker_;
+    QHash<unsigned long, UniNode*>* uniNodes_;
+    QHash<unsigned long, MultiNode*>* multiNodes_;
+    QHash<unsigned long, Link*>* links_;
+    QHash<unsigned long, RoadSegment*>* roadSegments_;
+    QHash<unsigned long, LaneConnector*>* laneConnectors_;
+    QHash<unsigned long, BusStop*>* busStops_;
+    QHash<unsigned long, Crossing*>* crossings_;
+    QHash<unsigned long, TrafficSignal*>* trafficSignals_;
+
+    QSqlQuery sql_;
+    bool forceStop_;
 };
 
 #endif // GEOSPATIALDBINSERTER_H

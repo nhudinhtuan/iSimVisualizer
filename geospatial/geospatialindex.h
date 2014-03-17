@@ -3,15 +3,6 @@
 
 #include <QHash>
 #include <QSqlDatabase>
-#include "multinode.h"
-#include "uninode.h"
-#include "link.h"
-#include "roadsegment.h"
-#include "lane.h"
-#include "laneconnector.h"
-#include "busstop.h"
-#include "crossing.h"
-#include "trafficsignal.h"
 #include "geospatialdbinserter.h"
 
 class GeospatialIndex
@@ -48,7 +39,8 @@ public:
     void insert(TrafficSignal *trafficSignal);
 
     void setWriteToDB(int fileId);
-    void finishInsertingData();
+    void insertToDB();
+    void waitForInsertingDB();
 
 private:
     QHash<unsigned long, UniNode*> uniNodes_;

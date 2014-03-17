@@ -29,11 +29,16 @@ void DBInserter::run() {
     exeQuery();
 }
 
-void DBInserter::exeQuery() {
+int DBInserter::exeQuery() {
+    int size = 0;
     dataMutex.lock();
     QString completeQuery = preQuery_ + data_.join(",");
+    size = data_.size();
     data_.clear();
     dataMutex.unlock();
+
+    if (size == 0) return 0;
     if (!sql_.exec(completeQuery))
         qDebug() << sql_.lastError().text();
+    return size;
 }

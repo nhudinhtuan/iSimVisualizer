@@ -9,8 +9,10 @@
 class RoadSegment
 {
 public:
+    static const int DB_ID;
     RoadSegment(unsigned long linkId, unsigned long id, unsigned long aimsunId, unsigned long fromNodeId,
                 unsigned long toNodeId, int maxSpeed, int width, int nLane);
+    RoadSegment(unsigned long id, QString& dbInfo);
     ~RoadSegment();
     unsigned long getId() {return id_;}
     unsigned long getAimsunId() {return aimsunId_;}
@@ -27,6 +29,8 @@ public:
 
     void addPointToPolyline(QPointF p) {polyline_.append(p);}
     void addLane(Lane *lane) {lanes_.insert(lane->getIndex(), lane);}
+
+    QString sqlInsertValue() const;
 
 private:
     unsigned long linkId_;

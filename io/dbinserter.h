@@ -17,7 +17,7 @@ public:
     void insertBuffer(QString item);
     int bufferSize();
     ~DBInserter();
-    void exeQuery();
+    int exeQuery();
 
 protected:
     void run();

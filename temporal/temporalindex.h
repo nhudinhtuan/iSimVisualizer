@@ -25,11 +25,14 @@ public:
     void setUsingDB(int fileId);
     void reset();
     void updateUniqueTicks(unsigned int tick);
+    unsigned int getMaxTick() { return maxTick_;}
     unsigned int getCurrentTick() { return currentTick_;}
     unsigned int jumpToNextTick();
     bool jumpToTick(unsigned int tick);
     bool isMesoDataExisted() { return mesoDataExist_;}
+    void setMesoDataExisted() { mesoDataExist_ = true;}
     bool isMicroDataExisted() { return microDataExist_;}
+    void setMicroDataExisted();
 
     void insert(Mesoscopic* data);
     void insert(Agent& data);

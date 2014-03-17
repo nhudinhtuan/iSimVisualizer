@@ -2,11 +2,15 @@
 #define LANECONNECTOR_H
 
 #include <QPointF>
+#include <QString>
+#include <QStringList>
 
 class LaneConnector
 {
 public:
+    static const int DB_ID;
     LaneConnector(unsigned long id, unsigned long fromSegment, unsigned int fromLane, unsigned long toSegment, unsigned int toLane);
+    LaneConnector(unsigned long id, QString& dbInfo);
     unsigned long getId() { return id_;}
     unsigned long getFromSegment() { return fromSegment_;}
     unsigned int getFromLane() { return fromLane_;}
@@ -16,6 +20,9 @@ public:
 
     QPointF& getFromPoint() { return fromPoint_;}
     QPointF& getToPoint() { return toPoint_;}
+
+    QString sqlInsertValue() const;
+
 private:
     unsigned long id_;
     unsigned long fromSegment_;

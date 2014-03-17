@@ -34,13 +34,15 @@ MainWindow::~MainWindow()
         fileReader_->wait();
     }
     delete ui_;
+    delete loadDBDialog_;
+    delete dbManager_;
+    delete dbLoader_;
     delete geospatialIndex_;
     delete temporalIndex_;
     delete fileReader_;
     delete preferenceManager_;
     delete mapView_;
     delete scene_;
-    delete dbManager_;
 }
 
 void MainWindow::initData() {
@@ -53,8 +55,10 @@ void MainWindow::initData() {
     viewController_->start();
     fileReader_ = new FileReader(geospatialIndex_, temporalIndex_);
     timer_ = new QTimer(this);
-    dbManager_ = new DBManager(preferenceManager_);
+    dbManager_ = new DBManager(this, preferenceManager_);
     dbManager_->config();
+    loadDBDialog_ = new DBViewDialog(this, dbManager_);
+    dbLoader_ = new DBLoader(geospatialIndex_, temporalIndex_);
     plotView_ = 0;
 }
 
@@ -134,19 +138,22 @@ void MainWindow::open() {
     fileReader_->wait();
     resetWorkspace();
 
+    QString title = "iSimGUI - " + path;
     if (accessOption == 0) {
         temporalIndex_->setUsingMemory();
+        title += " - In Memory";
     } else {
         int fileId = dbManager_->prepareTables(path);
         temporalIndex_->setUsingDB(fileId);
         geospatialIndex_->setWriteToDB(fileId);
+        title += " - Using DB";
     }
 
     fileReader_->setTarget(path);
     fileReader_->start();
     progressBar_->setVisible(true);
     QApplication::restoreOverrideCursor();
-    setWindowTitle("iSimGUI - " + path);
+    setWindowTitle(title);
     profile_.start();
 }
 
@@ -239,6 +246,7 @@ void MainWindow::connectSignalAction() {
     connect(ui_->actionToggleLog, SIGNAL(triggered()), this, SLOT(openLogPage()), Qt::QueuedConnection);
     connect(ui_->actionTogglePointTracker, SIGNAL(triggered()), this, SLOT(findLocation()), Qt::QueuedConnection);
     connect(ui_->actionPreferences, SIGNAL(triggered()), this, SLOT(openPreferencesDialog()), Qt::QueuedConnection);
+    connect(ui_->actionLoadFromDB, SIGNAL(triggered()), this, SLOT(openDBViewDialog()), Qt::QueuedConnection);
     connect(ui_->saveLogButton, SIGNAL(clicked()), this, SLOT(saveLog()), Qt::QueuedConnection);
     connect(ui_->geospatialTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(focusOnGraphicsOfTreeItem(QTreeWidgetItem*, int)));
     connect(ui_->geospatialSearchField, SIGNAL(textChanged(QString)), this, SLOT(searchGeo(QString)));
@@ -268,6 +276,15 @@ void MainWindow::connectSignalAction() {
     connect(fileReader_, SIGNAL(announceTemporalDataExists()), this, SLOT(enableSimulationGUI()), Qt::QueuedConnection);
     connect(fileReader_, SIGNAL(announceCompleted()), this, SLOT(loadFileCompleted()), Qt::QueuedConnection);
 
+    connect(dbLoader_, SIGNAL(announceLog(QString)), this, SLOT(addLog(QString)), Qt::QueuedConnection);
+    //connect(dbLoader_, SIGNAL(announceError(QString)), this, SLOT(alertFileError(QString)), Qt::QueuedConnection);
+    connect(dbLoader_, SIGNAL(announceProgressUpdated(int)), this, SLOT(updateProgressBar(int)), Qt::QueuedConnection);
+    connect(dbLoader_, SIGNAL(finished()), this, SLOT(fileReaderTerminated()), Qt::QueuedConnection);
+    connect(dbLoader_, SIGNAL(announceStatus(QString)), statusBar(), SLOT(showMessage(QString)), Qt::QueuedConnection);
+    connect(dbLoader_, SIGNAL(announceSpatialDataFinished()), this, SLOT(loadGeospatial()), Qt::QueuedConnection);
+    connect(dbLoader_, SIGNAL(announceTemporalDataExists()), this, SLOT(enableSimulationGUI()), Qt::QueuedConnection);
+    connect(dbLoader_, SIGNAL(announceCompleted()), this, SLOT(loadFileCompleted()), Qt::QueuedConnection);
+
 
     connect(viewController_, SIGNAL(requestCreateGUniNode(UniNode *)), this, SLOT(createGUniNode(UniNode *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGMultiNode(MultiNode *)), this, SLOT(createGMultiNode(MultiNode *)), Qt::QueuedConnection);
@@ -285,7 +302,8 @@ void MainWindow::connectSignalAction() {
     connect(temporalIndex_, SIGNAL(announceMicroDataExist()), this, SLOT(updateOverlayTitle()));
     connect(temporalIndex_, SIGNAL(announceMesoscopicDataExist()), this, SLOT(updateOverlayTitle()));
 
-
+    connect(dbManager_, SIGNAL(requestResetWorkspace()), this, SLOT(requestResetWorkspace()));
+    connect(loadDBDialog_, SIGNAL(loadRecordFromDB(int)), this, SLOT(loadRecordFromDB(int)));
 }
 
 void MainWindow::loadGeospatial() {
@@ -330,7 +348,7 @@ void MainWindow::loadFileCompleted() {
     qDebug() << "completed load file: " << nMilliseconds;
     statusBar()->showMessage("The file is loaded successfully.");
     addLog("The file is loaded successfully.");
-    dbManager_->markFileCompleted(false, temporalIndex_->isMesoDataExisted(), temporalIndex_->isMicroDataExisted());
+    dbManager_->markFileCompleted(false, temporalIndex_->isMesoDataExisted(), temporalIndex_->isMicroDataExisted(), temporalIndex_->getMaxTick());
 }
 
 void MainWindow::resetWorkspace() {
@@ -339,6 +357,10 @@ void MainWindow::resetWorkspace() {
     if (fileReader_->isRunning()) {
         fileReader_->stopReader();
         fileReader_->wait();
+    }
+    if (dbLoader_->isRunning()) {
+        dbLoader_->stopLoading();
+        dbLoader_->wait();
     }
     if(scene_) delete scene_;
     scene_ = new QGraphicsScene(this);
@@ -359,13 +381,19 @@ void MainWindow::resetUi() {
     ui_->leftWidget->hide();
     ui_->mapStackedWidget->hide();
     ui_->mapStackedWidget->setCurrentWidget(ui_->map);
+    ui_->spinTick->setMaximum(0);
+    ui_->spinTick->setValue(0);
     ui_->spinTick->hide();
     ui_->labelTickUnit->hide();
+    ui_->sliderTick->setMaximum(0);
+    ui_->sliderTick->setValue(0);
     ui_->sliderTick->hide();
     ui_->startSim->hide();
     ui_->pauseSim->hide();
     ui_->startSim->setDisabled(true);
+    ui_->labelUpperBoundTick->setText("");
     ui_->labelUpperBoundTick->hide();
+
     ui_->actionToggleDynamicPage->setEnabled(false);
     ui_->actionToggleStaticElements->setEnabled(false);
     ui_->actionTogglePointTracker->setEnabled(false);
@@ -399,12 +427,6 @@ void MainWindow::showSimulationGUI() {
     ui_->startSim->show();
     ui_->pauseSim->hide();
     ui_->labelUpperBoundTick->show();
-
-
-    ui_->sliderTick->setMaximum(0);
-    ui_->sliderTick->setValue(0);
-    ui_->spinTick->setMaximum(0);
-    ui_->spinTick->setValue(0);
 }
 
 void MainWindow::enableSimulationGUI() {
@@ -1023,4 +1045,44 @@ void MainWindow::closeChart() {
         disconnect(plotView_, SLOT(plotData()));
     }
     plotView_ = 0;
+}
+
+void MainWindow::openDBViewDialog() {
+    if (!dbManager_->open()) {
+        QMessageBox::critical(this, tr("Network"), tr("It is unable to connect to the database. "
+                                                      "Please check the database configuration in preferences."));
+        return;
+    }
+
+
+    if (fileReader_->isRunning()) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Warning", "A file is still loading, do you want to stop it and open another file ?", QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            fileReader_->stopReader();
+        } else {
+            return;
+        }
+    }
+    pauseSimulation();
+
+    loadDBDialog_->loadRecords();
+    loadDBDialog_->exec();
+}
+
+void MainWindow::requestResetWorkspace() {
+    fileReader_->wait();
+    resetWorkspace();
+}
+
+void MainWindow::loadRecordFromDB(int fileId) {
+    fileReader_->wait();
+    resetWorkspace();
+    temporalIndex_->setUsingDB(fileId);
+
+    Record record = dbManager_->getRecord(fileId);
+    if (record.id == 0) return;
+    dbLoader_->setTarget(record);
+    dbLoader_->start();
+    progressBar_->setVisible(true);
 }

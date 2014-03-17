@@ -6,6 +6,7 @@
 class UniNode : public Node
 {
 public:
+    static const int DB_ID;
     UniNode(unsigned long id, QPointF pos, unsigned long aimsunId);
     ~UniNode(){}
     iSimGUI::NodeType getType();

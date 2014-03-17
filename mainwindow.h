@@ -15,8 +15,10 @@
 #include <QDebug>
 #include "dialog/openfiledialog.h"
 #include "dialog/preferencedialog.h"
+#include "dialog/dbviewdialog.h"
 #include "io/dbmanager.h"
 #include "io/filereader.h"
+#include "io/dbloader.h"
 #include "geospatial/geospatialindex.h"
 #include "temporal/temporalindex.h"
 #include "preferencemanager.h"
@@ -92,6 +94,10 @@ private slots:
 
     void createChart(unsigned long segmentId);
     void closeChart();
+    void openDBViewDialog();
+    void requestResetWorkspace();
+    void loadRecordFromDB(int fileId);
+
 private:
     void resetWorkspace();
     void initData();
@@ -112,14 +118,14 @@ private:
     QTreeWidgetItem* getTreeItemFromGraphics(QGraphicsItem *gItem);
 
     Ui::MainWindow *ui_;
-
     FileReader *fileReader_;
-
     ViewController *viewController_;
     GeospatialIndex *geospatialIndex_;
     TemporalIndex *temporalIndex_;
     PreferenceManager *preferenceManager_;
     DBManager *dbManager_;
+    DBLoader *dbLoader_;
+    DBViewDialog *loadDBDialog_;
 
     // components for status bar
     QProgressBar *progressBar_;

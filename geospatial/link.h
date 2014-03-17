@@ -3,11 +3,14 @@
 
 #include <QList>
 #include <QString>
+#include <QStringList>
 
 class Link
 {
 public:
+    static const int DB_ID;
     Link(unsigned long id, QString name, unsigned long startNodeId, unsigned long endNodeId);
+    Link(unsigned long id, QString& dbInfo);
     QString& getName() {return name_;}
     unsigned long getId() {return id_;}
     unsigned long getStartNodeId() {return startNodeId_;}
@@ -17,6 +20,8 @@ public:
 
     void addFwdSegmentId(unsigned long id) {fwdSegmentIds_.append(id);}
     void addRevSegmentId(unsigned long id) {revSegmentIds_.append(id);}
+
+    QString sqlInsertValue() const;
 
 private:
     QString name_;

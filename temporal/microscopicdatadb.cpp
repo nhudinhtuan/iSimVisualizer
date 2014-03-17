@@ -165,7 +165,6 @@ AgentList* MicroscopicDataDB::getAgent(unsigned int tick, QPoint& bottomLeft, QP
         }
         reader_.clear();
     }
-
     return agentList;
 }
 
@@ -195,9 +194,9 @@ TrafficPhaseData MicroscopicDataDB::getTrafficPhaseData(unsigned int tick, unsig
 
 void MicroscopicDataDB::finishInsertingData() {
     agentInsertWorker_->wait();
-    agentInsertWorker_->exeQuery();
+    if (agentInsertWorker_->exeQuery() > 0) isAgentExisted_ = true;
     phaseInsertWorker_->wait();
-    phaseInsertWorker_->exeQuery();
+    if (phaseInsertWorker_->exeQuery() > 0) isPhaseDataExisted_ = true;
 }
 
 void MicroscopicDataDB::insertAgentsToDB() {
@@ -216,4 +215,9 @@ void MicroscopicDataDB::insertPhaseToDB() {
         phaseInsertWorker_->start();
         isPhaseDataExisted_ = true;
     }
+}
+
+void MicroscopicDataDB::setDataExisted() {
+    isAgentExisted_ = true;
+    isPhaseDataExisted_ = true;
 }

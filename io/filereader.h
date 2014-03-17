@@ -66,6 +66,8 @@ protected:
 
     bool createPhaseData(QVariantMap properties);
 
+    void spatialCompleted();
+
 private:
     GeospatialIndex *geospatialIndex_;
     TemporalIndex *temporalIndex_;

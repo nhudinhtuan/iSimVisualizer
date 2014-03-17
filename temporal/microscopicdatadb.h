@@ -23,6 +23,7 @@ public:
     TrafficPhaseData getTrafficPhaseData(unsigned int tick, unsigned long id);
 
     void finishInsertingData();
+    void setDataExisted();
 
 private:
     void insertAgentsToDB();
