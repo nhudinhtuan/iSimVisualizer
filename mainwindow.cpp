@@ -294,6 +294,7 @@ void MainWindow::connectSignalAction() {
     connect(viewController_, SIGNAL(requestCreateGLaneConnector(LaneConnector*)), this, SLOT(createGLaneConnector(LaneConnector*)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGCrossing(Crossing*)), this, SLOT(createGCrossing(Crossing*)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateGTrafficSignal(TrafficSignal*)), this, SLOT(createGTrafficSignal(TrafficSignal*)), Qt::QueuedConnection);
+    connect(viewController_, SIGNAL(requestCreateGIncident(Incident*)), this, SLOT(createGIncident(Incident*)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestCreateLinkTreeItem(Link *)), this, SLOT(createLinkTreeItem(Link *)), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(finishLoadingGeospatial()), this, SLOT(finishLoadingGeospatial()), Qt::QueuedConnection);
     connect(viewController_, SIGNAL(requestUpdateGAgents(AgentList*)), this, SLOT(updateGAgents(AgentList*)), Qt::QueuedConnection);
@@ -548,6 +549,14 @@ void MainWindow::createGCrossing(Crossing *crossing) {
 void MainWindow::createGTrafficSignal(TrafficSignal *trafficSignal) {
     G_TrafficSignal* gTrafficSignal = new G_TrafficSignal(0, trafficSignal, preferenceManager_, mapView_, temporalIndex_);
     scene_->addItem(gTrafficSignal);
+}
+
+void MainWindow::createGIncident(Incident *incident) {
+    RoadSegment* roadSegment = geospatialIndex_->getSegmentByAimSunId(incident->getSegmentAimSunId());
+    if (roadSegment) {
+        G_Incident* gIncident = new G_Incident(0, incident, roadSegment, preferenceManager_, mapView_, temporalIndex_);
+        scene_->addItem(gIncident);
+    }
 }
 
 void MainWindow::updateGAgents(AgentList* agents) {

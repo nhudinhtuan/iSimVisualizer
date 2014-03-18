@@ -66,6 +66,8 @@ void DBLoader::run() {
                 geospatialIndex_->insert(new Crossing(id, info));
             } else if (type == TrafficSignal::DB_ID) {
                 geospatialIndex_->insert(new TrafficSignal(id, info));
+            } else if (type == Incident::DB_ID) {
+                geospatialIndex_->insert(new Incident(id, info));
             }
         }
         sql_.clear();

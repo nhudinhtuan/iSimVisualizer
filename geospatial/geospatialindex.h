@@ -20,14 +20,17 @@ public:
     QHash<unsigned long, LaneConnector*>& getLaneConnectors() {return laneConnectors_;}
     QHash<unsigned long, Crossing*>& getCrossings() {return crossings_;}
     QHash<unsigned long, TrafficSignal*>& getTrafficSignals() {return trafficSignals_;}
+    QHash<unsigned long, Incident*>& getIncidents() {return incidents_;}
     MultiNode* getMultiNode(unsigned long);
     UniNode* getUniNode(unsigned long);
     Link* getLink(unsigned long);
     RoadSegment* getRoadSegemnt(unsigned long);
+    RoadSegment* getSegmentByAimSunId(unsigned long);
     LaneConnector* getLaneConnector(unsigned long);
     BusStop* getBusStop(unsigned long);
     Crossing* getCrossing(unsigned long);
     TrafficSignal* getTrafficSignal(unsigned long);
+    Incident* getIncident(unsigned long);
 
     void insert(UniNode *uniNode);
     void insert(MultiNode *multiNode);
@@ -37,6 +40,7 @@ public:
     void insert(BusStop *busStop);
     void insert(Crossing *crossing);
     void insert(TrafficSignal *trafficSignal);
+    void insert(Incident *incident);
 
     void setWriteToDB(int fileId);
     void insertToDB();
@@ -51,6 +55,10 @@ private:
     QHash<unsigned long, BusStop*> busStops_;
     QHash<unsigned long, Crossing*> crossings_;
     QHash<unsigned long, TrafficSignal*> trafficSignals_;
+    QHash<unsigned long, Incident*> incidents_;
+
+    // for convert from ainsunid to segment id
+    QHash<unsigned long, unsigned long> aimsunIDToSegmentId_;
 
     //db
     GeospatialDBInserter *dbInserter_;

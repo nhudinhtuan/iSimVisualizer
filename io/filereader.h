@@ -65,6 +65,7 @@ protected:
     bool createTrafficSignal(QVariantMap properties);
 
     bool createPhaseData(QVariantMap properties);
+    bool createIncident(QVariantMap properties);
 
     void spatialCompleted();
 

@@ -27,7 +27,7 @@ Link::Link(unsigned long id, QString& dbInfo) {
 QString Link::sqlInsertValue() const {
     QString result = "(";
     result += QString::number(id_);
-    result += ", 1";
+    result += ", " + QString::number(DB_ID);
 
     QStringList info;
     info << name_;

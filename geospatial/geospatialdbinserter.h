@@ -13,6 +13,7 @@
 #include "busstop.h"
 #include "crossing.h"
 #include "trafficsignal.h"
+#include "incident.h"
 
 class GeospatialDBInserter : public QThread {
     Q_OBJECT
@@ -28,7 +29,8 @@ public:
                  QHash<unsigned long, LaneConnector*>* laneConnectors,
                  QHash<unsigned long, BusStop*>* busStops,
                  QHash<unsigned long, Crossing*>* crossings,
-                 QHash<unsigned long, TrafficSignal*>* trafficSignals);
+                 QHash<unsigned long, TrafficSignal*>* trafficSignals,
+                 QHash<unsigned long, Incident*>* incidents);
     void forceStop();
 
 protected:
@@ -47,6 +49,7 @@ private:
     QHash<unsigned long, BusStop*>* busStops_;
     QHash<unsigned long, Crossing*>* crossings_;
     QHash<unsigned long, TrafficSignal*>* trafficSignals_;
+    QHash<unsigned long, Incident*>* incidents_;
 
     QSqlQuery sql_;
     bool forceStop_;

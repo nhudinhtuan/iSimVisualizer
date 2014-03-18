@@ -246,6 +246,8 @@ bool FileReader::processLine(QString &line) {
             createTrafficSignal(result[iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL].toMap());
         } else if (result.contains(iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL_UPDATE)) {
             createPhaseData(result[iSimParse::PARSE_KEYWORD_TRAFFIC_SINGAL_UPDATE].toMap());
+        } else if (result.contains(iSimParse::PARSE_KEYWORD_INCIDENT)) {
+            createIncident(result[iSimParse::PARSE_KEYWORD_INCIDENT].toMap());
         }
     } // Anything else is assumed to be a comment
     return true;
@@ -947,6 +949,76 @@ bool FileReader::createPhaseData(QVariantMap properties) {
         }
     }
 
+    return true;
+}
+
+bool FileReader::createIncident(QVariantMap properties) {
+    unsigned long id, segment_aimsun_id;
+    int position, start_time, duration, visibility, length;
+    QList<int> lane;
+
+    // Get id
+    QMap<QString, QVariant>::iterator propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_PROP_ID);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident does not have a valid id"));
+        return false;
+    }
+    id = propertiesIter.value().toString().toLong();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_SEGMENT_AIMSUNID);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have a valid segment_aimsun_id").arg(id));
+        return false;
+    }
+    segment_aimsun_id = propertiesIter.value().toString().toLong();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_POSITION);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have a valid position").arg(id));
+        return false;
+    }
+    position = propertiesIter.value().toString().toInt();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_START_TIME);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have a valid start_time").arg(id));
+        return false;
+    }
+    start_time = propertiesIter.value().toString().toInt();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_DURATION);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have a valid durian").arg(id));
+        return false;
+    }
+    duration = propertiesIter.value().toString().toInt();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_TYPE_LANE);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have a valid lane values").arg(id));
+        return false;
+    }
+    QStringList laneStr = propertiesIter.value().toString().split(" ");
+    for (int i = 0; i < laneStr.size(); i++) {
+        lane.append(laneStr.at(i).toInt());
+    }
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_VISIBILITY);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have visibility value").arg(id));
+        return false;
+    }
+    visibility = propertiesIter.value().toString().toInt();
+
+    propertiesIter = properties.find(iSimParse::PARSE_KEYWORD_LENGTH);
+    if (propertiesIter==properties.end()) {
+        emit announceLog(tr("Incident %1 does not have length value").arg(id));
+        return false;
+    }
+    length = propertiesIter.value().toString().toInt();
+
+    Incident* incident = new Incident(id, segment_aimsun_id, position, start_time, duration, lane, visibility, length);
+    geospatialIndex_->insert(incident);
     return true;
 }
 

@@ -18,6 +18,7 @@
 #include "geospatial/g_segment.h"
 #include "geospatial/g_crossing.h"
 #include "geospatial/g_trafficsignal.h"
+#include "geospatial/g_incident.h"
 #include "temporal/g_agent.h"
 #include "temporal/g_driver.h"
 #include "temporal/g_busdriver.h"
@@ -49,6 +50,7 @@ signals:
     void requestCreateGLaneConnector(LaneConnector*);
     void requestCreateGCrossing(Crossing*);
     void requestCreateGTrafficSignal(TrafficSignal*);
+    void requestCreateGIncident(Incident*);
     void requestCreateLinkTreeItem(Link*);
     void requestUpdateGAgents(AgentList*);
     void finishLoadingGeospatial();
@@ -64,6 +66,7 @@ protected:
     void loadLaneConnectors();
     void loadCrossings();
     void loadTrafficSignal();
+    void loadIncidents();
     void updateAgents(QPoint& bottomLeft, QPoint& topRight);
     void updateTrafficSignalData(QPoint& bottomLeft, QPoint& topRight);
 

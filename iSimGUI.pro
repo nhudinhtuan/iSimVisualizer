@@ -64,7 +64,9 @@ SOURCES += main.cpp\
     io/dbinserter.cpp \
     geospatial/geospatialdbinserter.cpp \
     dialog/dbviewdialog.cpp \
-    io/dbloader.cpp
+    io/dbloader.cpp \
+    geospatial/incident.cpp \
+    geospatial/g_incident.cpp
 
 HEADERS  += mainwindow.h \
     dialog/openfiledialog.h \
@@ -125,7 +127,9 @@ HEADERS  += mainwindow.h \
     io/dbinserter.h \
     geospatial/geospatialdbinserter.h \
     dialog/dbviewdialog.h \
-    io/dbloader.h
+    io/dbloader.h \
+    geospatial/incident.h \
+    geospatial/g_incident.h
 
 FORMS    += mainwindow.ui \
     dialog/preferencedialog.ui \

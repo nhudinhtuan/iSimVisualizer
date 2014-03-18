@@ -68,6 +68,7 @@ private slots:
     void createGLaneConnector(LaneConnector *laneConnector);
     void createGCrossing(Crossing *crossing);
     void createGTrafficSignal(TrafficSignal *crossing);
+    void createGIncident(Incident *incident);
     void createLinkTreeItem(Link *link);
 
     void updateMapView();

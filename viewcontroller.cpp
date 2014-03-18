@@ -54,6 +54,7 @@ void ViewController::doTask(iSimGUI::ControlTaskType task) {
         loadCrossings();
         loadLaneConnectors();
         loadTrafficSignal();
+        loadIncidents();
         emit finishLoadingGeospatial();
     } else {
         QElapsedTimer timer;
@@ -180,6 +181,14 @@ void ViewController::loadTrafficSignal() {
             }
         }
         emit requestCreateGTrafficSignal(trafficSignal);
+    }
+}
+
+void ViewController::loadIncidents() {
+    QHash<unsigned long, Incident*>& incidents = geospatialIndex_->getIncidents();
+    qDebug() << "incident size = " << incidents.size();
+    for (QHash<unsigned long, Incident*>::iterator it = incidents.begin(); it != incidents.end(); it++) {
+        emit requestCreateGIncident(it.value());
     }
 }
 

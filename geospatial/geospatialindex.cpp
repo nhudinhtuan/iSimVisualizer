@@ -74,6 +74,15 @@ void GeospatialIndex::reset() {
         trafficSignalIt++;
     }
     trafficSignals_.clear();
+
+    QHash<unsigned long, Incident*>::iterator incidentIt = incidents_.begin();
+    while (incidentIt != incidents_.end()) {
+        delete incidentIt.value();
+        incidentIt++;
+    }
+    incidents_.clear();
+
+    aimsunIDToSegmentId_.clear();
 }
 
 
@@ -88,6 +97,7 @@ void GeospatialIndex::insert(Link *link) {
 }
 void GeospatialIndex::insert(RoadSegment *roadSegment) {
     roadSegments_[roadSegment->getId()] = roadSegment;
+    aimsunIDToSegmentId_[roadSegment->getAimsunId()] = roadSegment->getId();
 }
 void GeospatialIndex::insert(LaneConnector *laneConnector) {
     laneConnectors_[laneConnector->getId()] = laneConnector;
@@ -102,6 +112,10 @@ void GeospatialIndex::insert(Crossing *crossing) {
 
 void GeospatialIndex::insert(TrafficSignal *trafficSignal) {
     trafficSignals_[trafficSignal->getId()] = trafficSignal;
+}
+
+void GeospatialIndex::insert(Incident *incident) {
+    incidents_[incident->getId()] = incident;
 }
 
 MultiNode* GeospatialIndex::getMultiNode(unsigned long id) {
@@ -124,6 +138,15 @@ RoadSegment* GeospatialIndex::getRoadSegemnt(unsigned long id) {
     return 0;
 }
 
+RoadSegment* GeospatialIndex::getSegmentByAimSunId(unsigned long aimsunId) {
+    unsigned long segmentId =  aimsunIDToSegmentId_.value(aimsunId);
+    RoadSegment* roadSegment = 0;
+    if (segmentId) {
+        roadSegment = getRoadSegemnt(segmentId);
+    }
+    return roadSegment;
+}
+
 LaneConnector* GeospatialIndex::getLaneConnector(unsigned long id) {
     if (laneConnectors_.contains(id)) return laneConnectors_[id];
     return 0;
@@ -144,6 +167,11 @@ TrafficSignal* GeospatialIndex::getTrafficSignal(unsigned long id) {
     return 0;
 }
 
+Incident* GeospatialIndex::getIncident(unsigned long id) {
+    if (incidents_.contains(id)) return incidents_[id];
+    return 0;
+}
+
 void GeospatialIndex::setWriteToDB(int fileId) {
     if (dbInserter_) {
         if (dbInserter_->isRunning()) {
@@ -158,7 +186,7 @@ void GeospatialIndex::setWriteToDB(int fileId) {
 void GeospatialIndex::insertToDB() {
     if (!dbInserter_) return;
     dbInserter_->setData(&uniNodes_, &multiNodes_, &links_, &roadSegments_,
-                         &laneConnectors_, &busStops_, &crossings_, &trafficSignals_);
+                         &laneConnectors_, &busStops_, &crossings_, &trafficSignals_, &incidents_);
     dbInserter_->start();
 }
 

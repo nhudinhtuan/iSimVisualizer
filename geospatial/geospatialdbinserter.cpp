@@ -26,7 +26,8 @@ void GeospatialDBInserter::setData(QHash<unsigned long, UniNode*>* uniNodes,
              QHash<unsigned long, LaneConnector*>* laneConnectors,
              QHash<unsigned long, BusStop*>* busStops,
              QHash<unsigned long, Crossing*>* crossings,
-             QHash<unsigned long, TrafficSignal*>* trafficSignals) {
+             QHash<unsigned long, TrafficSignal*>* trafficSignals,
+             QHash<unsigned long, Incident*>* incidents) {
     uniNodes_ = uniNodes;
     multiNodes_ = multiNodes;
     links_ = links;
@@ -35,6 +36,7 @@ void GeospatialDBInserter::setData(QHash<unsigned long, UniNode*>* uniNodes,
     busStops_ = busStops;
     crossings_ = crossings;
     trafficSignals_ = trafficSignals;
+    incidents_ = incidents;
 }
 
 void GeospatialDBInserter::run() {
@@ -173,6 +175,23 @@ void GeospatialDBInserter::run() {
             count = 0;
         }
         trafficSignalIt++;
+    }
+    if (forceStop_) return;
+    if (count > 0) insertGeoToDB(buffer);
+
+    // incident
+    QHash<unsigned long, Incident*>::iterator incidentIt = incidents_->begin();
+    count = 0;
+    buffer.clear();
+    while (incidentIt != incidents_->end() && !forceStop_) {
+        count++;
+        buffer << incidentIt.value()->sqlInsertValue();
+        if (count > MAX_BUFFER_SIZE) {
+            insertGeoToDB(buffer);
+            buffer.clear();
+            count = 0;
+        }
+        incidentIt++;
     }
     if (forceStop_) return;
     if (count > 0) insertGeoToDB(buffer);
